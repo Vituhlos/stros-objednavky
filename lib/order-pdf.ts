@@ -1,4 +1,8 @@
 import PDFDocument from "pdfkit";
+import path from "path";
+
+const FONT = path.join("/usr/share/fonts/truetype/dejavu", "DejaVuSans.ttf");
+const FONT_BOLD = path.join("/usr/share/fonts/truetype/dejavu", "DejaVuSans-Bold.ttf");
 import { PassThrough } from "stream";
 import { DEPARTMENT_EMAIL_LABELS, type DepartmentData, type OrderRowEnriched } from "./types";
 import { getSubmittedRows } from "./order-utils";
@@ -83,7 +87,7 @@ function drawTable(doc: PDFKit.PDFDocument, rows: OrderRowEnriched[], startY: nu
 
   // header text
   let x = TABLE_X;
-  doc.font("Helvetica-Bold").fontSize(FONT_HEADER).fillColor("#F5F1E8");
+  doc.font(FONT_BOLD).fontSize(FONT_HEADER).fillColor("#F5F1E8");
   for (const col of COL_DEFS) {
     doc.text(col.header, x + 3, y + 8, { width: col.width - 6, align: col.align, lineBreak: false });
     x += col.width;
@@ -97,7 +101,7 @@ function drawTable(doc: PDFKit.PDFDocument, rows: OrderRowEnriched[], startY: nu
     doc.rect(TABLE_X, y, TABLE_W, ROW_H).fill(bg);
 
     x = TABLE_X;
-    doc.font("Helvetica").fontSize(FONT_BODY).fillColor("#30343A");
+    doc.font(FONT).fontSize(FONT_BODY).fillColor("#30343A");
     for (const col of COL_DEFS) {
       const cell = col.value(row, idx);
       doc.text(cell, x + 3, y + 6, { width: col.width - 6, align: col.align, lineBreak: false });
@@ -147,15 +151,15 @@ export async function buildDepartmentPdfAttachment(
   let y = MARGIN;
 
   // ── Company + department header ──────────────────────────────────────────
-  doc.font("Helvetica-Bold").fontSize(16).fillColor("#2F4858");
+  doc.font(FONT_BOLD).fontSize(16).fillColor("#2F4858");
   doc.text("STROS – Sedlčanské strojírny, a.s.", MARGIN, y, { lineBreak: false });
   y += 22;
 
-  doc.font("Helvetica-Bold").fontSize(13).fillColor("#B55233");
+  doc.font(FONT_BOLD).fontSize(13).fillColor("#B55233");
   doc.text(`Objednávka LIMA – ${DEPARTMENT_EMAIL_LABELS[department.name]}`, MARGIN, y, { lineBreak: false });
   y += 18;
 
-  doc.font("Helvetica").fontSize(10).fillColor("#30343A");
+  doc.font(FONT).fontSize(10).fillColor("#30343A");
   doc.text(`Datum: ${formatDate(orderDate)}`, MARGIN, y, { lineBreak: false });
   y += 18;
 
@@ -166,7 +170,7 @@ export async function buildDepartmentPdfAttachment(
 
   // ── Table ─────────────────────────────────────────────────────────────────
   if (activeRows.length === 0) {
-    doc.font("Helvetica").fontSize(11).fillColor("#888").text("Žádné aktivní řádky.", MARGIN, y);
+    doc.font(FONT).fontSize(11).fillColor("#888").text("Žádné aktivní řádky.", MARGIN, y);
     y += 20;
   } else {
     y = drawTable(doc, activeRows, y);
@@ -174,11 +178,11 @@ export async function buildDepartmentPdfAttachment(
 
   // ── Subtotal ──────────────────────────────────────────────────────────────
   y += 10;
-  doc.font("Helvetica-Bold").fontSize(11).fillColor("#2F4858");
+  doc.font(FONT_BOLD).fontSize(11).fillColor("#2F4858");
   doc.text(`Mezisoučet: ${department.subtotal} Kč`, MARGIN, y, { lineBreak: false });
 
   // ── Footer ────────────────────────────────────────────────────────────────
-  doc.font("Helvetica").fontSize(8).fillColor("#888");
+  doc.font(FONT).fontSize(8).fillColor("#888");
   doc.text(
     `Vygenerováno automaticky – automat objednávek STROS`,
     MARGIN,
