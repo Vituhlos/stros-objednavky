@@ -41,6 +41,13 @@ function extraCell(row: OrderRowEnriched): string {
   return parts.join(", ");
 }
 
+// landscape A4: 841.89 x 595.28 pt
+const PAGE_W = 841.89;
+const PAGE_H = 595.28;
+const MARGIN = 36;
+const TABLE_X = MARGIN;
+const TABLE_W = PAGE_W - 2 * MARGIN; // fill full width = 769.89
+
 interface ColDef {
   header: string;
   width: number;
@@ -48,84 +55,83 @@ interface ColDef {
   value: (row: OrderRowEnriched, idx: number) => string;
 }
 
+// widths sum to TABLE_W (769.89)
 const COL_DEFS: ColDef[] = [
-  { header: "#", width: 24, align: "center", value: (_, i) => String(i + 1) },
-  { header: "Jméno", width: 120, align: "left", value: (r) => r.personName || "–" },
-  {
-    header: "Polévka",
-    width: 155,
-    align: "left",
-    value: (r) => r.soupItem ? `${r.soupItem.code}  ${r.soupItem.name}` : "–",
-  },
-  { header: "H", width: 18, align: "center", value: (r) => r.rollCount > 0 ? String(r.rollCount) : "" },
-  {
-    header: "Jídlo",
-    width: 190,
-    align: "left",
-    value: (r) => r.mainItem ? `${r.mainItem.code}  ${r.mainItem.name}` : "–",
-  },
-  { header: "Přílohy", width: 110, align: "left", value: (r) => extraCell(r) },
-  { header: "Cena", width: 48, align: "right", value: (r) => r.rowPrice > 0 ? `${r.rowPrice} Kč` : "–" },
+  { header: "#",       width: 24,  align: "center", value: (_, i) => String(i + 1) },
+  { header: "Jméno",   width: 115, align: "left",   value: (r) => r.personName || "–" },
+  { header: "Polévka", width: 168, align: "left",   value: (r) => r.soupItem ? `${r.soupItem.code}  ${r.soupItem.name}` : "–" },
+  { header: "H",       width: 22,  align: "center", value: (r) => r.rollCount > 0 ? String(r.rollCount) : "" },
+  { header: "Jídlo",   width: 233, align: "left",   value: (r) => r.mainItem ? `${r.mainItem.code}  ${r.mainItem.name}` : "–" },
+  { header: "Přílohy", width: 120, align: "left",   value: (r) => extraCell(r) },
+  { header: "Cena",    width: 88,  align: "right",  value: (r) => r.rowPrice > 0 ? `${r.rowPrice} Kč` : "–" },
 ];
 
-// landscape A4: 841.89 x 595.28 pt
-const PAGE_W = 841.89;
-const PAGE_H = 595.28;
-const MARGIN = 36;
-const TABLE_X = MARGIN;
-const TABLE_W = COL_DEFS.reduce((s, c) => s + c.width, 0);
-const ROW_H = 22;
 const HEADER_H = 26;
 const FONT_BODY = 9;
 const FONT_HEADER = 8.5;
+const ROW_PAD = 10; // top+bottom padding per cell
+
+function calcRowHeight(doc: PDFKit.PDFDocument, row: OrderRowEnriched, idx: number): number {
+  doc.font(FONT).fontSize(FONT_BODY);
+  let maxH = 0;
+  for (const col of COL_DEFS) {
+    const text = col.value(row, idx);
+    const h = doc.heightOfString(text, { width: col.width - 6 });
+    if (h > maxH) maxH = h;
+  }
+  return Math.max(maxH + ROW_PAD, 20);
+}
 
 function drawTable(doc: PDFKit.PDFDocument, rows: OrderRowEnriched[], startY: number): number {
+  // pre-calculate row heights
+  const rowHeights = rows.map((row, idx) => calcRowHeight(doc, row, idx));
+  const totalH = HEADER_H + rowHeights.reduce((s, h) => s + h, 0);
+
   let y = startY;
 
-  // header row bg
+  // header bg
   doc.rect(TABLE_X, y, TABLE_W, HEADER_H).fill("#2F4858");
-
-  // header text
   let x = TABLE_X;
   doc.font(FONT_BOLD).fontSize(FONT_HEADER).fillColor("#F5F1E8");
   for (const col of COL_DEFS) {
     doc.text(col.header, x + 3, y + 8, { width: col.width - 6, align: col.align, lineBreak: false });
     x += col.width;
   }
-
   y += HEADER_H;
 
   // data rows
   rows.forEach((row, idx) => {
+    const rh = rowHeights[idx];
     const bg = idx % 2 === 0 ? "#FFFFFF" : "#F5F1E8";
-    doc.rect(TABLE_X, y, TABLE_W, ROW_H).fill(bg);
+    doc.rect(TABLE_X, y, TABLE_W, rh).fill(bg);
 
     x = TABLE_X;
     doc.font(FONT).fontSize(FONT_BODY).fillColor("#30343A");
     for (const col of COL_DEFS) {
       const cell = col.value(row, idx);
-      doc.text(cell, x + 3, y + 6, { width: col.width - 6, align: col.align, lineBreak: false });
+      doc.text(cell, x + 3, y + 5, { width: col.width - 6, align: col.align });
       x += col.width;
     }
-    y += ROW_H;
+    y += rh;
   });
 
-  // grid lines
+  // grid: outer border
   doc.strokeColor("#C0B8A8").lineWidth(0.5);
-  // outer border
-  doc.rect(TABLE_X, startY, TABLE_W, HEADER_H + rows.length * ROW_H).stroke();
+  doc.rect(TABLE_X, startY, TABLE_W, totalH).stroke();
+
   // horizontal lines
   let lineY = startY + HEADER_H;
-  for (let i = 0; i < rows.length; i++) {
+  for (const rh of rowHeights) {
     doc.moveTo(TABLE_X, lineY).lineTo(TABLE_X + TABLE_W, lineY).stroke();
-    lineY += ROW_H;
+    lineY += rh;
   }
+
   // vertical lines
   let lineX = TABLE_X;
   for (const col of COL_DEFS) {
     lineX += col.width;
     if (lineX < TABLE_X + TABLE_W) {
-      doc.moveTo(lineX, startY).lineTo(lineX, startY + HEADER_H + rows.length * ROW_H).stroke();
+      doc.moveTo(lineX, startY).lineTo(lineX, startY + totalH).stroke();
     }
   }
 
@@ -149,9 +155,8 @@ export async function buildDepartmentPdfAttachment(
 
   let y = MARGIN;
 
-  // ── Company + department header ──────────────────────────────────────────
   doc.font(FONT_BOLD).fontSize(16).fillColor("#2F4858");
-  doc.text("Sedlčanské strojírny, a.s.", MARGIN, y, { lineBreak: false });
+  doc.text("STROS – Sedlčanské strojírny, a.s.", MARGIN, y, { lineBreak: false });
   y += 22;
 
   doc.font(FONT_BOLD).fontSize(13).fillColor("#B55233");
@@ -162,12 +167,10 @@ export async function buildDepartmentPdfAttachment(
   doc.text(`Datum: ${formatDate(orderDate)}`, MARGIN, y, { lineBreak: false });
   y += 18;
 
-  // ── Separator line ────────────────────────────────────────────────────────
   doc.strokeColor("#D8C3A5").lineWidth(1.5)
     .moveTo(MARGIN, y).lineTo(PAGE_W - MARGIN, y).stroke();
   y += 10;
 
-  // ── Table ─────────────────────────────────────────────────────────────────
   if (activeRows.length === 0) {
     doc.font(FONT).fontSize(11).fillColor("#888").text("Žádné aktivní řádky.", MARGIN, y);
     y += 20;
@@ -175,12 +178,10 @@ export async function buildDepartmentPdfAttachment(
     y = drawTable(doc, activeRows, y);
   }
 
-  // ── Subtotal ──────────────────────────────────────────────────────────────
   y += 10;
   doc.font(FONT_BOLD).fontSize(11).fillColor("#2F4858");
   doc.text(`Mezisoučet: ${department.subtotal} Kč`, MARGIN, y, { lineBreak: false });
 
-  // ── Footer ────────────────────────────────────────────────────────────────
   doc.font(FONT).fontSize(8).fillColor("#888");
   doc.text(
     `Vygenerováno automaticky – automat objednávek STROS`,
