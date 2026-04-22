@@ -180,6 +180,27 @@ export interface PizzaOrderSummary {
   rowCount: number;
 }
 
+export function getPizzaOrderData(orderId: number): PizzaOrderData {
+  const db = getDb();
+  const orderRaw = db
+    .prepare("SELECT * FROM pizza_orders WHERE id = ?")
+    .get(orderId) as Record<string, unknown> | undefined;
+  if (!orderRaw) throw new Error("Objednávka nebyla nalezena.");
+  const order = mapOrder(orderRaw);
+  const items = getPizzaItems();
+  const rawRows = db
+    .prepare("SELECT * FROM pizza_order_rows WHERE order_id = ? ORDER BY sort_order, id")
+    .all(order.id) as Record<string, unknown>[];
+  const rows = rawRows.map((r) => enrichRow(r, items));
+  return {
+    order,
+    rows,
+    pizzaItems: items,
+    totalPrice: rows.reduce((s, r) => s + r.rowPrice, 0),
+    totalCount: rows.reduce((s, r) => s + r.count, 0),
+  };
+}
+
 export function getPizzaOrderList(): PizzaOrderSummary[] {
   const db = getDb();
   const rows = db

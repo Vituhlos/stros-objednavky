@@ -124,6 +124,7 @@ export default function HistoryPage({
                   <th>Stav</th>
                   <th>Odesláno</th>
                   <th>Řádků</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -137,6 +138,11 @@ export default function HistoryPage({
                     </td>
                     <td className="history-td--meta">{formatSentAt(order.sentAt)}</td>
                     <td className="history-td--meta">{order.rowCount}</td>
+                    <td>
+                      <Link className="history-detail-link" href={`/historie/pizza/${order.id}`}>
+                        Detail →
+                      </Link>
+                    </td>
                   </tr>
                 ))}
               </tbody>

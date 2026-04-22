@@ -41,7 +41,7 @@ function patchRow(
   );
 }
 
-export default function OrderPage({ initialData, cutoffTime = "08:00" }: { initialData: OrderData; cutoffTime?: string }) {
+export default function OrderPage({ initialData, cutoffTime = "08:00", menuEmpty = false }: { initialData: OrderData; cutoffTime?: string; menuEmpty?: boolean }) {
   const [departments, setDepartments] = useState(initialData.departments);
   const [orderStatus, setOrderStatus] = useState(initialData.order.status);
   const [orderId] = useState(initialData.order.id);
@@ -137,6 +137,12 @@ export default function OrderPage({ initialData, cutoffTime = "08:00" }: { initi
     });
   }, []);
 
+  const isPastCutoff = (() => {
+    const [h, m] = cutoffTime.split(":").map(Number);
+    const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Prague" }));
+    return now.getHours() * 60 + now.getMinutes() >= h * 60 + m;
+  })();
+
   const handleSend = () => {
     if (isSent) return;
     setSendError(null);
@@ -145,6 +151,7 @@ export default function OrderPage({ initialData, cutoffTime = "08:00" }: { initi
         await actionSendOrder(orderId, extraEmail);
         setOrderStatus("sent");
         setSentAt(new Date().toISOString());
+        window.scrollTo({ top: 0, behavior: "smooth" });
       } catch (error) {
         setSendError(
           error instanceof Error
@@ -252,24 +259,28 @@ export default function OrderPage({ initialData, cutoffTime = "08:00" }: { initi
               <div className="hero__button-row">
                 <button
                   className="header-action header-action--primary"
-                  disabled={isSent || isPending}
+                  disabled={isSent || isPending || isPastCutoff}
                   onClick={handleSend}
                   type="button"
                 >
-                  {isPending ? "Odesílám..." : "Odeslat objednávku"}
+                  {isPending ? "Odesílám..." : isPastCutoff ? "Po uzávěrce" : "Odeslat objednávku"}
                 </button>
               </div>
             </div>
           </div>
         </header>
 
-        {!isSent && (
+        {menuEmpty && !isSent && (
+          <div className="alert-strip alert-strip--warn">
+            <strong>Jídelníček není naplněný.</strong>
+            <span>Přejděte do <a href="/jidelnicek" style={{ color: "inherit", textDecoration: "underline" }}>Jídelníčku</a> a importujte PDF nebo přidejte položky ručně.</span>
+          </div>
+        )}
+
+        {!isSent && !menuEmpty && (
           <div className="alert-strip">
             <strong>Uzávěrka dnes v {cutoffTime}.</strong>
-            <span>
-              Vybírejte pouze z rozbalovacích seznamů a zachovejte sdílený
-              řádkový model.
-            </span>
+            {isPastCutoff && <span>Čas uzávěrky vypršel.</span>}
           </div>
         )}
 

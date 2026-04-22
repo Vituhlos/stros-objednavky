@@ -58,7 +58,7 @@ export default function OrderDetailPage({ data }: { data: OrderData }) {
                 <span className="status-card__label">Celková cena</span>
                 <strong className="status--draft">{totalPrice} Kč</strong>
               </div>
-              {order.status === "sent" && (
+              {order.status === "sent" && order.date === new Date().toISOString().slice(0, 10) && (
                 <button
                   className="btn-reopen"
                   disabled={pending}

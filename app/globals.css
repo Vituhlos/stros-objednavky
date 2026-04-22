@@ -590,6 +590,11 @@ input {
   background: color-mix(in srgb, var(--green) 10%, white);
 }
 
+.alert-strip--warn {
+  border-left-color: var(--rust);
+  background: color-mix(in srgb, var(--rust) 8%, white);
+}
+
 .summary-group--empty p {
   color: color-mix(in srgb, var(--graphite) 55%, transparent);
   font-style: italic;
