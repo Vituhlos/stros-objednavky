@@ -225,12 +225,7 @@ export default function OrderPage({ initialData, cutoffTime = "08:00", menuEmpty
           </div>
           <div className="hero__content">
             <div>
-              <p className="hero__eyebrow">Dnešní provoz</p>
               <h2>Dnešní objednávka</h2>
-              <p className="hero__description">
-                Vyplňte jméno a vybírejte pouze z aktuální nabídky. Odeslání
-                zůstává centrální a sdílené pro celé oddělení.
-              </p>
             </div>
 
             <div className="hero__actions">

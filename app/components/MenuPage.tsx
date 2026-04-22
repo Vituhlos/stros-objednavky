@@ -345,7 +345,6 @@ export default function MenuPage({ menu: initialMenu, weekLabel, todayCode }: Pr
           </div>
           <div className="hero__content">
             <div>
-              <p className="hero__eyebrow">Správa jídelníčku</p>
               <h2>Jídelníček LIMA</h2>
               <p className="hero__description">
                 {weekLabel ? `Aktuální týden: ${weekLabel}` : "Jídelníček není naplněný. Importujte PDF nebo přidejte položky ručně."}

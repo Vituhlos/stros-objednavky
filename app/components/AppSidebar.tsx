@@ -39,13 +39,6 @@ export default function AppSidebar() {
         })}
       </nav>
 
-      <div className="sidebar__note">
-        <p className="sidebar__note-label">Režim použití</p>
-        <p>
-          Bez přihlášení. Jméno se zapisuje přímo do sdíleného řádku objednávky
-          stejně jako v Excelu.
-        </p>
-      </div>
     </aside>
   );
 }
