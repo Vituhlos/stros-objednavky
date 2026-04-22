@@ -33,6 +33,7 @@ function formatDate(isoDate: string): string {
 
 function extraCell(row: OrderRowEnriched): string {
   const parts: string[] = [];
+  if (row.rollCount > 0) parts.push(`${row.rollCount}× H`);
   if (row.breadDumplingCount > 0) parts.push(`${row.breadDumplingCount}× HK`);
   if (row.potatoDumplingCount > 0) parts.push(`${row.potatoDumplingCount}× BK`);
   if (row.ketchupCount > 0) parts.push(`${row.ketchupCount}× Keč`);
