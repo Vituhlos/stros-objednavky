@@ -8,6 +8,7 @@
   <Privileged>false</Privileged>
   <Overview>Interní objednávkový systém pro správu objednávek obědů (LIMA) a pizzy. Bez přihlášení, sdílený objednávkový list po odděleních, odeslání e-mailem s PDF přílohou.</Overview>
   <Category>Productivity: Tools:</Category>
+  <Icon>https://raw.githubusercontent.com/Vituhlos/objednavky-jidla/main/app/icon.svg</Icon>
   <WebUI>http://[IP]:[PORT:3000]/</WebUI>
   <TemplateURL>https://raw.githubusercontent.com/vituhlos/objednavky-jidla/main/unraid-template.xml</TemplateURL>
   <ExtraParams>--restart=unless-stopped</ExtraParams>
