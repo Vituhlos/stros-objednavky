@@ -20,6 +20,7 @@
 }
 
 html {
+  overflow-x: hidden;
   background:
     radial-gradient(circle at top left, rgba(199, 139, 42, 0.12), transparent 30%),
     linear-gradient(180deg, #f7f2e8 0%, var(--paper) 100%);
@@ -27,6 +28,7 @@ html {
 
 body {
   margin: 0;
+  overflow-x: hidden;
   min-height: 100vh;
   color: var(--graphite);
   font-family: "Source Sans 3", sans-serif;
@@ -1438,7 +1440,27 @@ input {
 
   .hero__actions {
     width: 100%;
+    max-width: 100%;
     gap: 0.6rem;
+  }
+
+  .hero__actions > * {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .email-field {
+    width: 100%;
+  }
+
+  .email-field input {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .header-action {
+    width: 100%;
+    text-align: center;
   }
 
   .hero__topline {
@@ -1448,6 +1470,7 @@ input {
   .status-card,
   .email-field {
     padding: 0.65rem 0.85rem;
+    width: 100%;
   }
 
   .status-card strong {
@@ -1457,6 +1480,8 @@ input {
   .header-action {
     padding: 0.75rem 1rem;
     font-size: 0.85rem;
+    width: 100%;
+    text-align: center;
   }
 
   .history-wrap {
