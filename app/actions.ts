@@ -10,6 +10,7 @@ import {
   deleteOrderRow,
   sendOrder as dbSendOrder,
   updateExtraEmail,
+  reopenOrder,
 } from "@/lib/orders";
 import type { Department, OrderRowEnriched } from "@/lib/types";
 import {
@@ -123,6 +124,12 @@ export async function actionUpdatePizzaPrices(
 ): Promise<void> {
   replacePizzaItems(items);
   revalidatePath("/pizza");
+}
+
+export async function actionReopenOrder(orderId: number): Promise<void> {
+  reopenOrder(orderId);
+  revalidatePath("/historie");
+  revalidatePath(`/historie/${orderId}`);
 }
 
 export async function actionCheckPin(pin: string): Promise<boolean> {

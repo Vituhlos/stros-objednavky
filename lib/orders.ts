@@ -297,6 +297,12 @@ export interface OrderSummary {
   rowCount: number;
 }
 
+export function reopenOrder(orderId: number): void {
+  getDb()
+    .prepare("UPDATE orders SET status = 'draft', sent_at = NULL WHERE id = ?")
+    .run(orderId);
+}
+
 export function getOrderList(): OrderSummary[] {
   const db = getDb();
   const rows = db

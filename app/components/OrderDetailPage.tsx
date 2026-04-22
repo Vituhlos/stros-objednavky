@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import type { OrderData } from "@/lib/types";
 import { DEPARTMENT_LABELS, DEPARTMENT_ACCENT } from "@/lib/types";
 import { EXTRAS_ROW_FIELDS } from "@/lib/pricing";
+import { actionReopenOrder } from "@/app/actions";
 import AppSidebar from "./AppSidebar";
 
 function formatDate(iso: string): string {
@@ -13,16 +16,20 @@ function formatDate(iso: string): string {
 
 function formatSentAt(iso: string | null): string {
   if (!iso) return "–";
-  const d = new Date(iso);
-  return (
-    d.toLocaleDateString("cs-CZ", { day: "numeric", month: "numeric", year: "numeric" }) +
-    " " +
-    d.toLocaleTimeString("cs-CZ", { hour: "2-digit", minute: "2-digit" })
-  );
+  return new Date(iso).toLocaleString("cs-CZ", {
+    timeZone: "Europe/Prague",
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 export default function OrderDetailPage({ data }: { data: OrderData }) {
   const { order, departments, totalPrice } = data;
+  const [pending, startTransition] = useTransition();
+  const router = useRouter();
 
   return (
     <main className="app-shell">
@@ -52,6 +59,20 @@ export default function OrderDetailPage({ data }: { data: OrderData }) {
                 <span className="status-card__label">Celková cena</span>
                 <strong className="status--draft">{totalPrice} Kč</strong>
               </div>
+              {order.status === "sent" && (
+                <button
+                  className="btn-reopen"
+                  disabled={pending}
+                  onClick={() =>
+                    startTransition(async () => {
+                      await actionReopenOrder(order.id);
+                      router.refresh();
+                    })
+                  }
+                >
+                  {pending ? "…" : "Znovu otevřít"}
+                </button>
+              )}
             </div>
           </div>
         </header>

@@ -202,6 +202,7 @@ export function deleteMenuItem(id: number): void {
 }
 
 export function seedMenuIfEmpty(weekLabel: string): void {
+  if (process.env.NODE_ENV === "production") return;
   const db = getDb();
   const count = (
     db.prepare("SELECT COUNT(*) as c FROM menu_items").get() as { c: number }

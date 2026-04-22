@@ -952,6 +952,26 @@ input {
   color: #fff;
 }
 
+.btn-reopen {
+  padding: 0.45rem 1rem;
+  border: 1px solid rgba(248,243,234,0.6);
+  background: transparent;
+  color: rgba(248,243,234,0.9);
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: background 0.15s, color 0.15s;
+}
+.btn-reopen:hover:not(:disabled) {
+  background: rgba(248,243,234,0.15);
+}
+.btn-reopen:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 /* ── Nastavení ───────────────────────────────────────────── */
 
 .settings-pin-gate {

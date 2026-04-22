@@ -10,7 +10,6 @@
   <Category>Productivity: Tools:</Category>
   <WebUI>http://[IP]:[PORT:3000]/</WebUI>
   <TemplateURL>https://raw.githubusercontent.com/vituhlos/stros-objednavky/main/unraid-template.xml</TemplateURL>
-  <Icon>https://raw.githubusercontent.com/vituhlos/stros-objednavky/main/public/icon.png</Icon>
   <ExtraParams>--restart=unless-stopped</ExtraParams>
   <Description>Interní objednávkový systém STROS. Správa objednávek obědů (LIMA) a pizzy, import jídelníčku z PDF, odesílání e-mailem s PDF přílohou. Běží jako jeden kontejner bez externích závislostí.</Description>
   <Project>https://github.com/vituhlos/stros-objednavky</Project>

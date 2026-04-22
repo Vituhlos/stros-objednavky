@@ -171,3 +171,32 @@ export function updatePizzaRow(
 export function deletePizzaRow(rowId: number): void {
   getDb().prepare("DELETE FROM pizza_order_rows WHERE id = ?").run(rowId);
 }
+
+export interface PizzaOrderSummary {
+  id: number;
+  date: string;
+  status: "draft" | "sent";
+  sentAt: string | null;
+  rowCount: number;
+}
+
+export function getPizzaOrderList(): PizzaOrderSummary[] {
+  const db = getDb();
+  const rows = db
+    .prepare(
+      `SELECT p.id, p.date, p.status, p.sent_at,
+              COUNT(r.id) AS row_count
+       FROM pizza_orders p
+       LEFT JOIN pizza_order_rows r ON r.order_id = p.id
+       GROUP BY p.id
+       ORDER BY p.date DESC`
+    )
+    .all() as Record<string, unknown>[];
+  return rows.map((r) => ({
+    id: r.id as number,
+    date: r.date as string,
+    status: r.status as "draft" | "sent",
+    sentAt: (r.sent_at as string | null) ?? null,
+    rowCount: r.row_count as number,
+  }));
+}
