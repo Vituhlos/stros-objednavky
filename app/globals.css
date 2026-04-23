@@ -46,7 +46,6 @@ input {
   font: inherit;
 }
 
-/* Removes 300ms tap delay on iOS/Android for all interactive elements */
 button,
 input,
 a,
@@ -54,27 +53,36 @@ select {
   touch-action: manipulation;
 }
 
+/* ── App shell: mobile = single column ───────────────────── */
+
 .app-shell {
   display: grid;
   min-height: 100vh;
-  grid-template-columns: 280px minmax(0, 1fr);
+  grid-template-columns: 1fr;
 }
 
+/* ── Sidebar: mobile = sticky horizontal top bar ─────────── */
+
 .sidebar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
   display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  padding: 2rem 1.5rem;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 1rem;
   background:
     linear-gradient(180deg, rgba(22, 50, 74, 0.98), rgba(28, 55, 73, 0.96)),
     var(--navy);
   color: #f8f3ea;
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .brand-block {
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  flex-shrink: 0;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 .brand-block__eyebrow,
@@ -89,6 +97,10 @@ select {
   font-weight: 700;
 }
 
+.brand-block__eyebrow {
+  display: none;
+}
+
 .brand-block h1,
 .hero h2,
 .summary-panel h2,
@@ -101,7 +113,8 @@ select {
 }
 
 .brand-block h1 {
-  font-size: 2rem;
+  font-size: 1.1rem;
+  white-space: nowrap;
 }
 
 .brand-block p:last-child,
@@ -111,42 +124,60 @@ select {
   color: rgba(248, 243, 234, 0.8);
 }
 
+.brand-block p:last-child {
+  display: none;
+}
+
 .sidebar__nav {
+  flex: 1;
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 0.2rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.sidebar__nav::-webkit-scrollbar {
+  display: none;
 }
 
 .sidebar__link {
-  display: block;
-  padding: 0.9rem 1rem;
+  display: flex;
+  align-items: center;
+  padding: 0.4rem 0.9rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.04);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: 0.9rem;
-  transition: background-color 180ms ease, transform 180ms ease;
+  font-size: 0.8rem;
+  min-height: 44px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background-color 180ms ease;
 }
 
 .sidebar__link:hover,
 .sidebar__link--active {
   background: rgba(199, 139, 42, 0.16);
-  transform: translateX(3px);
 }
 
 .sidebar__note {
-  margin-top: auto;
-  padding: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.05);
+  display: none;
 }
+
+/* ── Main stage: mobile = tight padding ──────────────────── */
 
 .main-stage {
-  padding: 2rem;
+  min-width: 0;
+  padding: 0.75rem;
 }
 
+/* ── Hero: mobile = stacked ──────────────────────────────── */
+
 .hero {
-  padding: 1.5rem 1.75rem;
+  padding: 0.85rem;
   border: 1px solid var(--line);
   background:
     linear-gradient(120deg, rgba(22, 50, 74, 0.98), rgba(47, 72, 88, 0.93));
@@ -157,8 +188,9 @@ select {
 .hero__topline {
   display: flex;
   justify-content: space-between;
-  gap: 1rem;
-  font-size: 0.9rem;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.5rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: rgba(248, 243, 234, 0.78);
@@ -170,14 +202,15 @@ select {
 
 .hero__content {
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  gap: 2rem;
-  margin-top: 1rem;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
 }
 
 .hero h2 {
-  font-size: clamp(2.2rem, 5vw, 3.8rem);
-  line-height: 0.95;
+  font-size: 1.5rem;
+  line-height: 1.1;
 }
 
 .hero__description {
@@ -191,17 +224,18 @@ select {
 .hero__actions {
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
-  width: min(100%, 25rem);
+  gap: 0.55rem;
+  width: 100%;
 }
 
 .status-card,
 .email-field {
   display: grid;
   gap: 0.35rem;
-  padding: 1rem;
+  padding: 0.65rem 0.85rem;
   border: 1px solid rgba(255, 255, 255, 0.16);
   background: rgba(255, 255, 255, 0.06);
+  width: 100%;
 }
 
 .status-card__label,
@@ -214,7 +248,7 @@ select {
 
 .status-card strong {
   font-family: "Oswald", sans-serif;
-  font-size: 2rem;
+  font-size: 1.4rem;
   color: #f0ca81;
 }
 
@@ -223,19 +257,26 @@ select {
   background: rgba(255, 255, 255, 0.08);
   color: #fff;
   padding: 0.8rem 0.9rem;
+  width: 100%;
+  min-width: 0;
 }
 
 .hero__button-row {
   display: flex;
-  gap: 0.75rem;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: 100%;
 }
 
 .header-action {
-  padding: 0.9rem 1.15rem;
+  padding: 0.8rem 1rem;
   border: 1px solid rgba(255, 255, 255, 0.18);
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  font-size: 0.85rem;
   cursor: pointer;
+  width: 100%;
+  text-align: center;
 }
 
 .header-action--secondary {
@@ -251,20 +292,24 @@ select {
 
 .alert-strip {
   display: flex;
-  gap: 0.75rem;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
   margin-top: 1rem;
-  padding: 0.95rem 1.1rem;
+  padding: 0.75rem;
   border-left: 6px solid var(--amber);
   background: color-mix(in srgb, var(--amber) 12%, white);
   box-shadow: 0 10px 28px rgba(47, 72, 88, 0.08);
+  font-size: 0.88rem;
 }
+
+/* ── Workspace: mobile = single column ───────────────────── */
 
 .workspace {
   display: grid;
-  grid-template-columns: minmax(0, 1.85fr) minmax(300px, 0.95fr);
-  gap: 1.5rem;
-  margin-top: 1.5rem;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin-top: 1rem;
   align-items: start;
 }
 
@@ -280,18 +325,19 @@ select {
   box-shadow: 0 18px 50px rgba(47, 72, 88, 0.08);
 }
 
+/* Mobile: department header stacks vertically */
 .department__header {
   display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: end;
-  padding: 1.25rem 1.3rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  padding: 0.85rem 1rem;
   border-bottom: 1px solid var(--line);
 }
 
 .department__meta {
   display: grid;
-  justify-items: end;
+  justify-items: start;
   gap: 0.2rem;
 }
 
@@ -318,29 +364,59 @@ select {
   background: color-mix(in srgb, var(--green) 10%, transparent);
 }
 
-/* ── Department table ─────────────────────────────────────── */
+/* ── Department table: mobile = card layout ──────────────────
+ *
+ * Child order from DepartmentPanel.tsx:
+ *   1 = .cell--person  (jméno)
+ *   2 = .cell          (polévka)
+ *   3 = .cell--center  (houska)
+ *   4 = .cell--meal    (jídlo)
+ *   5 = .cell--center  (přílohy)
+ *   6 = .cell--price   (cena)
+ *   7 = .cell--action  (smazat)
+ *
+ * Card layout:
+ *   Row 1 │ Name ──────────── │ Extras⊕ │ Delete× │
+ *   Row 2 │ Meal ─────────────────────────────────│
+ *   Row 3 │ Soup ──────────── │ Roll🥐  │ Price   │
+ */
 
 .department__table {
-  padding: 0 1.25rem 0.5rem;
-}
-
-.department__table-head,
-.order-row {
-  display: grid;
-  grid-template-columns: 1.05fr 1.1fr 0.42fr 1.7fr 0.46fr 0.55fr 0.3fr;
-  gap: 0.6rem;
-  align-items: center;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid var(--line);
+  padding: 0 0 0.5rem;
 }
 
 .department__table-head {
+  display: none;
   padding-top: 0.85rem;
+  padding-bottom: 0.5rem;
   font-size: 0.76rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: color-mix(in srgb, var(--graphite) 64%, white);
 }
+
+.order-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2.75rem 5rem;
+  grid-template-rows: auto auto auto;
+  row-gap: 0.4rem;
+  column-gap: 0.4rem;
+  min-width: 0;
+  padding: 0.75rem 1rem;
+  border-bottom: 2px solid var(--line);
+  align-items: stretch;
+}
+
+/* Row 1: Name | Extras | Delete */
+.order-row > :nth-child(1) { grid-column: 1 / 3; grid-row: 1; }
+.order-row > :nth-child(5) { grid-column: 3;     grid-row: 1; }
+.order-row > :nth-child(7) { grid-column: 4;     grid-row: 1; }
+/* Row 2: Meal full width */
+.order-row > :nth-child(4) { grid-column: 1 / -1; grid-row: 2; }
+/* Row 3: Soup | Roll | Price */
+.order-row > :nth-child(2) { grid-column: 1 / 3; grid-row: 3; }
+.order-row > :nth-child(3) { grid-column: 3;     grid-row: 3; }
+.order-row > :nth-child(6) { grid-column: 4;     grid-row: 3; font-size: 0.82rem; }
 
 .order-row--active .cell-input {
   font-weight: 700;
@@ -349,7 +425,7 @@ select {
 .cell {
   display: flex;
   align-items: center;
-  min-height: 2.35rem;
+  min-height: 2.75rem;
   border: 1px solid color-mix(in srgb, var(--graphite) 12%, transparent);
   background: rgba(255, 255, 255, 0.42);
 }
@@ -416,10 +492,11 @@ select {
   cursor: default;
 }
 
-/* Roll toggle */
+/* Roll/extras: fill their grid cell on mobile */
 .roll-toggle {
-  width: 2rem;
-  height: 2rem;
+  width: 100%;
+  height: 100%;
+  min-height: 2.75rem;
   border: 1px solid color-mix(in srgb, var(--graphite) 22%, transparent);
   background: rgba(255, 255, 255, 0.5);
   color: color-mix(in srgb, var(--graphite) 55%, transparent);
@@ -439,10 +516,10 @@ select {
   cursor: default;
 }
 
-/* Extras toggle */
 .extras-toggle {
-  width: 2rem;
-  height: 2rem;
+  width: 100%;
+  height: 100%;
+  min-height: 2.75rem;
   border: 1px solid color-mix(in srgb, var(--graphite) 22%, transparent);
   background: rgba(255, 255, 255, 0.5);
   color: color-mix(in srgb, var(--graphite) 65%, transparent);
@@ -465,14 +542,14 @@ select {
   color: #fff;
 }
 
-/* Row delete */
 .row-delete-btn {
-  width: 1.6rem;
-  height: 1.6rem;
+  width: 100%;
+  height: 100%;
+  min-height: 2.75rem;
   border: 1px solid color-mix(in srgb, var(--rust) 35%, transparent);
   background: transparent;
   color: color-mix(in srgb, var(--rust) 60%, transparent);
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   cursor: pointer;
   transition: background 140ms, color 140ms;
   line-height: 1;
@@ -491,7 +568,8 @@ select {
 }
 
 .extras-row__inner {
-  padding: 0.75rem 1.25rem;
+  padding: 0.75rem 1rem;
+  min-width: 0;
 }
 
 .extras-panel {
@@ -527,8 +605,8 @@ select {
 }
 
 .stepper-btn {
-  width: 1.6rem;
-  height: 1.6rem;
+  width: 2.2rem;
+  height: 2.2rem;
   border: 1px solid color-mix(in srgb, var(--graphite) 28%, transparent);
   background: rgba(255, 255, 255, 0.7);
   cursor: pointer;
@@ -562,13 +640,14 @@ select {
 }
 
 .row-add-btn {
-  padding: 0.6rem 1.1rem;
+  width: 100%;
+  padding: 0.75rem 1.1rem;
   border: 1px dashed color-mix(in srgb, var(--graphite) 32%, transparent);
   background: rgba(255, 255, 255, 0.35);
   color: var(--graphite);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: 0.82rem;
+  font-size: 0.88rem;
   cursor: pointer;
   transition: background 140ms, border-color 140ms;
 }
@@ -618,10 +697,10 @@ select {
   background: color-mix(in srgb, var(--rust) 8%, white);
 }
 
+/* Summary panel: mobile = static (not sticky) */
 .summary-panel {
-  position: sticky;
-  top: 2rem;
-  padding: 1.25rem;
+  position: static;
+  padding: 1rem;
 }
 
 .summary-panel__header {
@@ -680,9 +759,10 @@ select {
   font-style: italic;
 }
 
+/* Mobile: 1 column — 5 columns restored at 1180px */
 .menu-preview-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: 1fr;
   gap: 1px;
   border: 1px solid var(--line);
   background: var(--line);
@@ -752,9 +832,10 @@ select {
 
 /* ── Menu edit mode ───────────────────────────────────────── */
 
+/* Mobile: 1 column — 5 columns restored at 1180px */
 .menu-edit-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: 1fr;
   gap: 1px;
   border: 1px solid var(--line);
   background: var(--line);
@@ -881,11 +962,11 @@ select {
   letter-spacing: 0.04em;
 }
 
+/* Mobile: stacked — row layout restored at 1180px */
 .import-panel__preview-header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.75rem;
   margin-bottom: 1rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--line);
@@ -893,8 +974,9 @@ select {
 
 .import-panel__preview-actions {
   display: flex;
-  gap: 0.75rem;
-  flex-shrink: 0;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
 }
 
 .drop-zone {
@@ -977,9 +1059,11 @@ select {
   letter-spacing: 0.05em;
   transition: background 0.15s, color 0.15s;
 }
+
 .btn-reopen:hover:not(:disabled) {
   background: rgba(248,243,234,0.15);
 }
+
 .btn-reopen:disabled {
   opacity: 0.5;
   cursor: default;
@@ -1066,9 +1150,10 @@ select {
   padding: 0 1.25rem;
 }
 
+/* Mobile: single column — 2 columns restored at 1180px */
 .settings-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 1rem;
   padding-top: 1rem;
 }
@@ -1164,14 +1249,17 @@ select {
   color: var(--rust);
 }
 
-/* ── Historie ────────────────────────────────────────────── */
+/* ── Historie: always horizontally scrollable ────────────── */
 
 .history-wrap {
   margin-top: 1.5rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .history-table {
   width: 100%;
+  min-width: 540px;
   border-collapse: collapse;
   border: 1px solid var(--line);
   background: var(--panel);
@@ -1252,7 +1340,7 @@ select {
   border-color: var(--graphite);
 }
 
-/* ── Pizza ────────────────────────────────────────────────── */
+/* ── Pizza: always horizontally scrollable ───────────────── */
 
 .pizza-panel {
   border: 1px solid var(--line);
@@ -1282,6 +1370,8 @@ select {
 
 .pizza-table {
   padding: 0 1.25rem 0.5rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .pizza-table-head,
@@ -1292,6 +1382,7 @@ select {
   align-items: center;
   padding: 0.5rem 0;
   border-bottom: 1px solid var(--line);
+  min-width: 520px;
 }
 
 .pizza-table-head {
@@ -1322,179 +1413,71 @@ select {
 }
 
 /* ── Safe area insets (iPhone notch / Dynamic Island / home bar) ── */
+
 @supports (padding: max(0px)) {
   .sidebar {
-    padding-left: max(1.5rem, env(safe-area-inset-left));
-    padding-right: max(1.5rem, env(safe-area-inset-right));
-  }
-
-  @media (max-width: 980px) {
-    .sidebar {
-      /* top accounts for status bar when sticky */
-      padding-top: max(0.55rem, env(safe-area-inset-top));
-      padding-left: max(1rem, env(safe-area-inset-left));
-      padding-right: max(1rem, env(safe-area-inset-right));
-    }
-
-    .main-stage {
-      padding-bottom: max(1rem, env(safe-area-inset-bottom));
-    }
-  }
-}
-
-/* ── 1180px: workspace single column, summary unsticky ── */
-@media (max-width: 1180px) {
-  .workspace {
-    grid-template-columns: 1fr;
-  }
-
-  .summary-panel {
-    position: static;
-  }
-}
-
-/* ── 980px: sidebar → sticky top bar, single column layout ─
-   min-width: 0 on main-stage is the CSS Grid fix:
-   without it, the grid cell expands to fit its widest child
-   (the 760px table rows), pushing the whole page wider. */
-@media (max-width: 980px) {
-  .app-shell {
-    grid-template-columns: 1fr;
+    padding-top: max(0.55rem, env(safe-area-inset-top));
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
   }
 
   .main-stage {
-    min-width: 0;
-    padding: 1rem;
-  }
-
-  .sidebar {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    flex-direction: row;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.55rem 1rem;
-    border-right: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  }
-
-  .brand-block {
-    flex-shrink: 0;
-    padding-bottom: 0;
-    border-bottom: none;
-  }
-
-  .brand-block__eyebrow {
-    display: none;
-  }
-
-  .brand-block h1 {
-    font-size: 1.1rem;
-    white-space: nowrap;
-  }
-
-  .brand-block p:last-child {
-    display: none;
-  }
-
-  .sidebar__nav {
-    flex: 1;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    gap: 0.2rem;
-    margin: 0;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    padding-bottom: 0;
-  }
-
-  .sidebar__nav::-webkit-scrollbar {
-    display: none;
-  }
-
-  .sidebar__link {
-    white-space: nowrap;
-    flex-shrink: 0;
-    padding: 0.4rem 0.9rem;
-    font-size: 0.8rem;
-    /* ui-ux-pro-max: min touch target 44px (Apple HIG) */
-    min-height: 44px;
-    display: flex;
-    align-items: center;
-  }
-
-  .sidebar__link:hover,
-  .sidebar__link--active {
-    transform: none;
-  }
-
-  .sidebar__note {
-    display: none;
-  }
-
-  .hero__content {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-  }
-
-  .hero__actions {
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .department__footer,
-  .alert-strip {
-    flex-direction: column;
-    align-items: stretch;
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
   }
 }
 
-/* ── 760px: table scroll isolation ───────────────────────
-   Table rows stay 760px wide — they scroll inside
-   .department__table. The page doesn't scroll because
-   .main-stage has min-width: 0 from the 980px rule above.
-   No overflow-x: hidden anywhere — that would break the
-   table's own scroll container. */
-@media (max-width: 760px) {
+/* ══════════════════════════════════════════════════════════
+   641px+: order table → 7-column horizontal scroll
+   ══════════════════════════════════════════════════════════ */
+
+@media (min-width: 641px) {
   .department__table {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    padding: 0 1.25rem 0.5rem;
   }
 
-  .department__table-head,
-  .order-row,
-  .extras-row__inner {
+  /* Reveal column headers */
+  .department__table-head {
+    display: grid;
+    grid-template-columns: 1.05fr 1.1fr 0.42fr 1.7fr 0.46fr 0.55fr 0.3fr;
+    gap: 0.6rem;
+    align-items: center;
     min-width: 760px;
   }
 
-  .pizza-table {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+  /* Restore 7-column row grid */
+  .order-row {
+    grid-template-columns: 1.05fr 1.1fr 0.42fr 1.7fr 0.46fr 0.55fr 0.3fr;
+    grid-template-rows: auto;
+    gap: 0.6rem;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--line);
+    min-width: 760px;
   }
 
-  .pizza-table-head,
-  .pizza-row {
-    min-width: 520px;
+  /* Reset all card-layout nth-child grid positions */
+  .order-row > :nth-child(n) {
+    grid-column: auto;
+    grid-row: auto;
   }
 
-  .hero__button-row {
-    flex-direction: column;
-    gap: 0.5rem;
+  /* Restore .cell--price font size (was overridden by nth-child(6)) */
+  .order-row > :nth-child(6) {
+    font-size: 0.88rem;
   }
 
-  .header-action {
-    width: 100%;
-    box-sizing: border-box;
-    text-align: center;
+  .order-row .cell {
+    min-height: 2.35rem;
   }
-}
 
-/* ── 640px: small phone refinements (iPhone SE / 375px) ── */
-@media (max-width: 640px) {
-  /* ui-ux-pro-max: touch targets ≥44px for all interactive elements */
+  .extras-row__inner {
+    min-width: 760px;
+    padding: 0.75rem 1.25rem;
+  }
+
+  /* Toggle/delete: fixed size (no longer fill the full card cell) */
   .roll-toggle,
   .extras-toggle {
     width: 2.75rem;
@@ -1507,211 +1490,208 @@ select {
     font-size: 1.25rem;
   }
 
-  .stepper-btn {
-    width: 2.2rem;
-    height: 2.2rem;
+  /* Add-row button: back to natural (inline) width */
+  .row-add-btn {
+    width: auto;
+    padding: 0.6rem 1.1rem;
+    font-size: 0.82rem;
   }
 
-  .row-add-btn {
-    padding: 0.75rem 1.1rem;
-    font-size: 0.88rem;
+  /* Hero buttons: side by side */
+  .hero__button-row {
+    flex-direction: row;
+    gap: 0.75rem;
   }
-  .menu-preview-grid,
-  .menu-edit-grid {
-    grid-template-columns: 1fr;
+
+  .header-action {
+    width: auto;
+    text-align: left;
+    padding: 0.9rem 1.15rem;
+    font-size: inherit;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   980px+: sidebar → vertical left column, desktop layout
+   ══════════════════════════════════════════════════════════ */
+
+@media (min-width: 980px) {
+  .app-shell {
+    grid-template-columns: 280px minmax(0, 1fr);
+  }
+
+  /* Sidebar: back to vertical column (no longer sticky top bar) */
+  .sidebar {
+    position: static;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 2rem 1.5rem;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: none;
+  }
+
+  .brand-block {
+    flex-shrink: unset;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .brand-block__eyebrow {
+    display: block;
+  }
+
+  .brand-block h1 {
+    font-size: 2rem;
+    white-space: normal;
+  }
+
+  .brand-block p:last-child {
+    display: block;
+  }
+
+  .sidebar__nav {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    overflow-x: unset;
+    gap: 0.5rem;
+  }
+
+  .sidebar__link {
+    display: block;
+    padding: 0.9rem 1rem;
+    font-size: 0.9rem;
+    min-height: unset;
+    white-space: normal;
+    flex-shrink: unset;
+    transition: background-color 180ms ease, transform 180ms ease;
+  }
+
+  .sidebar__link:hover,
+  .sidebar__link--active {
+    transform: translateX(3px);
+  }
+
+  .sidebar__note {
+    display: block;
+    margin-top: auto;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
   }
 
   .main-stage {
-    padding: 0.75rem;
+    padding: 2rem;
   }
 
+  /* Hero: back to side-by-side layout */
   .hero {
-    padding: 0.85rem;
-  }
-
-  .hero h2 {
-    font-size: 1.5rem;
-    line-height: 1.1;
+    padding: 1.5rem 1.75rem;
   }
 
   .hero__topline {
-    font-size: 0.7rem;
-    flex-wrap: wrap;
-    gap: 0.25rem 0.5rem;
+    font-size: 0.9rem;
+    flex-wrap: nowrap;
+    gap: 1rem;
   }
 
   .hero__content {
-    gap: 0.75rem;
-    margin-top: 0.5rem;
+    flex-direction: row;
+    gap: 2rem;
+    margin-top: 1rem;
+    align-items: flex-start;
+  }
+
+  .hero h2 {
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    line-height: 0.95;
   }
 
   .hero__actions {
-    display: flex;
-    flex-direction: column;
-    gap: 0.55rem;
-    margin-top: 0;
+    width: min(100%, 25rem);
+    gap: 0.9rem;
   }
 
   .status-card,
   .email-field {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 0.65rem 0.85rem;
-  }
-
-  .email-field input {
-    width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
-  }
-
-  .hero__button-row {
-    width: 100%;
-    gap: 0.4rem;
-  }
-
-  .header-action {
-    padding: 0.8rem 1rem;
-    font-size: 0.85rem;
+    padding: 1rem;
+    width: auto;
   }
 
   .status-card strong {
-    font-size: 1.4rem;
+    font-size: 2rem;
   }
 
   .alert-strip {
-    padding: 0.75rem;
-    font-size: 0.88rem;
-    gap: 0.5rem;
-  }
-
-  .workspace {
-    gap: 0.85rem;
-    margin-top: 1rem;
-  }
-
-  .department__header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.35rem;
-    padding: 0.85rem 1rem;
-  }
-
-  .department__meta {
-    justify-items: start;
-  }
-
-  .summary-panel {
-    padding: 1rem;
-  }
-
-  .history-wrap {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .history-table {
-    min-width: 540px;
-  }
-
-  .settings-row {
-    grid-template-columns: 1fr;
-  }
-
-  .import-panel__preview-header {
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
+    padding: 0.95rem 1.1rem;
+    font-size: inherit;
     gap: 0.75rem;
   }
 
+  /* Department header: back to side-by-side */
+  .department__header {
+    flex-direction: row;
+    align-items: end;
+    gap: 1rem;
+    padding: 1.25rem 1.3rem;
+  }
+
+  .department__meta {
+    justify-items: end;
+  }
+}
+
+@supports (padding: max(0px)) {
+  @media (min-width: 980px) {
+    .sidebar {
+      padding-left: max(1.5rem, env(safe-area-inset-left));
+      padding-right: max(1.5rem, env(safe-area-inset-right));
+    }
+
+    .main-stage {
+      padding-bottom: 2rem;
+    }
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   1180px+: 2-column workspace, sticky summary, full menus
+   ══════════════════════════════════════════════════════════ */
+
+@media (min-width: 1180px) {
+  .workspace {
+    grid-template-columns: minmax(0, 1.85fr) minmax(300px, 0.95fr);
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .summary-panel {
+    position: sticky;
+    top: 2rem;
+    padding: 1.25rem;
+  }
+
+  .menu-preview-grid,
+  .menu-edit-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .settings-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .import-panel__preview-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
   .import-panel__preview-actions {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-  }
-
-  /* ── Order table: 7-column grid → 3-row card layout ──────
-   *
-   * Child order from DepartmentPanel.tsx:
-   *   1 = .cell--person  (jméno input)
-   *   2 = .cell          (polévka select)
-   *   3 = .cell--center  (houska toggle)
-   *   4 = .cell--meal    (jídlo select)
-   *   5 = .cell--center  (přílohy toggle)
-   *   6 = .cell--price   (cena)
-   *   7 = .cell--action  (smazat)
-   *
-   * Card layout:
-   *   Row 1 │ Name ──────────── │ Extras⊕ │ Delete× │
-   *   Row 2 │ Meal selection ───────────────────────│
-   *   Row 3 │ Soup ──────────── │ Roll🥐  │ Price   │
-   */
-
-  /* Reset scroll container — card layout doesn't overflow */
-  .department__table {
-    overflow-x: unset;
-    padding: 0 0 0.5rem;
-  }
-
-  /* Hide column headers — placeholders serve as labels */
-  .department__table-head {
-    display: none;
-  }
-
-  /* Card grid: [flex][flex][44px][80px] */
-  .order-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 2.75rem 5rem;
-    grid-template-rows: auto auto auto;
-    row-gap: 0.4rem;
-    column-gap: 0.4rem;
-    min-width: 0;
-    padding: 0.75rem 1rem;
-    border-bottom: 2px solid var(--line);
-    align-items: stretch;
-  }
-
-  /* Row 1 */
-  .order-row > :nth-child(1) { grid-column: 1 / 3; grid-row: 1; }
-  .order-row > :nth-child(5) { grid-column: 3;     grid-row: 1; }
-  .order-row > :nth-child(7) { grid-column: 4;     grid-row: 1; min-height: 2.75rem; }
-
-  /* Row 2: meal full width */
-  .order-row > :nth-child(4) { grid-column: 1 / -1; grid-row: 2; }
-
-  /* Row 3 */
-  .order-row > :nth-child(2) { grid-column: 1 / 3; grid-row: 3; }
-  .order-row > :nth-child(3) { grid-column: 3;     grid-row: 3; }
-  .order-row > :nth-child(6) { grid-column: 4;     grid-row: 3; font-size: 0.82rem; }
-
-  /* Touch-friendly cell height */
-  .order-row .cell {
-    min-height: 2.75rem;
-  }
-
-  /* Toggle buttons fill their cell */
-  .roll-toggle,
-  .extras-toggle {
-    width: 100%;
-    height: 100%;
-    min-height: 2.75rem;
-  }
-
-  .row-delete-btn {
-    width: 100%;
-    height: 100%;
-    min-height: 2.75rem;
-    font-size: 1.2rem;
-  }
-
-  /* Extras panel: reset min-width from 760px rule */
-  .extras-row__inner {
-    min-width: 0;
-    padding: 0.75rem 1rem;
-  }
-
-  .row-add-btn {
-    margin: 0.5rem 1rem 0.25rem;
-    padding: 0.75rem 1.1rem;
-    font-size: 0.88rem;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0.75rem;
+    flex-shrink: 0;
   }
 }
