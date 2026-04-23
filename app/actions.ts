@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { replaceMenu, addMenuItem, updateMenuItem, deleteMenuItem } from "@/lib/menu";
+import { setMenuForWeek, addMenuItem, updateMenuItem, deleteMenuItem, deleteMenuForWeek, getMondayISO, getNextMondayISO } from "@/lib/menu";
 import type { ParsedMenuItem } from "@/lib/parse-menu";
 import type { MenuItem } from "@/lib/types";
 import {
@@ -70,12 +70,23 @@ export async function actionUpdateExtraEmail(
 }
 
 export async function actionConfirmMenuImport(
+  weekStart: string,
   weekLabel: string,
   items: ParsedMenuItem[]
 ): Promise<void> {
-  replaceMenu(weekLabel, items);
+  setMenuForWeek(weekStart, weekLabel, items);
   revalidatePath("/jidelnicek");
   revalidatePath("/");
+}
+
+export async function actionDeleteMenuWeek(weekStart: string): Promise<void> {
+  deleteMenuForWeek(weekStart);
+  revalidatePath("/jidelnicek");
+  revalidatePath("/");
+}
+
+export async function actionGetWeekStarts(): Promise<{ current: string; next: string }> {
+  return { current: getMondayISO(), next: getNextMondayISO() };
 }
 
 export async function actionAddMenuItem(item: {
@@ -84,6 +95,7 @@ export async function actionAddMenuItem(item: {
   code: string;
   name: string;
   price: number;
+  weekStart?: string;
 }): Promise<MenuItem> {
   return addMenuItem(item);
 }

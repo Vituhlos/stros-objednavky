@@ -5,6 +5,7 @@ import type { MenuItem } from "@/lib/types";
 import type { ParsedMenuItem, ParseResult } from "@/lib/parse-menu";
 import {
   actionConfirmMenuImport,
+  actionDeleteMenuWeek,
   actionAddMenuItem,
   actionUpdateMenuItem,
   actionDeleteMenuItem,
@@ -18,20 +19,24 @@ const DAY_LABELS: Record<string, string> = {
 };
 
 interface Props {
-  menu: Record<string, { soups: MenuItem[]; meals: MenuItem[] }>;
-  weekLabel: string | null;
+  currentMenu: Record<string, { soups: MenuItem[]; meals: MenuItem[] }>;
+  currentWeekLabel: string | null;
+  currentWeekStart: string;
+  nextMenu: Record<string, { soups: MenuItem[]; meals: MenuItem[] }>;
+  nextWeekLabel: string | null;
+  nextWeekStart: string;
   todayCode: string | null;
 }
 
 type ImportState =
   | { phase: "idle" }
   | { phase: "uploading" }
-  | { phase: "preview"; result: ParseResult }
+  | { phase: "preview"; result: ParseResult; targetWeekStart: string; targetLabel: string }
   | { phase: "saving" }
   | { phase: "done" }
   | { phase: "error"; message: string };
 
-// ── Preview table (import) ────────────────────────────────────────────────────
+// ── Preview table ─────────────────────────────────────────────────────────────
 
 function PreviewTable({ items }: { items: ParsedMenuItem[] }) {
   const byDay: Record<string, { soups: ParsedMenuItem[]; meals: ParsedMenuItem[] }> = {};
@@ -71,7 +76,7 @@ function PreviewTable({ items }: { items: ParsedMenuItem[] }) {
   );
 }
 
-// ── Single editable menu item row ─────────────────────────────────────────────
+// ── Editable item row ─────────────────────────────────────────────────────────
 
 function EditableItem({
   item,
@@ -125,18 +130,20 @@ function EditableItem({
   );
 }
 
-// ── Menu grid – view mode ─────────────────────────────────────────────────────
+// ── View grid ─────────────────────────────────────────────────────────────────
 
 function ViewGrid({
   menu,
   todayCode,
+  emptyMessage,
 }: {
   menu: Record<string, { soups: MenuItem[]; meals: MenuItem[] }>;
   todayCode: string | null;
+  emptyMessage: string;
 }) {
   const days = DAY_ORDER.filter((d) => menu[d]);
   if (days.length === 0) {
-    return <p className="menu-empty">Jídelníček není naplněný. Importujte PDF nebo použijte ruční úpravu.</p>;
+    return <p className="menu-empty">{emptyMessage}</p>;
   }
   return (
     <div className="menu-preview-grid">
@@ -172,7 +179,7 @@ function ViewGrid({
   );
 }
 
-// ── Menu grid – edit mode ─────────────────────────────────────────────────────
+// ── Edit grid ─────────────────────────────────────────────────────────────────
 
 function EditGrid({
   menu,
@@ -199,7 +206,6 @@ function EditGrid({
               <span>{DAY_LABELS[day]}</span>
               {day === todayCode && <span className="menu-day-col__today-badge">Dnes</span>}
             </div>
-
             <div className="menu-edit-section">
               <div className="menu-edit-section__label">
                 <span>Polévky</span>
@@ -214,7 +220,6 @@ function EditGrid({
                 + Polévka
               </button>
             </div>
-
             <div className="menu-edit-section">
               <div className="menu-edit-section__label">
                 <span>Jídla</span>
@@ -238,8 +243,16 @@ function EditGrid({
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export default function MenuPage({ menu: initialMenu, weekLabel, todayCode }: Props) {
-  const [menu, setMenu] = useState(initialMenu);
+export default function MenuPage({
+  currentMenu: initialCurrentMenu,
+  currentWeekLabel,
+  currentWeekStart,
+  nextMenu: initialNextMenu,
+  nextWeekLabel,
+  nextWeekStart,
+  todayCode,
+}: Props) {
+  const [currentMenu, setCurrentMenu] = useState(initialCurrentMenu);
   const [editMode, setEditMode] = useState(false);
   const [importState, setImportState] = useState<ImportState>({ phase: "idle" });
   const [isDragging, setIsDragging] = useState(false);
@@ -247,7 +260,9 @@ export default function MenuPage({ menu: initialMenu, weekLabel, todayCode }: Pr
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  // ── Import handlers ───────────────────────────────────────────────────────
+  const hasNextWeek = Object.keys(initialNextMenu).length > 0;
+
+  // ── Import ────────────────────────────────────────────────────────────────
 
   const handleFile = useCallback(async (file: File) => {
     if (!file.name.toLowerCase().endsWith(".pdf")) {
@@ -259,29 +274,44 @@ export default function MenuPage({ menu: initialMenu, weekLabel, todayCode }: Pr
     fd.append("file", file);
     try {
       const res = await fetch("/api/menu/import", { method: "POST", body: fd });
-      const data = await res.json();
-      if (!res.ok) { setImportState({ phase: "error", message: data.error ?? "Neznámá chyba." }); return; }
-      setImportState({ phase: "preview", result: data as ParseResult });
+      const data = await res.json() as ParseResult;
+      if (!res.ok) {
+        setImportState({ phase: "error", message: (data as { error?: string }).error ?? "Neznámá chyba." });
+        return;
+      }
+      // Determine target week: match by weekStart from PDF, default to next week
+      const detectedStart = data.weekStart;
+      let targetWeekStart = nextWeekStart;
+      let targetLabel = `příští týden${nextWeekLabel ? ` (${nextWeekLabel})` : ""}`;
+      if (detectedStart === currentWeekStart) {
+        targetWeekStart = currentWeekStart;
+        targetLabel = `aktuální týden${currentWeekLabel ? ` (${currentWeekLabel})` : ""}`;
+      } else if (detectedStart) {
+        targetWeekStart = detectedStart;
+        targetLabel = data.weekLabel ?? detectedStart;
+      }
+      setImportState({ phase: "preview", result: data, targetWeekStart, targetLabel });
     } catch {
       setImportState({ phase: "error", message: "Síťová chyba. Zkuste to znovu." });
     }
-  }, []);
+  }, [currentWeekStart, currentWeekLabel, nextWeekStart, nextWeekLabel]);
 
   const handleConfirm = () => {
     if (importState.phase !== "preview") return;
-    const { result } = importState;
+    const { result, targetWeekStart } = importState;
     setImportState({ phase: "saving" });
     startTransition(async () => {
-      await actionConfirmMenuImport(result.weekLabel ?? weekLabel ?? "neznámý týden", result.items);
+      const label = result.weekLabel ?? targetWeekStart;
+      await actionConfirmMenuImport(targetWeekStart, label, result.items);
       setImportState({ phase: "done" });
       router.refresh();
     });
   };
 
-  // ── Edit mode handlers ────────────────────────────────────────────────────
+  // ── Edit mode (current week only) ─────────────────────────────────────────
 
   const handleUpdate = useCallback((id: number, updates: Partial<{ code: string; name: string; price: number }>) => {
-    setMenu((prev) => {
+    setCurrentMenu((prev) => {
       const next = { ...prev };
       for (const day of Object.keys(next)) {
         next[day] = {
@@ -297,7 +327,7 @@ export default function MenuPage({ menu: initialMenu, weekLabel, todayCode }: Pr
   const handleDelete = useCallback((id: number) => {
     startTransition(async () => {
       await actionDeleteMenuItem(id);
-      setMenu((prev) => {
+      setCurrentMenu((prev) => {
         const next = { ...prev };
         for (const day of Object.keys(next)) {
           next[day] = {
@@ -318,8 +348,9 @@ export default function MenuPage({ menu: initialMenu, weekLabel, todayCode }: Pr
         code: type === "Polévka" ? "A" : "1",
         name: type === "Polévka" ? "Nová polévka" : "Nové jídlo",
         price: type === "Polévka" ? 35 : 120,
+        weekStart: currentWeekStart,
       });
-      setMenu((prev) => {
+      setCurrentMenu((prev) => {
         const dayData = prev[day] ?? { soups: [], meals: [] };
         return {
           ...prev,
@@ -330,7 +361,16 @@ export default function MenuPage({ menu: initialMenu, weekLabel, todayCode }: Pr
         };
       });
     });
-  }, []);
+  }, [currentWeekStart]);
+
+  // ── Delete next week ──────────────────────────────────────────────────────
+
+  const handleDeleteNextWeek = () => {
+    startTransition(async () => {
+      await actionDeleteMenuWeek(nextWeekStart);
+      router.refresh();
+    });
+  };
 
   const isImportOpen = importState.phase !== "idle" && importState.phase !== "done";
 
@@ -347,7 +387,9 @@ export default function MenuPage({ menu: initialMenu, weekLabel, todayCode }: Pr
             <div>
               <h2>Jídelníček LIMA</h2>
               <p className="hero__description">
-                {weekLabel ? `Aktuální týden: ${weekLabel}` : "Jídelníček není naplněný. Importujte PDF nebo přidejte položky ručně."}
+                {currentWeekLabel
+                  ? `Aktuální týden: ${currentWeekLabel}`
+                  : "Jídelníček není naplněný. Importujte PDF nebo přidejte položky ručně."}
               </p>
             </div>
             <div className="hero__actions">
@@ -409,12 +451,13 @@ export default function MenuPage({ menu: initialMenu, weekLabel, todayCode }: Pr
                       <p className="import-status">
                         Rozpoznáno <strong>{importState.result.items.length}</strong> položek
                         {importState.result.weekLabel && <>, týden <strong>{importState.result.weekLabel}</strong></>}
+                        {" · "}Bude uloženo jako: <strong>{importState.targetLabel}</strong>
                       </p>
                     </div>
                     <div className="import-panel__preview-actions">
                       <button className="header-action header-action--secondary" onClick={() => setImportState({ phase: "idle" })} type="button">Zrušit</button>
                       <button className="header-action header-action--primary" disabled={isPending} onClick={handleConfirm} type="button">
-                        {isPending ? "Ukládám..." : "Nahradit aktuální jídelníček"}
+                        {isPending ? "Ukládám..." : "Uložit jídelníček"}
                       </button>
                     </div>
                   </div>
@@ -426,20 +469,53 @@ export default function MenuPage({ menu: initialMenu, weekLabel, todayCode }: Pr
           </div>
         )}
 
-        {/* ── Menu grid ────────────────────────────── */}
+        {/* ── Aktuální týden ────────────────────────── */}
         <div className="menu-section">
           {editMode ? (
             <EditGrid
               disabled={isPending}
-              menu={menu}
+              menu={currentMenu}
               onAdd={handleAdd}
               onDelete={handleDelete}
               onUpdate={handleUpdate}
               todayCode={todayCode}
             />
           ) : (
-            <ViewGrid menu={menu} todayCode={todayCode} />
+            <ViewGrid
+              emptyMessage="Jídelníček není naplněný. Importujte PDF nebo použijte ruční úpravu."
+              menu={currentMenu}
+              todayCode={todayCode}
+            />
           )}
+        </div>
+
+        {/* ── Příští týden ──────────────────────────── */}
+        <div className="menu-section">
+          <div className="menu-next-week-header">
+            <div>
+              <p className="department__eyebrow">Připraveno dopředu</p>
+              <h3 className="menu-next-week-title">
+                Příští týden
+                {nextWeekLabel && <span className="menu-next-week-label">{nextWeekLabel}</span>}
+              </h3>
+            </div>
+            {hasNextWeek && (
+              <button
+                className="row-delete-btn menu-next-week-delete"
+                disabled={isPending}
+                onClick={handleDeleteNextWeek}
+                title="Smazat jídelníček příštího týdne"
+                type="button"
+              >
+                Smazat
+              </button>
+            )}
+          </div>
+          <ViewGrid
+            emptyMessage="Zatím žádný jídelníček. Importujte PDF příštího týdne — app ho automaticky uloží sem."
+            menu={initialNextMenu}
+            todayCode={null}
+          />
         </div>
       </section>
     </main>

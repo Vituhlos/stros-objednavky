@@ -7,6 +7,7 @@ export interface ParsedMenuItem {
 
 export interface ParseResult {
   weekLabel: string | null;
+  weekStart: string | null;
   items: ParsedMenuItem[];
   rawTextPreview: string;
 }
@@ -71,6 +72,14 @@ function extractWeekLabel(rawText: string): string | null {
   const m = rawText.match(/Týden\s+([\d.]+\s*[-–]\s*[\d. ]+\d{4})/);
   if (!m) return null;
   return m[1].replace(/\s+/g, "").replace(/[–]/g, "-");
+}
+
+// "30.3.-3.4.2026" → "2026-03-30"  (Monday = first date in label)
+function parseWeekStart(weekLabel: string): string | null {
+  const dayMonth = weekLabel.match(/^(\d{1,2})\.(\d{1,2})\./);
+  const year = weekLabel.match(/(\d{4})$/);
+  if (!dayMonth || !year) return null;
+  return `${year[1]}-${dayMonth[2].padStart(2, "0")}-${dayMonth[1].padStart(2, "0")}`;
 }
 
 // Recursively split "/" variants into separate items.
@@ -146,6 +155,7 @@ function expandVariants(
 
 export function parseMenuText(rawText: string): ParseResult {
   const weekLabel = extractWeekLabel(rawText);
+  const weekStart = weekLabel ? parseWeekStart(weekLabel) : null;
   const lines = joinContinuationLines(rawText.split("\n"));
   const items: ParsedMenuItem[] = [];
   let currentDay: string | null = null;
@@ -185,6 +195,7 @@ export function parseMenuText(rawText: string): ParseResult {
 
   return {
     weekLabel,
+    weekStart,
     items,
     rawTextPreview: rawText.slice(0, 1000),
   };

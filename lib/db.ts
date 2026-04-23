@@ -82,4 +82,7 @@ function migrate(db: Database.Database): void {
       count         INTEGER NOT NULL DEFAULT 1
     );
   `);
+
+  // Add week_start column to existing databases (idempotent)
+  try { db.exec("ALTER TABLE menu_items ADD COLUMN week_start TEXT"); } catch {}
 }

@@ -829,6 +829,51 @@ select {
   flex-shrink: 0;
 }
 
+/* ── Next week section header ────────────────────────────── */
+
+.menu-next-week-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem 0 0.75rem;
+  border-top: 2px solid var(--line);
+  margin-top: 1.5rem;
+}
+
+.menu-next-week-title {
+  margin: 0;
+  font-family: "Oswald", sans-serif;
+  font-size: 1.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.menu-next-week-label {
+  font-family: "Source Sans 3", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: color-mix(in srgb, var(--graphite) 60%, transparent);
+}
+
+.menu-next-week-delete {
+  width: auto;
+  height: auto;
+  min-height: 2rem;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+}
+
 /* ── Menu edit mode ───────────────────────────────────────── */
 
 /* Mobile: 1 column — 5 columns restored at 1180px */
