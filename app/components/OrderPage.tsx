@@ -57,19 +57,18 @@ export default function OrderPage({ initialData, cutoffTime = "08:00", menuEmpty
   const totalPrice = departments.reduce((s, d) => s + d.subtotal, 0);
 
   const handleAddRow = useCallback(
-    (department: Department) => {
-      startTransition(async () => {
-        const newRow = await actionAddRow(orderId, department);
-        setDepartments((prev) =>
-          recalcDepartments(
-            prev.map((d) =>
-              d.name === department
-                ? { ...d, rows: [...d.rows, newRow] }
-                : d
-            )
+    async (department: Department): Promise<number> => {
+      const newRow = await actionAddRow(orderId, department);
+      setDepartments((prev) =>
+        recalcDepartments(
+          prev.map((d) =>
+            d.name === department
+              ? { ...d, rows: [...d.rows, newRow] }
+              : d
           )
-        );
-      });
+        )
+      );
+      return newRow.id;
     },
     [orderId]
   );
