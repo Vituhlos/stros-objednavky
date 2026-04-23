@@ -74,12 +74,20 @@ function extractWeekLabel(rawText: string): string | null {
   return m[1].replace(/\s+/g, "").replace(/[–]/g, "-");
 }
 
-// "30.3.-3.4.2026" → "2026-03-30"  (Monday = first date in label)
+// "30.3.-3.4.2026" → ISO date of the Monday of that week
+// Normalises to Monday so PDFs starting on Tue/Wed still match the week correctly.
 function parseWeekStart(weekLabel: string): string | null {
   const dayMonth = weekLabel.match(/^(\d{1,2})\.(\d{1,2})\./);
   const year = weekLabel.match(/(\d{4})$/);
   if (!dayMonth || !year) return null;
-  return `${year[1]}-${dayMonth[2].padStart(2, "0")}-${dayMonth[1].padStart(2, "0")}`;
+  const d = new Date(
+    parseInt(year[1], 10),
+    parseInt(dayMonth[2], 10) - 1,
+    parseInt(dayMonth[1], 10)
+  );
+  const dow = d.getDay(); // 0 = Sun
+  d.setDate(d.getDate() + (dow === 0 ? -6 : 1 - dow));
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 // Recursively split "/" variants into separate items.
