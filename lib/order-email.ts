@@ -147,7 +147,6 @@ export function buildOrderEmail(orderData: OrderData): {
         departmentList
       )}.<br><br>
       ${htmlShrnuti}
-      <p><strong>💰 Celková cena objednávky:</strong> ${orderData.totalPrice} Kč</p>
       <br>Hezký den!<br><br>– automat objednávek<br>Jiří Rytíř<br>+420 770 138 644
     </div>
   `;
@@ -180,7 +179,6 @@ export function buildOrderEmail(orderData: OrderData): {
     textLines.push(...notes.map((n) => `- ${n.name}: ${n.note}`));
     textLines.push("");
   }
-  textLines.push(`Celková cena objednávky: ${orderData.totalPrice} Kč`);
   textLines.push("", "Hezký den!", "", "– automat objednávek", "Jiří Rytíř", "+420 770 138 644");
 
   return {

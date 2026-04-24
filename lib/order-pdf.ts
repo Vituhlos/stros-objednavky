@@ -64,8 +64,7 @@ const COL_DEFS: ColDef[] = [
   { header: "H",         width: 20,    align: "center", value: (r) => r.rollCount > 0 ? String(r.rollCount) : "" },
   { header: "Jídlo",     width: 185,   align: "left",   value: (r) => r.mainItem ? `${r.mainItem.code}  ${r.mainItem.name}` : "–" },
   { header: "Přílohy",   width: 100,   align: "left",   value: (r) => extraCell(r) },
-  { header: "Poznámka",  width: 135,   align: "left",   value: (r) => r.note || "" },
-  { header: "Cena",      width: 87.89, align: "right",  value: (r) => r.rowPrice > 0 ? `${r.rowPrice} Kč` : "–" },
+  { header: "Poznámka",  width: 222.89, align: "left",   value: (r) => r.note || "" },
 ];
 
 const HEADER_H = 26;
@@ -179,10 +178,6 @@ export async function buildDepartmentPdfAttachment(
   } else {
     y = drawTable(doc, activeRows, y);
   }
-
-  y += 10;
-  doc.font(FONT_BOLD).fontSize(11).fillColor("#2F4858");
-  doc.text(`Mezisoučet: ${department.subtotal} Kč`, MARGIN, y, { lineBreak: false });
 
   doc.font(FONT).fontSize(8).fillColor("#888");
   doc.text(
