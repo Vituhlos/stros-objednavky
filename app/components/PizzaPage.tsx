@@ -160,6 +160,7 @@ export default function PizzaPage({ initialData }: { initialData: PizzaOrderData
               <span>Jméno</span>
               <span>Pizza</span>
               <span style={{ textAlign: "center" }}>Ks</span>
+              <span style={{ textAlign: "right" }}>Cena</span>
               <span style={{ textAlign: "right" }}>Platí</span>
               <span></span>
             </div>
@@ -329,6 +330,7 @@ function PizzaRow({
         </button>
       </div>
 
+      <span className="v2-pizza-price--base">{row.rowPrice > 0 ? `${row.rowPrice} Kč` : "–"}</span>
       <span className="v2-pizza-price">{adjustedPrice > 0 ? `${adjustedPrice} Kč` : "–"}</span>
 
       <button
