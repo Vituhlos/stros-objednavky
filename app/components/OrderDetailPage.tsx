@@ -56,10 +56,34 @@ function ReadOnlyRow({ row, accent }: { row: OrderRowEnriched; accent: string })
         <span className="v2-order-row__name-text">{row.personName || "—"}</span>
       </div>
       <div className="v2-order-row__main">
-        {row.mainItem ? <span>{row.mainItem.name}</span> : <span className="v2-muted">—</span>}
+        {row.mainItem ? (
+          <span>
+            {(row.mealCount || 1) > 1 && <strong>{row.mealCount}× </strong>}
+            {row.mainItem.name}
+            {row.extraMealItems.map((em, i) => (
+              <span key={i}>
+                <br />
+                <span style={{ color: "var(--v2-text-muted)", fontSize: "0.82em" }}>
+                  {em.count > 1 && <strong>{em.count}× </strong>}
+                  {em.item.name}
+                </span>
+              </span>
+            ))}
+          </span>
+        ) : <span className="v2-muted">—</span>}
       </div>
       <div className="v2-order-row__soup">
-        {row.soupItem ? <span>{row.soupItem.name}</span> : <span className="v2-muted">—</span>}
+        {row.soupItem ? (
+          <span>
+            {row.soupItem.name}
+            {row.soupItem2 && (
+              <>
+                <br />
+                <span style={{ color: "var(--v2-text-muted)", fontSize: "0.82em" }}>{row.soupItem2.name}</span>
+              </>
+            )}
+          </span>
+        ) : <span className="v2-muted">—</span>}
       </div>
       <div className="v2-order-row__extras">
         {chips.map((c) => <span className="v2-chip" key={c}>{c}</span>)}

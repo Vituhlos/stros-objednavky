@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition, useCallback } from "react";
-import type { OrderData, OrderRowEnriched, Department, DepartmentData } from "@/lib/types";
+import type { OrderData, OrderRowEnriched, Department, DepartmentData, MealEntry } from "@/lib/types";
 import { DEPARTMENTS } from "@/lib/types";
 import { computeRowPrice, EXTRAS_PRICES_DEFAULT, type ExtrasPrices } from "@/lib/pricing";
 import { DepartmentPanel } from "./DepartmentPanel";
@@ -12,6 +12,8 @@ import {
   actionDeleteRow,
   actionSendOrder,
   actionUpdateExtraEmail,
+  actionClearOrder,
+  actionReopenOrder,
 } from "@/app/actions";
 
 // ── Inline SVG icons ──────────────────────────────────────
@@ -97,6 +99,7 @@ export default function OrderPage({
   const [sentAt, setSentAt] = useState(initialData.order.sentAt);
   const [isPending, startTransition] = useTransition();
   const [sendError, setSendError] = useState<string | null>(null);
+  const [clearConfirm, setClearConfirm] = useState(false);
 
   const isSent = orderStatus === "sent";
 
@@ -121,16 +124,17 @@ export default function OrderPage({
       updates: Partial<{
         personName: string;
         soupItemId: number | null;
+        soupItemId2: number | null;
         mainItemId: number | null;
         mealCount: number;
-        mainItemId2: number | null;
-        mealCount2: number;
+        extraMeals: MealEntry[];
         rollCount: number;
         breadDumplingCount: number;
         potatoDumplingCount: number;
         ketchupCount: number;
         tatarkaCount: number;
         bbqCount: number;
+        note: string;
       }>
     ) => {
       setDepartments((prev) => {
@@ -142,20 +146,27 @@ export default function OrderPage({
           "soupItemId" in updates
             ? initialData.todayMenu.soups.find((s) => s.id === updates.soupItemId) ?? null
             : row.soupItem;
+        const soupItem2 =
+          "soupItemId2" in updates
+            ? initialData.todayMenu.soups.find((s) => s.id === updates.soupItemId2) ?? null
+            : row.soupItem2;
         const mainItem =
           "mainItemId" in updates
             ? initialData.todayMenu.meals.find((m) => m.id === updates.mainItemId) ?? null
             : row.mainItem;
-        const mainItem2 =
-          "mainItemId2" in updates
-            ? initialData.todayMenu.meals.find((m) => m.id === updates.mainItemId2) ?? null
-            : row.mainItem2;
+        const extraMealItems =
+          "extraMeals" in updates
+            ? (updates.extraMeals ?? [])
+                .map((e) => ({ item: initialData.todayMenu.meals.find((m) => m.id === e.itemId) ?? null, count: e.count }))
+                .filter((e): e is { item: NonNullable<typeof e.item>; count: number } => e.item != null)
+            : row.extraMealItems;
         const optimistic: OrderRowEnriched = {
           ...merged,
           soupItem: soupItem ?? null,
+          soupItem2: soupItem2 ?? null,
           mainItem: mainItem ?? null,
-          mainItem2: mainItem2 ?? null,
-          rowPrice: computeRowPrice(merged, soupItem ?? null, mainItem ?? null, mainItem2 ?? null, defaultSoupPrice, defaultMealPrice, extrasPrices),
+          extraMealItems,
+          rowPrice: computeRowPrice(merged, soupItem ?? null, soupItem2 ?? null, mainItem ?? null, extraMealItems, defaultSoupPrice, defaultMealPrice, extrasPrices),
         };
         return patchRow(prev, rowId, optimistic);
       });
@@ -166,6 +177,24 @@ export default function OrderPage({
     },
     [initialData.todayMenu]
   );
+
+  const handleClear = () => {
+    startTransition(async () => {
+      await actionClearOrder(orderId);
+      setDepartments((prev) =>
+        recalcDepartments(prev.map((d) => ({ ...d, rows: [] })))
+      );
+      setClearConfirm(false);
+    });
+  };
+
+  const handleReopen = () => {
+    startTransition(async () => {
+      await actionReopenOrder(orderId);
+      setOrderStatus("draft");
+      setSentAt(null);
+    });
+  };
 
   const handleDeleteRow = useCallback((rowId: number) => {
     startTransition(async () => {
@@ -303,7 +332,7 @@ export default function OrderPage({
           {isSent ? (
             <>
               <span className="v2-statusbar__icon v2-statusbar__icon--green"><IconCheck /></span>
-              <div>
+              <div style={{ flex: 1 }}>
                 <strong>Objednávka byla odeslána.</strong>
                 {sentAt && (
                   <span>
@@ -316,14 +345,41 @@ export default function OrderPage({
                 )}
                 <span> Další úpravy nejsou možné.</span>
               </div>
+              <button
+                className="v2-btn v2-btn--secondary"
+                disabled={isPending}
+                onClick={handleReopen}
+                style={{ marginLeft: "auto", flexShrink: 0 }}
+                type="button"
+              >
+                {isPending ? "…" : "Znovu otevřít"}
+              </button>
             </>
           ) : (
             <>
               <span className="v2-statusbar__icon"><IconLock /></span>
-              <div>
+              <div style={{ flex: 1 }}>
                 <strong>Uzávěrka proběhne v {cutoffTime}.</strong>
                 <span> Objednávku po uzávěrce odešle správce.</span>
               </div>
+              {clearConfirm ? (
+                <span style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexShrink: 0, marginLeft: "auto" }}>
+                  <span style={{ fontSize: "0.82rem", color: "var(--v2-text-muted)" }}>Opravdu smazat vše?</span>
+                  <button className="v2-btn v2-btn--danger" disabled={isPending} onClick={handleClear} type="button">
+                    {isPending ? "…" : "Ano, smazat"}
+                  </button>
+                  <button className="v2-btn v2-btn--secondary" onClick={() => setClearConfirm(false)} type="button">Zrušit</button>
+                </span>
+              ) : (
+                <button
+                  className="v2-btn v2-btn--ghost"
+                  onClick={() => setClearConfirm(true)}
+                  style={{ marginLeft: "auto", flexShrink: 0 }}
+                  type="button"
+                >
+                  Smazat objednávku
+                </button>
+              )}
             </>
           )}
         </div>

@@ -1,17 +1,17 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import type { DepartmentData, OrderRowEnriched, MenuItem, Department } from "@/lib/types";
+import type { DepartmentData, OrderRowEnriched, MenuItem, Department, MealEntry } from "@/lib/types";
 import { DEPARTMENT_LABELS, DEPARTMENT_ACCENT } from "@/lib/types";
 import { EXTRAS_PRICES_DEFAULT, type ExtrasPrices } from "@/lib/pricing";
 
 type RowUpdates = Partial<{
   personName: string;
   soupItemId: number | null;
+  soupItemId2: number | null;
   mainItemId: number | null;
   mealCount: number;
-  mainItemId2: number | null;
-  mealCount2: number;
+  extraMeals: MealEntry[];
   rollCount: number;
   breadDumplingCount: number;
   potatoDumplingCount: number;
@@ -142,12 +142,15 @@ function OrderEditModal({
   onSave: (u: RowUpdates) => void; onClose: () => void; onDelete: () => void;
 }) {
   const [personName, setPersonName] = useState(row.personName);
-  const [soupItemId, setSoupItemId] = useState<number | null>(row.soupItemId);
-  const [mainItemId, setMainItemId] = useState<number | null>(row.mainItemId);
-  const [mealCount, setMealCount] = useState(row.mealCount || 1);
-  const [mainItemId2, setMainItemId2] = useState<number | null>(row.mainItemId2);
-  const [mealCount2, setMealCount2] = useState(row.mealCount2 || 1);
-  const [showSecondMeal, setShowSecondMeal] = useState(row.mainItemId2 != null);
+  const [soupIds, setSoupIds] = useState<(number | null)[]>(
+    row.soupItemId2 != null
+      ? [row.soupItemId, row.soupItemId2]
+      : [row.soupItemId]
+  );
+  const [mealEntries, setMealEntries] = useState<{ itemId: number | null; count: number }[]>([
+    { itemId: row.mainItemId, count: row.mealCount || 1 },
+    ...row.extraMealItems.map((e) => ({ itemId: e.item.id, count: e.count })),
+  ]);
   const [rollCount, setRollCount] = useState(row.rollCount);
   const [breadDumplingCount, setBreadDumplingCount] = useState(row.breadDumplingCount);
   const [potatoDumplingCount, setPotatoDumplingCount] = useState(row.potatoDumplingCount);
@@ -165,7 +168,6 @@ function OrderEditModal({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isNew]);
 
-  // Lock body scroll on iOS Safari
   useEffect(() => {
     const scrollY = window.scrollY;
     document.body.style.position = "fixed";
@@ -179,6 +181,24 @@ function OrderEditModal({
     };
   }, []);
 
+  const handleSave = () => {
+    const firstMeal = mealEntries[0] ?? { itemId: null, count: 1 };
+    const extraMeals: MealEntry[] = mealEntries
+      .slice(1)
+      .filter((e) => e.itemId != null)
+      .map((e) => ({ itemId: e.itemId!, count: e.count }));
+    onSave({
+      personName,
+      soupItemId: soupIds[0] ?? null,
+      soupItemId2: soupIds.length > 1 ? (soupIds[1] ?? null) : null,
+      mainItemId: firstMeal.itemId,
+      mealCount: firstMeal.count,
+      extraMeals,
+      rollCount, breadDumplingCount, potatoDumplingCount,
+      ketchupCount, tatarkaCount, bbqCount, note,
+    });
+  };
+
   return (
     <div className="modal-overlay" onClick={handleCancel}>
       <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
@@ -191,71 +211,104 @@ function OrderEditModal({
             <label className="modal-label" htmlFor="modal-name">Jméno</label>
             <input autoFocus className="modal-input" id="modal-name" onChange={(e) => setPersonName(e.target.value)} placeholder="Jméno osoby..." type="text" value={personName} />
           </div>
-          <div className="modal-field">
-            <label className="modal-label" htmlFor="modal-soup">
-              Polévka
-              {defaultSoupPrice != null && <span className="modal-label-price">{defaultSoupPrice} Kč</span>}
-            </label>
-            <select className="modal-select" id="modal-soup" onChange={(e) => setSoupItemId(e.target.value ? Number(e.target.value) : null)} value={soupItemId ?? ""}>
-              <option value="">— žádná polévka —</option>
-              {soups.map((s) => <option key={s.id} value={s.id}>{s.code} – {s.name}</option>)}
-            </select>
-          </div>
-          <div className="modal-field">
-            <label className="modal-label" htmlFor="modal-meal">
-              Jídlo
-              {defaultMealPrice != null && <span className="modal-label-price">{defaultMealPrice} Kč</span>}
-            </label>
-            <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-              <select className="modal-select" id="modal-meal" onChange={(e) => setMainItemId(e.target.value ? Number(e.target.value) : null)} style={{ flex: 1 }} value={mainItemId ?? ""}>
-                <option value="">— žádné jídlo —</option>
-                {meals.map((m) => <option key={m.id} value={m.id}>{m.code} – {m.name}</option>)}
-              </select>
-              {mainItemId && (
-                <div className="modal-count-stepper">
-                  <button className="modal-count-btn" disabled={mealCount <= 1} onClick={() => setMealCount((v) => Math.max(1, v - 1))} type="button">−</button>
-                  <span className="modal-count-val">{mealCount}×</span>
-                  <button className="modal-count-btn" disabled={mealCount >= 10} onClick={() => setMealCount((v) => Math.min(10, v + 1))} type="button">+</button>
-                </div>
-              )}
-            </div>
-          </div>
 
-          {/* Druhé jídlo */}
-          {showSecondMeal ? (
-            <div className="modal-field">
+          {/* ── Polévky ── */}
+          {soupIds.map((soupId, idx) => (
+            <div className="modal-field" key={`soup-${idx}`}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <label className="modal-label" htmlFor="modal-meal2">
-                  Druhé jídlo
+                <label className="modal-label" htmlFor={`modal-soup-${idx}`}>
+                  {idx === 0 ? "Polévka" : "Druhá polévka"}
+                  {defaultSoupPrice != null && <span className="modal-label-price">{defaultSoupPrice} Kč</span>}
+                </label>
+                {idx > 0 && (
+                  <button
+                    className="modal-remove-second"
+                    onClick={() => setSoupIds((prev) => prev.slice(0, -1))}
+                    type="button"
+                  >
+                    × odebrat
+                  </button>
+                )}
+              </div>
+              <select
+                className="modal-select"
+                id={`modal-soup-${idx}`}
+                onChange={(e) => {
+                  const val = e.target.value ? Number(e.target.value) : null;
+                  setSoupIds((prev) => prev.map((id, i) => i === idx ? val : id));
+                }}
+                value={soupId ?? ""}
+              >
+                <option value="">— žádná polévka —</option>
+                {soups.map((s) => <option key={s.id} value={s.id}>{s.code} – {s.name}</option>)}
+              </select>
+            </div>
+          ))}
+          {soupIds.length < 2 && (
+            <button className="modal-add-second" onClick={() => setSoupIds((prev) => [...prev, null])} type="button">
+              + Přidat druhou polévku
+            </button>
+          )}
+
+          {/* ── Jídla ── */}
+          {mealEntries.map((entry, idx) => (
+            <div className="modal-field" key={`meal-${idx}`}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <label className="modal-label" htmlFor={`modal-meal-${idx}`}>
+                  {idx === 0 ? "Jídlo" : `Jídlo ${idx + 1}`}
                   {defaultMealPrice != null && <span className="modal-label-price">{defaultMealPrice} Kč</span>}
                 </label>
-                <button
-                  className="modal-remove-second"
-                  onClick={() => { setShowSecondMeal(false); setMainItemId2(null); setMealCount2(1); }}
-                  type="button"
-                >
-                  × odebrat
-                </button>
+                {idx > 0 && (
+                  <button
+                    className="modal-remove-second"
+                    onClick={() => setMealEntries((prev) => prev.filter((_, i) => i !== idx))}
+                    type="button"
+                  >
+                    × odebrat
+                  </button>
+                )}
               </div>
               <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                <select className="modal-select" id="modal-meal2" onChange={(e) => setMainItemId2(e.target.value ? Number(e.target.value) : null)} style={{ flex: 1 }} value={mainItemId2 ?? ""}>
-                  <option value="">— žádné druhé jídlo —</option>
+                <select
+                  className="modal-select"
+                  id={`modal-meal-${idx}`}
+                  onChange={(e) => {
+                    const val = e.target.value ? Number(e.target.value) : null;
+                    setMealEntries((prev) => prev.map((ent, i) => i === idx ? { ...ent, itemId: val } : ent));
+                  }}
+                  style={{ flex: 1 }}
+                  value={entry.itemId ?? ""}
+                >
+                  <option value="">— žádné jídlo —</option>
                   {meals.map((m) => <option key={m.id} value={m.id}>{m.code} – {m.name}</option>)}
                 </select>
-                {mainItemId2 && (
+                {entry.itemId && (
                   <div className="modal-count-stepper">
-                    <button className="modal-count-btn" disabled={mealCount2 <= 1} onClick={() => setMealCount2((v) => Math.max(1, v - 1))} type="button">−</button>
-                    <span className="modal-count-val">{mealCount2}×</span>
-                    <button className="modal-count-btn" disabled={mealCount2 >= 10} onClick={() => setMealCount2((v) => Math.min(10, v + 1))} type="button">+</button>
+                    <button
+                      className="modal-count-btn"
+                      disabled={entry.count <= 1}
+                      onClick={() => setMealEntries((prev) => prev.map((ent, i) => i === idx ? { ...ent, count: Math.max(1, ent.count - 1) } : ent))}
+                      type="button"
+                    >−</button>
+                    <span className="modal-count-val">{entry.count}×</span>
+                    <button
+                      className="modal-count-btn"
+                      disabled={entry.count >= 10}
+                      onClick={() => setMealEntries((prev) => prev.map((ent, i) => i === idx ? { ...ent, count: Math.min(10, ent.count + 1) } : ent))}
+                      type="button"
+                    >+</button>
                   </div>
                 )}
               </div>
             </div>
-          ) : (
-            <button className="modal-add-second" onClick={() => setShowSecondMeal(true)} type="button">
-              + Přidat druhé jídlo
-            </button>
-          )}
+          ))}
+          <button
+            className="modal-add-second"
+            onClick={() => setMealEntries((prev) => [...prev, { itemId: null, count: 1 }])}
+            type="button"
+          >
+            + Přidat další jídlo
+          </button>
 
           <div className="modal-field">
             <label className="modal-label" htmlFor="modal-note">Poznámka k jídlu</label>
@@ -282,7 +335,7 @@ function OrderEditModal({
         <div className="modal-sheet__footer">
           {!isNew && <button className="modal-btn modal-btn--danger" onClick={onDelete} type="button">Smazat</button>}
           <button className="modal-btn modal-btn--secondary" onClick={handleCancel} type="button">Zrušit</button>
-          <button className="modal-btn modal-btn--primary" onClick={() => onSave({ personName, soupItemId, mainItemId, mealCount, mainItemId2: showSecondMeal ? mainItemId2 : null, mealCount2, rollCount, breadDumplingCount, potatoDumplingCount, ketchupCount, tatarkaCount, bbqCount, note })} type="button">Uložit</button>
+          <button className="modal-btn modal-btn--primary" onClick={handleSave} type="button">Uložit</button>
         </div>
       </div>
     </div>
@@ -331,15 +384,15 @@ function V2OrderRow({
           <span>
             {(row.mealCount || 1) > 1 && <strong>{row.mealCount}× </strong>}
             {row.mainItem.name}
-            {row.mainItem2 && (
-              <>
+            {row.extraMealItems.map((em, i) => (
+              <span key={i}>
                 <br />
                 <span style={{ color: "var(--v2-text-muted)", fontSize: "0.82em" }}>
-                  {(row.mealCount2 || 1) > 1 && <strong>{row.mealCount2}× </strong>}
-                  {row.mainItem2.name}
+                  {em.count > 1 && <strong>{em.count}× </strong>}
+                  {em.item.name}
                 </span>
-              </>
-            )}
+              </span>
+            ))}
           </span>
         ) : (
           <span className="v2-muted">—</span>
@@ -348,9 +401,19 @@ function V2OrderRow({
 
       {/* Col 3: Soup */}
       <div className="v2-order-row__soup">
-        {row.soupItem
-          ? <span>{row.soupItem.name}</span>
-          : <span className="v2-muted">—</span>}
+        {row.soupItem ? (
+          <span>
+            {row.soupItem.name}
+            {row.soupItem2 && (
+              <>
+                <br />
+                <span style={{ color: "var(--v2-text-muted)", fontSize: "0.82em" }}>{row.soupItem2.name}</span>
+              </>
+            )}
+          </span>
+        ) : (
+          <span className="v2-muted">—</span>
+        )}
       </div>
 
       {/* Col 4: Extras chips + note */}

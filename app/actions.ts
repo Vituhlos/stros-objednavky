@@ -15,8 +15,9 @@ import {
   sendOrder as dbSendOrder,
   updateExtraEmail,
   reopenOrder,
+  clearOrderRows,
 } from "@/lib/orders";
-import type { Department, OrderRowEnriched } from "@/lib/types";
+import type { Department, OrderRowEnriched, MealEntry } from "@/lib/types";
 import {
   addPizzaRow,
   updatePizzaRow,
@@ -41,7 +42,10 @@ export async function actionUpdateRow(
   updates: Partial<{
     personName: string;
     soupItemId: number | null;
+    soupItemId2: number | null;
     mainItemId: number | null;
+    mealCount: number;
+    extraMeals: MealEntry[];
     rollCount: number;
     breadDumplingCount: number;
     potatoDumplingCount: number;
@@ -154,6 +158,11 @@ export async function actionReopenOrder(orderId: number): Promise<void> {
   reopenOrder(orderId);
   revalidatePath("/historie");
   revalidatePath(`/historie/${orderId}`);
+}
+
+export async function actionClearOrder(orderId: number): Promise<void> {
+  clearOrderRows(orderId);
+  revalidatePath("/");
 }
 
 export async function actionCheckPin(pin: string): Promise<boolean> {

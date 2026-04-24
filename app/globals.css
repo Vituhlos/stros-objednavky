@@ -3162,6 +3162,15 @@ select {
 .v2-btn--danger:hover:not(:disabled) { background: #fef2f2; }
 .v2-btn--danger:disabled { opacity: 0.5; cursor: default; }
 
+.v2-btn--ghost {
+  background: transparent;
+  color: var(--v2-text-muted);
+  border: none;
+  font-size: 0.82rem;
+  padding: 0.3rem 0.6rem;
+}
+.v2-btn--ghost:hover { color: #dc2626; }
+
 /* ── v2 badge ── */
 
 .v2-badge {
