@@ -125,7 +125,7 @@ export function setMenuForWeek(
       "INSERT INTO menu_items (week_start, week_label, day, type, code, name, price) VALUES (?, ?, ?, ?, ?, ?, ?)"
     );
     for (const item of items) {
-      const price = item.type === "Polévka" ? 35 : 120;
+      const price = item.type === "Polévka" ? 30 : 110;
       insert.run(weekStart, weekLabel, item.day, item.type, item.code, item.name, price);
     }
   });

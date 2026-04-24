@@ -209,22 +209,21 @@ export default function OrderPage({
             <IconCalendar />
             <span>{dayStr}</span>
           </span>
-          {!isSent && (
+          {!isSent && !isPastCutoff && (
             <span className="v2-fact">
               <IconClock />
               <span>
-                Objednávat můžete do{" "}
+                Uzávěrka dnes v{" "}
                 <strong className="v2-accent">{cutoffTime}</strong>
               </span>
             </span>
           )}
-          <span className="v2-fact">
-            <IconInfo />
-            <span>
-              Uzávěrka objednávek dnes v{" "}
-              <strong className="v2-accent">{cutoffTime}</strong>.
+          {!isSent && isPastCutoff && (
+            <span className="v2-fact" style={{ color: "var(--v2-orange)" }}>
+              <IconClock />
+              <span>Po uzávěrce – objednávka ještě nebyla odeslána</span>
             </span>
-          </span>
+          )}
         </div>
         {!isSent && (
           <div className="v2-infostrip__send">
@@ -239,11 +238,11 @@ export default function OrderPage({
             />
             <button
               className="v2-send-btn"
-              disabled={isSent || isPending || isPastCutoff}
+              disabled={isSent || isPending}
               onClick={handleSend}
               type="button"
             >
-              {isPending ? "Odesílám…" : isPastCutoff ? "Po uzávěrce" : "Odeslat"}
+              {isPending ? "Odesílám…" : "Odeslat"}
             </button>
           </div>
         )}

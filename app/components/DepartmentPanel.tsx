@@ -248,6 +248,11 @@ function V2OrderRow({
         {row.note && <span className="v2-note-chip" title={row.note}>✎ {row.note}</span>}
       </div>
 
+      {/* Col 5: Price */}
+      <div className="v2-order-row__price">
+        {row.rowPrice > 0 ? `${row.rowPrice} Kč` : <span className="v2-muted">—</span>}
+      </div>
+
       {/* Actions */}
       {!isSent && (
         <div className="v2-order-row__actions" onClick={(e) => e.stopPropagation()}>
@@ -299,6 +304,7 @@ export function DepartmentPanel({ data, soups, meals, isSent, onAddRow, onUpdate
               <h2 className="v2-dept__title">{label}</h2>
               <span className="v2-dept__count">
                 {activeRows.length} {pluralOrders(activeRows.length)}
+                {data.subtotal > 0 && <> · <strong>{data.subtotal} Kč</strong></>}
               </span>
             </div>
           </div>
@@ -316,6 +322,7 @@ export function DepartmentPanel({ data, soups, meals, isSent, onAddRow, onUpdate
             <span>Hlavní jídlo</span>
             <span>Polévka</span>
             <span>Doplňky</span>
+            <span style={{ textAlign: "right" }}>Cena</span>
             <span />
           </div>
         )}
