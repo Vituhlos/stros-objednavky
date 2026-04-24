@@ -2155,7 +2155,6 @@ select {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  touch-action: none;
 }
 
 @media (min-width: 641px) {
@@ -2173,6 +2172,7 @@ select {
   display: flex;
   flex-direction: column;
   border-radius: 16px 16px 0 0;
+  touch-action: pan-y;
 }
 
 @media (min-width: 641px) {
