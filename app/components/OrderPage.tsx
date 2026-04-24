@@ -75,10 +75,14 @@ export default function OrderPage({
   initialData,
   cutoffTime = "08:00",
   menuEmpty = false,
+  defaultSoupPrice = 30,
+  defaultMealPrice = 110,
 }: {
   initialData: OrderData;
   cutoffTime?: string;
   menuEmpty?: boolean;
+  defaultSoupPrice?: number;
+  defaultMealPrice?: number;
 }) {
   const [departments, setDepartments] = useState(initialData.departments);
   const [orderStatus, setOrderStatus] = useState(initialData.order.status);
@@ -266,6 +270,8 @@ export default function OrderPage({
           return (
             <DepartmentPanel
               data={deptData}
+              defaultMealPrice={defaultMealPrice}
+              defaultSoupPrice={defaultSoupPrice}
               isSent={isSent}
               key={dept}
               meals={allMeals}

@@ -2299,12 +2299,14 @@ select {
   font-style: italic;
 }
 
-.modal-price-hint {
-  display: block;
-  margin-top: 0.3rem;
-  font-size: 0.8rem;
+.modal-label-price {
+  margin-left: 0.5rem;
+  font-size: 0.78rem;
   font-weight: 600;
   color: var(--v2-orange, #ea580c);
+  background: rgba(234, 88, 12, 0.08);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
 }
 
 .modal-extras {
