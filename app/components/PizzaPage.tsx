@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useTransition, useCallback } from "react";
-import type { PizzaOrderData, PizzaOrderRow, PizzaItem, PizzaTotals } from "@/lib/pizza";
-import { computePizzaTotals, PIZZA_BOX_FEE } from "@/lib/pizza";
+import type { PizzaOrderData, PizzaOrderRow, PizzaItem } from "@/lib/pizza";
+import { computePizzaTotals, PIZZA_BOX_FEE } from "@/lib/pizza-utils";
+import type { PizzaTotals } from "@/lib/pizza-utils";
 import {
   actionAddPizzaRow,
   actionUpdatePizzaRow,
