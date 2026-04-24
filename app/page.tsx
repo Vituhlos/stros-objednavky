@@ -7,13 +7,21 @@ export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const data = await getTodayOrderData();
-  const { cutoffTime, defaultSoupPrice, defaultMealPrice } = getSettings();
+  const s = getSettings();
   const menuEmpty = getMenuWeekLabel() === null;
   return (
     <OrderPage
-      cutoffTime={cutoffTime}
-      defaultMealPrice={parseInt(defaultMealPrice) || 110}
-      defaultSoupPrice={parseInt(defaultSoupPrice) || 30}
+      cutoffTime={s.cutoffTime}
+      defaultMealPrice={parseInt(s.defaultMealPrice) || 110}
+      defaultSoupPrice={parseInt(s.defaultSoupPrice) || 30}
+      extrasPrices={{
+        roll: parseInt(s.priceRoll) || 5,
+        breadDumpling: parseInt(s.priceBreadDumpling) || 40,
+        potatoDumpling: parseInt(s.pricePotatoDumpling) || 45,
+        ketchup: parseInt(s.priceKetchup) || 20,
+        tatarka: parseInt(s.priceTatarka) || 20,
+        bbq: parseInt(s.priceBbq) || 20,
+      }}
       initialData={data}
       menuEmpty={menuEmpty}
     />

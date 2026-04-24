@@ -13,6 +13,12 @@ export interface AppSettings {
   settingsPin: string;
   defaultSoupPrice: string;
   defaultMealPrice: string;
+  priceRoll: string;
+  priceBreadDumpling: string;
+  pricePotatoDumpling: string;
+  priceKetchup: string;
+  priceTatarka: string;
+  priceBbq: string;
 }
 
 const KEY_MAP: Record<keyof AppSettings, string> = {
@@ -28,6 +34,12 @@ const KEY_MAP: Record<keyof AppSettings, string> = {
   settingsPin: "settings_pin",
   defaultSoupPrice: "default_soup_price",
   defaultMealPrice: "default_meal_price",
+  priceRoll: "price_roll",
+  priceBreadDumpling: "price_bread_dumpling",
+  pricePotatoDumpling: "price_potato_dumpling",
+  priceKetchup: "price_ketchup",
+  priceTatarka: "price_tatarka",
+  priceBbq: "price_bbq",
 };
 
 function envDefaults(): AppSettings {
@@ -45,6 +57,12 @@ function envDefaults(): AppSettings {
     settingsPin: process.env.SETTINGS_PIN ?? "1234",
     defaultSoupPrice: "30",
     defaultMealPrice: "110",
+    priceRoll: "5",
+    priceBreadDumpling: "40",
+    pricePotatoDumpling: "45",
+    priceKetchup: "20",
+    priceTatarka: "20",
+    priceBbq: "20",
   };
 }
 

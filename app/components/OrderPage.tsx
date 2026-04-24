@@ -3,7 +3,7 @@
 import { useState, useTransition, useCallback } from "react";
 import type { OrderData, OrderRowEnriched, Department, DepartmentData } from "@/lib/types";
 import { DEPARTMENTS } from "@/lib/types";
-import { computeRowPrice } from "@/lib/pricing";
+import { computeRowPrice, EXTRAS_PRICES_DEFAULT, type ExtrasPrices } from "@/lib/pricing";
 import { DepartmentPanel } from "./DepartmentPanel";
 import AppTopBar from "./AppTopBar";
 import {
@@ -77,12 +77,14 @@ export default function OrderPage({
   menuEmpty = false,
   defaultSoupPrice = 30,
   defaultMealPrice = 110,
+  extrasPrices = EXTRAS_PRICES_DEFAULT,
 }: {
   initialData: OrderData;
   cutoffTime?: string;
   menuEmpty?: boolean;
   defaultSoupPrice?: number;
   defaultMealPrice?: number;
+  extrasPrices?: ExtrasPrices;
 }) {
   const [departments, setDepartments] = useState(initialData.departments);
   const [orderStatus, setOrderStatus] = useState(initialData.order.status);
@@ -141,7 +143,7 @@ export default function OrderPage({
           ...merged,
           soupItem: soupItem ?? null,
           mainItem: mainItem ?? null,
-          rowPrice: computeRowPrice(merged, soupItem ?? null, mainItem ?? null, defaultSoupPrice, defaultMealPrice),
+          rowPrice: computeRowPrice(merged, soupItem ?? null, mainItem ?? null, defaultSoupPrice, defaultMealPrice, extrasPrices),
         };
         return patchRow(prev, rowId, optimistic);
       });
@@ -272,6 +274,7 @@ export default function OrderPage({
               data={deptData}
               defaultMealPrice={defaultMealPrice}
               defaultSoupPrice={defaultSoupPrice}
+              extrasPrices={extrasPrices}
               isSent={isSent}
               key={dept}
               meals={allMeals}

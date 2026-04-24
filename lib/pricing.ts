@@ -1,6 +1,6 @@
 import type { OrderRow, MenuItem } from "./types";
 
-export const EXTRAS_PRICES = {
+export const EXTRAS_PRICES_DEFAULT = {
   roll: 5,
   breadDumpling: 40,
   potatoDumpling: 45,
@@ -8,6 +8,11 @@ export const EXTRAS_PRICES = {
   tatarka: 20,
   bbq: 20,
 } as const;
+
+export type ExtrasPrices = typeof EXTRAS_PRICES_DEFAULT;
+
+/** @deprecated use EXTRAS_PRICES_DEFAULT */
+export const EXTRAS_PRICES = EXTRAS_PRICES_DEFAULT;
 
 export const EXTRAS_LABELS: Record<keyof typeof EXTRAS_PRICES, string> = {
   roll: "Houska",
@@ -83,16 +88,18 @@ export function computeRowPrice(
   soup: MenuItem | null,
   main: MenuItem | null,
   soupPrice?: number,
-  mealPrice?: number
+  mealPrice?: number,
+  ep?: Partial<ExtrasPrices>
 ): number {
+  const d = EXTRAS_PRICES_DEFAULT;
   let price = 0;
   if (soup) price += soupPrice ?? soup.price;
   if (main) price += mealPrice ?? main.price;
-  price += row.rollCount * EXTRAS_PRICES.roll;
-  price += row.breadDumplingCount * EXTRAS_PRICES.breadDumpling;
-  price += row.potatoDumplingCount * EXTRAS_PRICES.potatoDumpling;
-  price += row.ketchupCount * EXTRAS_PRICES.ketchup;
-  price += row.tatarkaCount * EXTRAS_PRICES.tatarka;
-  price += row.bbqCount * EXTRAS_PRICES.bbq;
+  price += row.rollCount * (ep?.roll ?? d.roll);
+  price += row.breadDumplingCount * (ep?.breadDumpling ?? d.breadDumpling);
+  price += row.potatoDumplingCount * (ep?.potatoDumpling ?? d.potatoDumpling);
+  price += row.ketchupCount * (ep?.ketchup ?? d.ketchup);
+  price += row.tatarkaCount * (ep?.tatarka ?? d.tatarka);
+  price += row.bbqCount * (ep?.bbq ?? d.bbq);
   return price;
 }

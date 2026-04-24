@@ -1,7 +1,7 @@
 import { getDb } from "./db";
 import { buildOrderEmail } from "./order-email";
 import { buildDepartmentPdfAttachment } from "./order-pdf";
-import { computeRowPrice } from "./pricing";
+import { computeRowPrice, type ExtrasPrices } from "./pricing";
 import { getOrderRecipients, sendEmail } from "./email";
 import { getSettings } from "./settings";
 import {
@@ -51,22 +51,30 @@ function mapOrderRow(row: Record<string, unknown>): OrderRow {
   };
 }
 
-function readDefaultPrices(): { soupPrice: number; mealPrice: number } {
+function readDefaultPrices(): { soupPrice: number; mealPrice: number; ep: ExtrasPrices } {
   const s = getSettings();
   return {
     soupPrice: parseInt(s.defaultSoupPrice) || 30,
     mealPrice: parseInt(s.defaultMealPrice) || 110,
+    ep: {
+      roll: parseInt(s.priceRoll) || 5,
+      breadDumpling: parseInt(s.priceBreadDumpling) || 40,
+      potatoDumpling: parseInt(s.pricePotatoDumpling) || 45,
+      ketchup: parseInt(s.priceKetchup) || 20,
+      tatarka: parseInt(s.priceTatarka) || 20,
+      bbq: parseInt(s.priceBbq) || 20,
+    },
   };
 }
 
-function enrichRow(row: OrderRow, soupPrice: number, mealPrice: number): OrderRowEnriched {
+function enrichRow(row: OrderRow, soupPrice: number, mealPrice: number, ep: ExtrasPrices): OrderRowEnriched {
   const soup = row.soupItemId ? getMenuItemById(row.soupItemId) : null;
   const main = row.mainItemId ? getMenuItemById(row.mainItemId) : null;
   return {
     ...row,
     soupItem: soup,
     mainItem: main,
-    rowPrice: computeRowPrice(row, soup, main, soupPrice, mealPrice),
+    rowPrice: computeRowPrice(row, soup, main, soupPrice, mealPrice, ep),
   };
 }
 
@@ -91,7 +99,7 @@ export function getTodayOrderData(): OrderData {
   seedMenuIfEmpty(getWeekLabel());
   const order = getOrCreateTodayOrder();
   const db = getDb();
-  const { soupPrice, mealPrice } = readDefaultPrices();
+  const { soupPrice, mealPrice, ep } = readDefaultPrices();
 
   const dayCode = getTodayDayCode();
   const todayMenu = dayCode
@@ -104,7 +112,7 @@ export function getTodayOrderData(): OrderData {
     )
     .all(order.id) as Record<string, unknown>[];
 
-  const rows = rawRows.map((r) => enrichRow(mapOrderRow(r), soupPrice, mealPrice));
+  const rows = rawRows.map((r) => enrichRow(mapOrderRow(r), soupPrice, mealPrice, ep));
 
   const departments: DepartmentData[] = DEPARTMENTS.map((dept) => {
     const deptRows = rows.filter((r) => r.department === dept);
@@ -124,7 +132,7 @@ export function getTodayOrderData(): OrderData {
 export function getOrderData(orderId: number): OrderData {
   seedMenuIfEmpty(getWeekLabel());
   const db = getDb();
-  const { soupPrice, mealPrice } = readDefaultPrices();
+  const { soupPrice, mealPrice, ep } = readDefaultPrices();
   const orderRaw = db
     .prepare("SELECT * FROM orders WHERE id = ?")
     .get(orderId) as Record<string, unknown> | undefined;
@@ -145,7 +153,7 @@ export function getOrderData(orderId: number): OrderData {
     )
     .all(order.id) as Record<string, unknown>[];
 
-  const rows = rawRows.map((r) => enrichRow(mapOrderRow(r), soupPrice, mealPrice));
+  const rows = rawRows.map((r) => enrichRow(mapOrderRow(r), soupPrice, mealPrice, ep));
   const departments: DepartmentData[] = DEPARTMENTS.map((dept) => {
     const deptRows = rows.filter((r) => r.department === dept);
     const subtotal = deptRows.reduce((s, r) => s + r.rowPrice, 0);
@@ -181,8 +189,8 @@ export function addOrderRow(
   const row = db
     .prepare("SELECT * FROM order_rows WHERE id = ?")
     .get(result.lastInsertRowid) as Record<string, unknown>;
-  const { soupPrice, mealPrice } = readDefaultPrices();
-  return enrichRow(mapOrderRow(row), soupPrice, mealPrice);
+  const { soupPrice, mealPrice, ep } = readDefaultPrices();
+  return enrichRow(mapOrderRow(row), soupPrice, mealPrice, ep);
 }
 
 export function updateOrderRow(
@@ -228,8 +236,8 @@ export function updateOrderRow(
   const row = db
     .prepare("SELECT * FROM order_rows WHERE id = ?")
     .get(rowId) as Record<string, unknown>;
-  const { soupPrice, mealPrice } = readDefaultPrices();
-  return enrichRow(mapOrderRow(row), soupPrice, mealPrice);
+  const { soupPrice, mealPrice, ep } = readDefaultPrices();
+  return enrichRow(mapOrderRow(row), soupPrice, mealPrice, ep);
 }
 
 export function deleteOrderRow(rowId: number): void {

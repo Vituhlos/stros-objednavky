@@ -72,6 +72,12 @@ export default function SettingsPage({ settings }: { settings: AppSettings }) {
       cutoffTime: fd.get("cutoffTime") as string,
       defaultSoupPrice: fd.get("defaultSoupPrice") as string,
       defaultMealPrice: fd.get("defaultMealPrice") as string,
+      priceRoll: fd.get("priceRoll") as string,
+      priceBreadDumpling: fd.get("priceBreadDumpling") as string,
+      pricePotatoDumpling: fd.get("pricePotatoDumpling") as string,
+      priceKetchup: fd.get("priceKetchup") as string,
+      priceTatarka: fd.get("priceTatarka") as string,
+      priceBbq: fd.get("priceBbq") as string,
     };
     const newPin = (fd.get("newPin") as string).trim();
     if (newPin) updates.settingsPin = newPin;
@@ -293,6 +299,34 @@ export default function SettingsPage({ settings }: { settings: AppSettings }) {
                     name="defaultMealPrice"
                     type="number"
                   />
+                </Field>
+              </div>
+            </Section>
+
+            <Section title="Přílohy a doplňky">
+              <p style={{ fontSize: "0.83rem", color: "var(--v2-text-muted, #6b7280)", margin: "0 0 0.75rem" }}>
+                Ceny příloh zobrazované v modalu a používané pro výpočet ceny řádku.
+              </p>
+              <div className="settings-row">
+                <Field hint="Kč/ks" label="Houska">
+                  <input className="settings-input settings-input--short" defaultValue={settings.priceRoll} min="0" name="priceRoll" type="number" />
+                </Field>
+                <Field hint="Kč/ks" label="Houskový knedlík">
+                  <input className="settings-input settings-input--short" defaultValue={settings.priceBreadDumpling} min="0" name="priceBreadDumpling" type="number" />
+                </Field>
+                <Field hint="Kč/ks" label="Bramborový knedlík">
+                  <input className="settings-input settings-input--short" defaultValue={settings.pricePotatoDumpling} min="0" name="pricePotatoDumpling" type="number" />
+                </Field>
+              </div>
+              <div className="settings-row">
+                <Field hint="Kč/ks" label="Kečup">
+                  <input className="settings-input settings-input--short" defaultValue={settings.priceKetchup} min="0" name="priceKetchup" type="number" />
+                </Field>
+                <Field hint="Kč/ks" label="Tatarka">
+                  <input className="settings-input settings-input--short" defaultValue={settings.priceTatarka} min="0" name="priceTatarka" type="number" />
+                </Field>
+                <Field hint="Kč/ks" label="BBQ omáčka">
+                  <input className="settings-input settings-input--short" defaultValue={settings.priceBbq} min="0" name="priceBbq" type="number" />
                 </Field>
               </div>
             </Section>

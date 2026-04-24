@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import type { DepartmentData, OrderRowEnriched, MenuItem, Department } from "@/lib/types";
 import { DEPARTMENT_LABELS, DEPARTMENT_ACCENT } from "@/lib/types";
+import { EXTRAS_PRICES_DEFAULT, type ExtrasPrices } from "@/lib/pricing";
 
 type RowUpdates = Partial<{
   personName: string;
@@ -24,6 +25,7 @@ interface Props {
   isSent: boolean;
   defaultSoupPrice?: number;
   defaultMealPrice?: number;
+  extrasPrices?: ExtrasPrices;
   onAddRow: () => Promise<number>;
   onUpdateRow: (rowId: number, updates: RowUpdates) => void;
   onDeleteRow: (rowId: number) => void;
@@ -130,10 +132,10 @@ function ModalStepper({
 // ── Edit modal ────────────────────────────────────────────
 
 function OrderEditModal({
-  row, soups, meals, isNew, defaultSoupPrice, defaultMealPrice, onSave, onClose, onDelete,
+  row, soups, meals, isNew, defaultSoupPrice, defaultMealPrice, ep, onSave, onClose, onDelete,
 }: {
   row: OrderRowEnriched; soups: MenuItem[]; meals: MenuItem[];
-  isNew: boolean; defaultSoupPrice?: number; defaultMealPrice?: number;
+  isNew: boolean; defaultSoupPrice?: number; defaultMealPrice?: number; ep: ExtrasPrices;
   onSave: (u: RowUpdates) => void; onClose: () => void; onDelete: () => void;
 }) {
   const [personName, setPersonName] = useState(row.personName);
@@ -202,12 +204,12 @@ function OrderEditModal({
           </div>
           <div className="modal-extras">
             <p className="modal-label">Přílohy a doplňky</p>
-            <ModalStepper label="Houska" onChange={setRollCount} price={5} value={rollCount} />
-            <ModalStepper label="Houskový knedlík" onChange={setBreadDumplingCount} price={40} value={breadDumplingCount} />
-            <ModalStepper label="Bramborový knedlík" onChange={setPotatoDumplingCount} price={45} value={potatoDumplingCount} />
-            <ModalStepper label="Kečup" onChange={setKetchupCount} price={20} value={ketchupCount} />
-            <ModalStepper label="Tatarka" onChange={setTatarkaCount} price={20} value={tatarkaCount} />
-            <ModalStepper label="BBQ omáčka" onChange={setBbqCount} price={20} value={bbqCount} />
+            <ModalStepper label="Houska" onChange={setRollCount} price={ep.roll} value={rollCount} />
+            <ModalStepper label="Houskový knedlík" onChange={setBreadDumplingCount} price={ep.breadDumpling} value={breadDumplingCount} />
+            <ModalStepper label="Bramborový knedlík" onChange={setPotatoDumplingCount} price={ep.potatoDumpling} value={potatoDumplingCount} />
+            <ModalStepper label="Kečup" onChange={setKetchupCount} price={ep.ketchup} value={ketchupCount} />
+            <ModalStepper label="Tatarka" onChange={setTatarkaCount} price={ep.tatarka} value={tatarkaCount} />
+            <ModalStepper label="BBQ omáčka" onChange={setBbqCount} price={ep.bbq} value={bbqCount} />
           </div>
         </div>
         <div className="modal-sheet__footer">
@@ -299,7 +301,7 @@ function pluralOrders(n: number): string {
   return "objednávek";
 }
 
-export function DepartmentPanel({ data, soups, meals, isSent, defaultSoupPrice, defaultMealPrice, onAddRow, onUpdateRow, onDeleteRow }: Props) {
+export function DepartmentPanel({ data, soups, meals, isSent, defaultSoupPrice, defaultMealPrice, extrasPrices = EXTRAS_PRICES_DEFAULT, onAddRow, onUpdateRow, onDeleteRow }: Props) {
   const [modalState, setModalState] = useState<{ rowId: number; isNew: boolean } | null>(null);
   const [isAdding, setIsAdding] = useState(false);
 
@@ -379,6 +381,7 @@ export function DepartmentPanel({ data, soups, meals, isSent, defaultSoupPrice, 
         <OrderEditModal
           defaultMealPrice={defaultMealPrice}
           defaultSoupPrice={defaultSoupPrice}
+          ep={extrasPrices}
           isNew={modalState!.isNew}
           meals={meals}
           onClose={() => setModalState(null)}
