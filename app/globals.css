@@ -2610,6 +2610,19 @@ select {
 
 .v2-fact svg { flex-shrink: 0; }
 
+.sse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--v2-border, #d1d5db);
+  flex-shrink: 0;
+  transition: background 0.4s;
+}
+.sse-dot--on {
+  background: #22c55e;
+  box-shadow: 0 0 0 2px #bbf7d0;
+}
+
 .v2-accent {
   color: var(--v2-orange);
 }

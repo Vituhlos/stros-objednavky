@@ -95,16 +95,24 @@ export default function SettingsPage({ settings }: { settings: AppSettings }) {
   };
 
   const handleSmtpTest = () => {
+    if (!formRef.current) return;
+    const fd = new FormData(formRef.current);
+    const config = {
+      host: fd.get("smtpHost") as string,
+      port: fd.get("smtpPort") as string,
+      user: fd.get("smtpUser") as string,
+      pass: fd.get("smtpPass") as string,
+      secure: fd.get("smtpSecure") === "on" ? "true" : "false",
+    };
     setSmtpTestStatus("idle");
     setSmtpTestMsg("Testuji připojení...");
     startTransition(async () => {
       try {
-        const res = await fetch("/api/smtp-test");
-        if (!res.ok) {
-          setSmtpTestStatus("error");
-          setSmtpTestMsg(`Server vrátil chybu ${res.status}.`);
-          return;
-        }
+        const res = await fetch("/api/smtp-test", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(config),
+        });
         const json = await res.json() as { ok: boolean; error?: string };
         if (json.ok) {
           setSmtpTestStatus("ok");

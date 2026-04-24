@@ -100,13 +100,31 @@ export default function OrderPage({
 
   const isSent = orderStatus === "sent";
 
+  // ── Live cutoff check ─────────────────────────────────────
+  const checkCutoff = useCallback(() => {
+    const [h, m] = cutoffTime.split(":").map(Number);
+    const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Prague" }));
+    return now.getHours() * 60 + now.getMinutes() >= h * 60 + m;
+  }, [cutoffTime]);
+
+  const [isPastCutoff, setIsPastCutoff] = useState(checkCutoff);
+
+  useEffect(() => {
+    const id = setInterval(() => setIsPastCutoff(checkCutoff()), 30_000);
+    return () => clearInterval(id);
+  }, [checkCutoff]);
+
   // ── Real-time sync via SSE ────────────────────────────────
+  const [sseConnected, setSseConnected] = useState(false);
   const isPendingRef = useRef(isPending);
   useEffect(() => { isPendingRef.current = isPending; }, [isPending]);
 
   useEffect(() => {
     const es = new EventSource("/api/sse");
+    es.addEventListener("open", () => setSseConnected(true));
+    es.addEventListener("error", () => setSseConnected(false));
     es.addEventListener("change", () => {
+      setSseConnected(true);
       if (isPendingRef.current) return;
       fetch("/api/order-refresh")
         .then((r) => r.ok ? r.json() : null)
@@ -237,12 +255,6 @@ export default function OrderPage({
     });
   }, []);
 
-  const isPastCutoff = (() => {
-    const [h, m] = cutoffTime.split(":").map(Number);
-    const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Prague" }));
-    return now.getHours() * 60 + now.getMinutes() >= h * 60 + m;
-  })();
-
   const handleSend = () => {
     if (isSent) return;
     setSendError(null);
@@ -285,6 +297,10 @@ export default function OrderPage({
           <span className="v2-fact">
             <IconCalendar />
             <span>{dayStr}</span>
+            <span
+              className={`sse-dot${sseConnected ? " sse-dot--on" : ""}`}
+              title={sseConnected ? "Živé aktualizace aktivní" : "Připojování..."}
+            />
           </span>
           {!isSent && !isPastCutoff && (
             <span className="v2-fact">

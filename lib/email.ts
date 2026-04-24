@@ -47,3 +47,13 @@ export async function testSmtpConnection(): Promise<void> {
   const transporter = nodemailer.createTransport({ host: s.smtpHost, port, secure, auth: { user: s.smtpUser, pass: s.smtpPass } });
   await transporter.verify();
 }
+
+export async function testSmtpConnectionWith(config: {
+  host: string; port: string; user: string; pass: string; secure: string;
+}): Promise<void> {
+  if (!config.host) throw new Error("SMTP host není zadán.");
+  const port = Number(config.port) || 587;
+  const secure = config.secure === "true" || port === 465;
+  const transporter = nodemailer.createTransport({ host: config.host, port, secure, auth: { user: config.user, pass: config.pass } });
+  await transporter.verify();
+}
