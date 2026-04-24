@@ -116,7 +116,7 @@ export function getTodayOrderData(): OrderData {
 
   const departments: DepartmentData[] = DEPARTMENTS.map((dept) => {
     const deptRows = rows.filter((r) => r.department === dept);
-    const subtotal = deptRows.reduce((s, r) => s + r.rowPrice, 0);
+    const subtotal = deptRows.filter((r) => r.personName || r.soupItemId || r.mainItemId).reduce((s, r) => s + r.rowPrice, 0);
     return { name: dept, rows: deptRows, subtotal };
   });
 
@@ -156,7 +156,7 @@ export function getOrderData(orderId: number): OrderData {
   const rows = rawRows.map((r) => enrichRow(mapOrderRow(r), soupPrice, mealPrice, ep));
   const departments: DepartmentData[] = DEPARTMENTS.map((dept) => {
     const deptRows = rows.filter((r) => r.department === dept);
-    const subtotal = deptRows.reduce((s, r) => s + r.rowPrice, 0);
+    const subtotal = deptRows.filter((r) => r.personName || r.soupItemId || r.mainItemId).reduce((s, r) => s + r.rowPrice, 0);
     return { name: dept, rows: deptRows, subtotal };
   });
 

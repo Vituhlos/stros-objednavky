@@ -53,10 +53,14 @@ const IconCheck = () => (
 
 // ── Helpers ───────────────────────────────────────────────
 
+function isRowSubmitted(r: OrderRowEnriched): boolean {
+  return !!(r.personName || r.soupItemId || r.mainItemId);
+}
+
 function recalcDepartments(departments: DepartmentData[]): DepartmentData[] {
   return departments.map((d) => ({
     ...d,
-    subtotal: d.rows.reduce((s, r) => s + r.rowPrice, 0),
+    subtotal: d.rows.filter(isRowSubmitted).reduce((s, r) => s + r.rowPrice, 0),
   }));
 }
 
