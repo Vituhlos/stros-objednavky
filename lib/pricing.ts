@@ -9,7 +9,7 @@ export const EXTRAS_PRICES_DEFAULT = {
   bbq: 20,
 } as const;
 
-export type ExtrasPrices = typeof EXTRAS_PRICES_DEFAULT;
+export type ExtrasPrices = { roll: number; breadDumpling: number; potatoDumpling: number; ketchup: number; tatarka: number; bbq: number };
 
 /** @deprecated use EXTRAS_PRICES_DEFAULT */
 export const EXTRAS_PRICES = EXTRAS_PRICES_DEFAULT;
