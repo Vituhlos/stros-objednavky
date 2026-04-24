@@ -160,15 +160,6 @@ function OrderEditModal({
               {meals.map((m) => <option key={m.id} value={m.id}>{m.code} – {m.name}</option>)}
             </select>
           </div>
-          <div className="modal-extras">
-            <p className="modal-label">Přílohy a doplňky</p>
-            <ModalStepper label="Houska" onChange={setRollCount} price={5} value={rollCount} />
-            <ModalStepper label="Houskový knedlík" onChange={setBreadDumplingCount} price={40} value={breadDumplingCount} />
-            <ModalStepper label="Bramborový knedlík" onChange={setPotatoDumplingCount} price={45} value={potatoDumplingCount} />
-            <ModalStepper label="Kečup" onChange={setKetchupCount} price={20} value={ketchupCount} />
-            <ModalStepper label="Tatarka" onChange={setTatarkaCount} price={20} value={tatarkaCount} />
-            <ModalStepper label="BBQ omáčka" onChange={setBbqCount} price={20} value={bbqCount} />
-          </div>
           <div className="modal-field">
             <label className="modal-label" htmlFor="modal-note">Poznámka k jídlu</label>
             <textarea
@@ -180,6 +171,15 @@ function OrderEditModal({
               rows={2}
               value={note}
             />
+          </div>
+          <div className="modal-extras">
+            <p className="modal-label">Přílohy a doplňky</p>
+            <ModalStepper label="Houska" onChange={setRollCount} price={5} value={rollCount} />
+            <ModalStepper label="Houskový knedlík" onChange={setBreadDumplingCount} price={40} value={breadDumplingCount} />
+            <ModalStepper label="Bramborový knedlík" onChange={setPotatoDumplingCount} price={45} value={potatoDumplingCount} />
+            <ModalStepper label="Kečup" onChange={setKetchupCount} price={20} value={ketchupCount} />
+            <ModalStepper label="Tatarka" onChange={setTatarkaCount} price={20} value={tatarkaCount} />
+            <ModalStepper label="BBQ omáčka" onChange={setBbqCount} price={20} value={bbqCount} />
           </div>
         </div>
         <div className="modal-sheet__footer">
