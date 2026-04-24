@@ -1241,9 +1241,10 @@ select {
   align-items: center;
   gap: 1rem;
   padding: 2.5rem;
-  border: 1px solid var(--line);
-  background: var(--panel);
-  box-shadow: var(--shadow);
+  border: 1px solid var(--v2-border);
+  background: var(--v2-card);
+  box-shadow: var(--v2-shadow);
+  border-radius: 10px;
   width: min(100%, 22rem);
 }
 
@@ -1253,28 +1254,30 @@ select {
   letter-spacing: 0.08em;
   font-size: 0.82rem;
   text-align: center;
-  color: color-mix(in srgb, var(--graphite) 70%, transparent);
+  color: var(--v2-text-muted);
 }
 
 .settings-pin-input {
   width: 100%;
   padding: 0.9rem 1rem;
-  border: 1px solid var(--line);
-  background: rgba(255,255,255,0.7);
+  border: 1px solid var(--v2-border);
+  background: var(--v2-bg);
   font: inherit;
   font-size: 1.5rem;
   text-align: center;
   letter-spacing: 0.3em;
+  border-radius: 8px;
+  color: var(--v2-text);
 }
 
 .settings-pin-input:focus {
-  outline: 2px solid var(--amber);
+  outline: 2px solid var(--v2-orange);
   outline-offset: -2px;
 }
 
 .settings-pin-error {
   margin: 0;
-  color: var(--rust);
+  color: var(--v2-red);
   font-size: 0.85rem;
 }
 
@@ -1287,21 +1290,24 @@ select {
 }
 
 .settings-section {
-  border: 1px solid var(--line);
-  background: var(--panel);
-  box-shadow: 0 8px 24px rgba(47, 72, 88, 0.06);
+  border: 1px solid var(--v2-border);
+  background: var(--v2-card);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--v2-shadow);
 }
 
 .settings-section__title {
   margin: 0;
   padding: 0.9rem 1.25rem;
-  border-bottom: 1px solid var(--line);
-  background: color-mix(in srgb, var(--steel) 7%, transparent);
+  border-bottom: 1px solid var(--v2-border);
+  background: var(--v2-bg);
   font-family: "Oswald", sans-serif;
   font-size: 0.95rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-weight: 500;
+  color: var(--v2-text);
 }
 
 .settings-section__body {
@@ -1333,27 +1339,28 @@ select {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-weight: 600;
-  color: color-mix(in srgb, var(--graphite) 75%, transparent);
+  color: var(--v2-text);
 }
 
 .settings-field__hint {
   font-size: 0.75rem;
-  color: color-mix(in srgb, var(--graphite) 50%, transparent);
+  color: var(--v2-text-muted);
   font-style: italic;
   margin-top: -0.2rem;
 }
 
 .settings-input {
   padding: 0.7rem 0.9rem;
-  border: 1px solid var(--line);
-  background: rgba(255,255,255,0.7);
+  border: 1px solid var(--v2-border);
+  background: var(--v2-bg);
   font: inherit;
   font-size: 0.92rem;
-  color: var(--graphite);
+  color: var(--v2-text);
+  border-radius: 6px;
 }
 
 .settings-input:focus {
-  outline: 2px solid var(--amber);
+  outline: 2px solid var(--v2-orange);
   outline-offset: -2px;
 }
 
@@ -1382,12 +1389,12 @@ select {
 }
 
 .settings-test-status--ok {
-  color: var(--green);
+  color: var(--v2-green);
   font-weight: 600;
 }
 
 .settings-test-status--error {
-  color: var(--rust);
+  color: var(--v2-red);
 }
 
 .settings-actions {
@@ -1398,13 +1405,13 @@ select {
 
 .settings-save-ok {
   font-size: 0.9rem;
-  color: var(--green);
+  color: var(--v2-green);
   font-weight: 600;
 }
 
 .settings-save-error {
   font-size: 0.9rem;
-  color: var(--rust);
+  color: var(--v2-red);
 }
 
 /* ── Historie: always horizontally scrollable ────────────── */
@@ -2382,6 +2389,7 @@ select {
   --v2-text-muted: #6b7280;
   --v2-blue: #1d4ed8;
   --v2-green: #15803d;
+  --v2-red: #dc2626;
   --v2-shadow: 0 1px 4px rgba(0, 0, 0, 0.07), 0 4px 16px rgba(0, 0, 0, 0.05);
 }
 
@@ -2599,7 +2607,7 @@ select {
   flex-direction: column;
   gap: 1rem;
   padding: 1rem 1.25rem 2rem;
-  max-width: 1100px;
+  max-width: 1440px;
   width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
