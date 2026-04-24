@@ -124,6 +124,8 @@ export function setMenuForWeek(
   const soupPrice = parseInt(s.defaultSoupPrice) || 30;
   const mealPrice = parseInt(s.defaultMealPrice) || 110;
   const transaction = db.transaction(() => {
+    db.prepare("UPDATE order_rows SET soup_item_id = NULL WHERE soup_item_id IN (SELECT id FROM menu_items WHERE week_start = ?)").run(weekStart);
+    db.prepare("UPDATE order_rows SET main_item_id = NULL WHERE main_item_id IN (SELECT id FROM menu_items WHERE week_start = ?)").run(weekStart);
     db.prepare("DELETE FROM menu_items WHERE week_start = ?").run(weekStart);
     const insert = db.prepare(
       "INSERT INTO menu_items (week_start, week_label, day, type, code, name, price) VALUES (?, ?, ?, ?, ?, ?, ?)"
@@ -137,7 +139,12 @@ export function setMenuForWeek(
 }
 
 export function deleteMenuForWeek(weekStart: string): void {
-  getDb().prepare("DELETE FROM menu_items WHERE week_start = ?").run(weekStart);
+  const db = getDb();
+  db.transaction(() => {
+    db.prepare("UPDATE order_rows SET soup_item_id = NULL WHERE soup_item_id IN (SELECT id FROM menu_items WHERE week_start = ?)").run(weekStart);
+    db.prepare("UPDATE order_rows SET main_item_id = NULL WHERE main_item_id IN (SELECT id FROM menu_items WHERE week_start = ?)").run(weekStart);
+    db.prepare("DELETE FROM menu_items WHERE week_start = ?").run(weekStart);
+  })();
 }
 
 export function getAllMenuWeeks(): { weekStart: string; weekLabel: string | null }[] {
