@@ -55,29 +55,48 @@ function DeptIcon({ name }: { name: Department }) {
 
 function RowMenuButton({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => void }) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const dropRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (
+        btnRef.current && !btnRef.current.contains(e.target as Node) &&
+        dropRef.current && !dropRef.current.contains(e.target as Node)
+      ) setOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [open]);
 
+  const handleOpen = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!open && btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect();
+      setPos({ top: r.bottom + 4, right: window.innerWidth - r.right });
+    }
+    setOpen((o) => !o);
+  };
+
   return (
-    <div className="row-menu-wrap" ref={ref}>
+    <div className="row-menu-wrap">
       <button
         aria-label="Možnosti"
         className="row-menu-btn"
-        onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
+        onClick={handleOpen}
+        ref={btnRef}
         type="button"
       >
         ⋮
       </button>
-      {open && (
-        <div className="row-menu-dropdown">
+      {open && pos && (
+        <div
+          className="row-menu-dropdown"
+          ref={dropRef}
+          style={{ position: "fixed", top: pos.top, right: pos.right }}
+        >
           <button onClick={() => { setOpen(false); onEdit(); }} type="button">Upravit</button>
           <button className="row-menu-danger" onClick={() => { setOpen(false); onDelete(); }} type="button">Smazat</button>
         </div>

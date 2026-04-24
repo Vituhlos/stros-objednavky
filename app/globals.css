@@ -2075,10 +2075,7 @@ select {
 }
 
 .row-menu-dropdown {
-  position: absolute;
-  right: 0;
-  top: calc(100% + 4px);
-  z-index: 60;
+  z-index: 9999;
   min-width: 130px;
   background: var(--v2-card, white);
   border: 1px solid var(--v2-border, #e5e7eb);
@@ -2171,7 +2168,7 @@ select {
   width: 100%;
   max-width: 480px;
   max-height: 92dvh;
-  overflow-y: auto;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   border-radius: 16px 16px 0 0;
@@ -2230,7 +2227,9 @@ select {
 .modal-sheet__body {
   padding: 1.25rem;
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
   gap: 1rem;
