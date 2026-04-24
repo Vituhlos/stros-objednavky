@@ -22,7 +22,7 @@ function formatSentAt(iso: string | null): string {
 }
 
 export default function PizzaDetailPage({ data }: { data: PizzaOrderData }) {
-  const { order, rows, totalPrice, totalCount } = data;
+  const { order, rows, totalCount, totals } = data;
 
   return (
     <main className="app-shell">
@@ -51,7 +51,7 @@ export default function PizzaDetailPage({ data }: { data: PizzaOrderData }) {
               </div>
               <div className="status-card">
                 <span className="status-card__label">Celková cena</span>
-                <strong className="status--draft">{totalPrice} Kč</strong>
+                <strong className="status--draft">{totals.finalTotal} Kč</strong>
               </div>
             </div>
           </div>

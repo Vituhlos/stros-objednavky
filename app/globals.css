@@ -3244,6 +3244,47 @@ select {
   font-weight: 700;
 }
 
+/* ── Pizza price breakdown ── */
+
+.v2-pizza-breakdown {
+  margin-top: 0.85rem;
+  border-top: 1px solid var(--v2-border);
+  padding-top: 0.65rem;
+  min-width: 220px;
+}
+
+.v2-pizza-breakdown__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.86rem;
+  padding: 0.18rem 0;
+  color: var(--v2-text);
+}
+
+.v2-pizza-breakdown__row span:last-child {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.v2-pizza-breakdown__row--discount {
+  color: var(--v2-green);
+  font-weight: 600;
+}
+
+.v2-pizza-breakdown__row--total {
+  margin-top: 0.4rem;
+  border-top: 1px solid var(--v2-border);
+  padding-top: 0.4rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.v2-pizza-breakdown__row--per {
+  font-size: 0.82rem;
+  color: var(--v2-text-muted);
+}
+
 /* ── Mobile: pizza + history ── */
 
 @media (max-width: 767px) {

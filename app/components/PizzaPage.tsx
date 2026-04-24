@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition, useCallback } from "react";
-import type { PizzaOrderData, PizzaOrderRow, PizzaItem } from "@/lib/pizza";
+import type { PizzaOrderData, PizzaOrderRow, PizzaItem, PizzaTotals } from "@/lib/pizza";
+import { computePizzaTotals, PIZZA_BOX_FEE } from "@/lib/pizza";
 import {
   actionAddPizzaRow,
   actionUpdatePizzaRow,
@@ -25,7 +26,7 @@ export default function PizzaPage({ initialData }: { initialData: PizzaOrderData
   const [scrapeError, setScrapeError] = useState<string | null>(null);
   const [scrapeStatus, setScrapeStatus] = useState<string | null>(null);
 
-  const totalPrice = rows.reduce((s, r) => s + r.rowPrice, 0);
+  const totals = computePizzaTotals(rows);
   const totalCount = rows.reduce((s, r) => s + r.count, 0);
 
   const pizzaCounts = new Map<string, number>();
@@ -102,7 +103,7 @@ export default function PizzaPage({ initialData }: { initialData: PizzaOrderData
             <span className="v2-fact">
               <strong>{totalCount} ks</strong>
               {" · "}
-              <strong className="v2-accent">{totalPrice} Kč</strong>
+              <strong className="v2-accent">{totals.finalTotal} Kč</strong>
             </span>
           )}
           {scrapeStatus && (
@@ -140,7 +141,10 @@ export default function PizzaPage({ initialData }: { initialData: PizzaOrderData
               <div>
                 <h2 className="v2-dept__title">Objednávky</h2>
                 {totalCount > 0 && (
-                  <span className="v2-dept__count">{totalCount} ks · {totalPrice} Kč celkem</span>
+                  <span className="v2-dept__count">
+                    {totalCount} ks · {totals.finalTotal} Kč celkem
+                    {totals.pricePerPizza > 0 && ` · ${totals.pricePerPizza} Kč/ks`}
+                  </span>
                 )}
               </div>
             </div>
@@ -155,7 +159,7 @@ export default function PizzaPage({ initialData }: { initialData: PizzaOrderData
               <span>Jméno</span>
               <span>Pizza</span>
               <span style={{ textAlign: "center" }}>Ks</span>
-              <span style={{ textAlign: "right" }}>Cena</span>
+              <span style={{ textAlign: "right" }}>Platí</span>
               <span></span>
             </div>
           )}
@@ -172,6 +176,7 @@ export default function PizzaPage({ initialData }: { initialData: PizzaOrderData
                   onDelete={handleDeleteRow}
                   onUpdate={handleUpdateRow}
                   pizzaItems={pizzaItems}
+                  pricePerPizza={totals.pricePerPizza}
                   row={row}
                 />
               ))}
@@ -194,9 +199,7 @@ export default function PizzaPage({ initialData }: { initialData: PizzaOrderData
                   {[...pizzaCounts.entries()].map(([k, v]) => (
                     <p key={k}><strong>{v}×</strong> {k}</p>
                   ))}
-                  <p className="v2-pizza-summary__total">
-                    Celkem: <span className="v2-accent">{totalPrice} Kč</span>
-                  </p>
+                  <PizzaPriceBreakdown totals={totals} />
                 </div>
               )}
               {pizzaItems.length > 0 && (
@@ -217,11 +220,54 @@ export default function PizzaPage({ initialData }: { initialData: PizzaOrderData
   );
 }
 
+function PizzaPriceBreakdown({ totals }: { totals: PizzaTotals }) {
+  if (totals.finalTotal === 0) return null;
+  return (
+    <div className="v2-pizza-breakdown">
+      <div className="v2-pizza-breakdown__row">
+        <span>Pizzy (ceny)</span>
+        <span>{totals.baseTotal} Kč</span>
+      </div>
+      <div className="v2-pizza-breakdown__row">
+        <span>Krabice ({PIZZA_BOX_FEE} Kč/ks)</span>
+        <span>{totals.boxTotal} Kč</span>
+      </div>
+      {totals.freeCount > 0 && (
+        <div className="v2-pizza-breakdown__row v2-pizza-breakdown__row--discount">
+          <span>3+1 zdarma ({totals.freeCount}× nejlevnější)</span>
+          <span>−{totals.discountAmount} Kč</span>
+        </div>
+      )}
+      {totals.deliveryFee > 0 && (
+        <div className="v2-pizza-breakdown__row">
+          <span>Doprava</span>
+          <span>{totals.deliveryFee} Kč</span>
+        </div>
+      )}
+      {totals.deliveryFee === 0 && totals.finalTotal > 0 && (
+        <div className="v2-pizza-breakdown__row v2-pizza-breakdown__row--discount">
+          <span>Doprava zdarma (≥4 ks)</span>
+          <span>0 Kč</span>
+        </div>
+      )}
+      <div className="v2-pizza-breakdown__row v2-pizza-breakdown__row--total">
+        <span>Celkem</span>
+        <span>{totals.finalTotal} Kč</span>
+      </div>
+      <div className="v2-pizza-breakdown__row v2-pizza-breakdown__row--per">
+        <span>Cena za kus</span>
+        <span>{totals.pricePerPizza} Kč/ks</span>
+      </div>
+    </div>
+  );
+}
+
 function PizzaRow({
   row,
   idx,
   pizzaItems,
   isPending,
+  pricePerPizza,
   onUpdate,
   onDelete,
 }: {
@@ -229,9 +275,12 @@ function PizzaRow({
   idx: number;
   pizzaItems: PizzaItem[];
   isPending: boolean;
+  pricePerPizza: number;
   onUpdate: (rowId: number, updates: Partial<{ personName: string; pizzaItemId: number | null; count: number }>) => void;
   onDelete: (rowId: number) => void;
 }) {
+  const adjustedPrice = row.pizzaItem && pricePerPizza > 0 ? pricePerPizza * row.count : 0;
+
   return (
     <div className="v2-pizza-row">
       <span className="v2-pizza-row__num">{idx + 1}</span>
@@ -279,7 +328,7 @@ function PizzaRow({
         </button>
       </div>
 
-      <span className="v2-pizza-price">{row.rowPrice > 0 ? `${row.rowPrice} Kč` : "–"}</span>
+      <span className="v2-pizza-price">{adjustedPrice > 0 ? `${adjustedPrice} Kč` : "–"}</span>
 
       <button
         className="v2-delete-btn"
