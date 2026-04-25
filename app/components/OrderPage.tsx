@@ -416,27 +416,31 @@ export default function OrderPage({
           ) : (
             <>
               <span className="v2-statusbar__icon"><IconLock /></span>
-              <div style={{ flex: 1 }}>
-                <strong>Uzávěrka proběhne v {cutoffTime}.</strong>
-                <span> Objednávku po uzávěrce odešle správce.</span>
-              </div>
               {clearConfirm ? (
-                <span style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexShrink: 0, marginLeft: "auto" }}>
-                  <span style={{ fontSize: "0.82rem", color: "var(--v2-text-muted)" }}>Opravdu smazat vše?</span>
-                  <button className="v2-btn v2-btn--danger" disabled={isPending} onClick={handleClear} type="button">
-                    {isPending ? "…" : "Ano, smazat"}
-                  </button>
-                  <button className="v2-btn v2-btn--secondary" onClick={() => setClearConfirm(false)} type="button">Zrušit</button>
-                </span>
+                <>
+                  <span style={{ flex: 1, fontWeight: 600 }}>Opravdu smazat celou objednávku?</span>
+                  <span style={{ display: "flex", gap: "0.5rem", flexShrink: 0 }}>
+                    <button className="v2-btn v2-btn--danger" disabled={isPending} onClick={handleClear} type="button">
+                      {isPending ? "…" : "Smazat"}
+                    </button>
+                    <button className="v2-btn v2-btn--secondary" onClick={() => setClearConfirm(false)} type="button">Zrušit</button>
+                  </span>
+                </>
               ) : (
-                <button
-                  className="v2-btn v2-btn--ghost"
-                  onClick={() => setClearConfirm(true)}
-                  style={{ marginLeft: "auto", flexShrink: 0 }}
-                  type="button"
-                >
-                  Smazat objednávku
-                </button>
+                <>
+                  <div style={{ flex: 1 }}>
+                    <strong>Uzávěrka proběhne v {cutoffTime}.</strong>
+                    <span> Objednávku po uzávěrce odešle správce.</span>
+                  </div>
+                  <button
+                    className="v2-btn v2-btn--ghost"
+                    onClick={() => setClearConfirm(true)}
+                    style={{ marginLeft: "auto", flexShrink: 0 }}
+                    type="button"
+                  >
+                    Smazat objednávku
+                  </button>
+                </>
               )}
             </>
           )}
