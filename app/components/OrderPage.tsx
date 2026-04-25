@@ -90,6 +90,9 @@ export default function OrderPage({
   extrasPrices?: ExtrasPrices;
 }) {
   const [departments, setDepartments] = useState(initialData.departments);
+  const departmentsRef = useRef(initialData.departments);
+  useEffect(() => { departmentsRef.current = departments; }, [departments]);
+
   const [orderStatus, setOrderStatus] = useState(initialData.order.status);
   const [orderId] = useState(initialData.order.id);
   const [extraEmail, setExtraEmail] = useState(initialData.order.extraEmail ?? "");
@@ -100,6 +103,11 @@ export default function OrderPage({
   const [justSent, setJustSent] = useState(false);
   const justSentTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [showSendConfirm, setShowSendConfirm] = useState(false);
+
+  type PendingDelete = { rowId: number; rowData: OrderRowEnriched; deptName: string };
+  const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null);
+  const pendingDeleteRef = useRef<PendingDelete | null>(null);
+  const pendingDeleteTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isSent = orderStatus === "sent";
 
@@ -119,15 +127,39 @@ export default function OrderPage({
 
   // ── Real-time sync via SSE ────────────────────────────────
   const [sseConnected, setSseConnected] = useState(false);
+  const [hasEverConnected, setHasEverConnected] = useState(false);
   const isPendingRef = useRef(isPending);
   useEffect(() => { isPendingRef.current = isPending; }, [isPending]);
 
+  const tabNotifCount = useRef(0);
+  const originalTitle = useRef<string>("");
+
+  useEffect(() => {
+    originalTitle.current = document.title;
+    const resetTitle = () => {
+      if (tabNotifCount.current > 0) {
+        tabNotifCount.current = 0;
+        document.title = originalTitle.current;
+      }
+    };
+    window.addEventListener("focus", resetTitle);
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) resetTitle(); });
+    return () => {
+      window.removeEventListener("focus", resetTitle);
+      document.title = originalTitle.current;
+    };
+  }, []);
+
   useEffect(() => {
     const es = new EventSource("/api/sse");
-    es.addEventListener("open", () => setSseConnected(true));
+    es.addEventListener("open", () => { setSseConnected(true); setHasEverConnected(true); });
     es.addEventListener("error", () => setSseConnected(false));
     es.addEventListener("change", () => {
       setSseConnected(true);
+      if (document.hidden) {
+        tabNotifCount.current += 1;
+        document.title = `(${tabNotifCount.current}) Nová objednávka`;
+      }
       if (isPendingRef.current) return;
       fetch("/api/order-refresh")
         .then((r) => r.ok ? r.json() : null)
@@ -247,15 +279,54 @@ export default function OrderPage({
     });
   };
 
+  const commitDelete = useCallback((rowId: number) => {
+    actionDeleteRow(rowId).catch(() => {});
+    setPendingDelete(null);
+    pendingDeleteRef.current = null;
+    pendingDeleteTimer.current = null;
+  }, []);
+
   const handleDeleteRow = useCallback((rowId: number) => {
-    startTransition(async () => {
-      await actionDeleteRow(rowId);
-      setDepartments((prev) =>
-        recalcDepartments(
-          prev.map((d) => ({ ...d, rows: d.rows.filter((r) => r.id !== rowId) }))
-        )
-      );
-    });
+    // If there's already a pending delete, commit it immediately before starting new one
+    if (pendingDeleteTimer.current && pendingDeleteRef.current) {
+      clearTimeout(pendingDeleteTimer.current);
+      actionDeleteRow(pendingDeleteRef.current.rowId).catch(() => {});
+      pendingDeleteRef.current = null;
+      pendingDeleteTimer.current = null;
+    }
+
+    // Find and capture row data before removing from UI
+    const dept = departmentsRef.current.find((d) => d.rows.some((r) => r.id === rowId));
+    const rowData = dept?.rows.find((r) => r.id === rowId);
+
+    // Optimistic remove
+    setDepartments((prev) =>
+      recalcDepartments(prev.map((d) => ({ ...d, rows: d.rows.filter((r) => r.id !== rowId) })))
+    );
+
+    if (!rowData || !dept) {
+      actionDeleteRow(rowId).catch(() => {});
+      return;
+    }
+
+    const info: PendingDelete = { rowId, rowData, deptName: dept.name };
+    pendingDeleteRef.current = info;
+    setPendingDelete(info);
+    pendingDeleteTimer.current = setTimeout(() => commitDelete(rowId), 5000);
+  }, [commitDelete]);
+
+  const handleUndoDelete = useCallback(() => {
+    if (!pendingDeleteTimer.current || !pendingDeleteRef.current) return;
+    clearTimeout(pendingDeleteTimer.current);
+    pendingDeleteTimer.current = null;
+    const { deptName, rowData } = pendingDeleteRef.current;
+    pendingDeleteRef.current = null;
+    setDepartments((prev) =>
+      recalcDepartments(
+        prev.map((d) => d.name === deptName ? { ...d, rows: [...d.rows, rowData] } : d)
+      )
+    );
+    setPendingDelete(null);
   }, []);
 
   const handleSend = () => {
@@ -313,8 +384,13 @@ export default function OrderPage({
   const allMeals = initialData.todayMenu.meals;
 
   useEffect(() => {
-    return () => { if (justSentTimer.current) clearTimeout(justSentTimer.current); };
+    return () => {
+      if (justSentTimer.current) clearTimeout(justSentTimer.current);
+      if (pendingDeleteTimer.current) clearTimeout(pendingDeleteTimer.current);
+    };
   }, []);
+
+  const showOfflineBanner = hasEverConnected && !sseConnected;
 
   return (
     <div className="v2-shell">
@@ -325,6 +401,22 @@ export default function OrderPage({
             <IconCheck />
             <span>Objednávka odeslána!</span>
           </div>
+        </div>
+      )}
+      {pendingDelete && (
+        <div aria-live="polite" className="v2-undo-toast" role="status">
+          <span>Řádek smazán</span>
+          <button className="v2-undo-toast__btn" onClick={handleUndoDelete} type="button">
+            Zpět
+          </button>
+        </div>
+      )}
+      {showOfflineBanner && (
+        <div aria-live="assertive" className="v2-offline-banner" role="alert">
+          <svg aria-hidden fill="none" height="14" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="14">
+            <path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          </svg>
+          <span>Odpojeno – živé aktualizace nefungují. Zkontrolujte připojení.</span>
         </div>
       )}
 

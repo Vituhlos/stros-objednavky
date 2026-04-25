@@ -2034,6 +2034,63 @@ select {
   100% { opacity: 0; transform: scale(0.95); }
 }
 
+/* ── Undo delete toast ── */
+
+.v2-undo-toast {
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 72px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--graphite, #2e3338);
+  color: #fff;
+  padding: 0.75rem 1rem 0.75rem 1.25rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.95rem;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
+  z-index: 200;
+  white-space: nowrap;
+  animation: v2-toast-slide-up 0.22s ease;
+}
+
+.v2-undo-toast__btn {
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.3rem 0.85rem;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.v2-undo-toast__btn:hover { background: rgba(255, 255, 255, 0.3); }
+
+@keyframes v2-toast-slide-up {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@media (max-width: 640px) {
+  .v2-undo-toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 64px); }
+}
+
+/* ── SSE offline banner ── */
+
+.v2-offline-banner {
+  background: #7c3d0e;
+  color: #fed7aa;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 0.55rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 1px solid #9a4f1a;
+}
+
 /* ── Bottom status bar ── */
 
 .v2-statusbar {
