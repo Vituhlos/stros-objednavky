@@ -378,15 +378,15 @@ function getChips(row: OrderRowEnriched): string[] {
 }
 
 function V2OrderRow({
-  row, accent, isSent, onEdit, onDelete,
+  row, accent, isSent, isSaved, onEdit, onDelete,
 }: {
-  row: OrderRowEnriched; accent: string; isSent: boolean; onEdit: () => void; onDelete: () => void;
+  row: OrderRowEnriched; accent: string; isSent: boolean; isSaved: boolean; onEdit: () => void; onDelete: () => void;
 }) {
   const chips = getChips(row);
 
   return (
     <div
-      className={`v2-order-row${!isSent ? " v2-order-row--interactive" : ""}`}
+      className={`v2-order-row${!isSent ? " v2-order-row--interactive" : ""}${isSaved ? " v2-order-row--saved" : ""}`}
       onClick={!isSent ? onEdit : undefined}
     >
       {/* Col 1: Name + avatar */}
@@ -467,6 +467,8 @@ export function DepartmentPanel({ data, soups, meals, isSent, defaultSoupPrice, 
   const [isAdding, setIsAdding] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
   const [deleteConfirmRowId, setDeleteConfirmRowId] = useState<number | null>(null);
+  const [savedRowId, setSavedRowId] = useState<number | null>(null);
+  const savedRowTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const accent = data.accent;
   const label = data.label;
@@ -543,6 +545,7 @@ export function DepartmentPanel({ data, soups, meals, isSent, defaultSoupPrice, 
             {activeRows.map((row) => (
               <V2OrderRow
                 accent={accent}
+                isSaved={row.id === savedRowId}
                 isSent={isSent}
                 key={row.id}
                 onDelete={() => setDeleteConfirmRowId(row.id)}
@@ -564,7 +567,14 @@ export function DepartmentPanel({ data, soups, meals, isSent, defaultSoupPrice, 
           meals={meals}
           onClose={() => setModalState(null)}
           onDelete={() => { onDeleteRow(modalState!.rowId); setModalState(null); }}
-          onSave={(updates) => { onUpdateRow(modalState!.rowId, updates); setModalState(null); }}
+          onSave={(updates) => {
+            const rowId = modalState!.rowId;
+            onUpdateRow(rowId, updates);
+            setModalState(null);
+            if (savedRowTimer.current) clearTimeout(savedRowTimer.current);
+            setSavedRowId(rowId);
+            savedRowTimer.current = setTimeout(() => setSavedRowId(null), 1800);
+          }}
           row={modalRow}
           soups={soups}
         />

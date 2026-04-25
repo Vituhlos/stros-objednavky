@@ -1080,6 +1080,55 @@ select {
   flex-shrink: 0;
 }
 
+.confirm-dialog__icon--primary {
+  background: #fff7ed;
+  color: var(--v2-orange, #ea580c);
+}
+
+/* ── Send summary (in send confirm modal) ── */
+
+.send-summary {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  padding: 0.75rem 1rem;
+  background: var(--v2-bg, #f9fafb);
+  border-radius: 8px;
+  width: 100%;
+}
+
+.send-summary__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.send-summary__value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--v2-text, #111827);
+  font-family: "Oswald", sans-serif;
+}
+
+.send-summary__label {
+  font-size: 0.75rem;
+  color: var(--v2-text-muted, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Row saved flash ── */
+
+@keyframes row-saved-flash {
+  0%   { background: rgba(74, 222, 128, 0.25); }
+  100% { background: transparent; }
+}
+
+.v2-order-row--saved {
+  animation: row-saved-flash 1.8s ease forwards;
+}
+
 .confirm-dialog__title {
   margin: 0;
   font-family: "Oswald", sans-serif;

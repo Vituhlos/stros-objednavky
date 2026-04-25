@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import type { OrderSummary } from "@/lib/orders";
 import type { PizzaOrderSummary } from "@/lib/pizza";
 import Link from "next/link";
@@ -27,6 +30,16 @@ export default function HistoryPage({
   orders: OrderSummary[];
   pizzaOrders: PizzaOrderSummary[];
 }) {
+  const [search, setSearch] = useState("");
+  const q = search.trim().toLowerCase();
+
+  const filteredOrders = q
+    ? orders.filter((o) => formatDate(o.date).includes(q) || (o.extraEmail ?? "").toLowerCase().includes(q))
+    : orders;
+  const filteredPizza = q
+    ? pizzaOrders.filter((o) => formatDate(o.date).includes(q))
+    : pizzaOrders;
+
   const sentCount = orders.filter((o) => o.status === "sent").length;
   const pizzaSentCount = pizzaOrders.filter((o) => o.status === "sent").length;
 
@@ -47,6 +60,15 @@ export default function HistoryPage({
             <strong>{pizzaSentCount}</strong> odeslaných pizz
           </span>
         </div>
+        <div className="v2-infostrip__send">
+          <input
+            className="v2-email-input"
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Hledat podle data (např. 04.2025)…"
+            type="search"
+            value={search}
+          />
+        </div>
       </div>
 
       {/* ── Content ── */}
@@ -61,8 +83,10 @@ export default function HistoryPage({
               </span>
             </div>
           </div>
-          {orders.length === 0 ? (
-            <div className="v2-empty-state">Zatím žádné objednávky v databázi.</div>
+          {filteredOrders.length === 0 ? (
+            <div className="v2-empty-state">
+              <p className="v2-empty-state__text">{q ? "Žádné výsledky pro hledaný výraz" : "Zatím žádné objednávky v databázi."}</p>
+            </div>
           ) : (
             <div style={{ overflowX: "auto" }}>
               <table className="v2-history-table">
@@ -77,7 +101,7 @@ export default function HistoryPage({
                   </tr>
                 </thead>
                 <tbody>
-                  {orders.map((order) => (
+                  {filteredOrders.map((order) => (
                     <tr key={order.id}>
                       <td style={{ fontWeight: 600 }}>{formatDate(order.date)}</td>
                       <td>
@@ -111,8 +135,10 @@ export default function HistoryPage({
               </span>
             </div>
           </div>
-          {pizzaOrders.length === 0 ? (
-            <div className="v2-empty-state">Zatím žádné pizzové objednávky v databázi.</div>
+          {filteredPizza.length === 0 ? (
+            <div className="v2-empty-state">
+              <p className="v2-empty-state__text">{q ? "Žádné výsledky pro hledaný výraz" : "Zatím žádné pizzové objednávky v databázi."}</p>
+            </div>
           ) : (
             <div style={{ overflowX: "auto" }}>
               <table className="v2-history-table">
@@ -126,7 +152,7 @@ export default function HistoryPage({
                   </tr>
                 </thead>
                 <tbody>
-                  {pizzaOrders.map((order) => (
+                  {filteredPizza.map((order) => (
                     <tr key={order.id}>
                       <td style={{ fontWeight: 600 }}>{formatDate(order.date)}</td>
                       <td>

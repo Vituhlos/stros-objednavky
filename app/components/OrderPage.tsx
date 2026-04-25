@@ -99,6 +99,7 @@ export default function OrderPage({
   const [clearConfirm, setClearConfirm] = useState(false);
   const [justSent, setJustSent] = useState(false);
   const justSentTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [showSendConfirm, setShowSendConfirm] = useState(false);
 
   const isSent = orderStatus === "sent";
 
@@ -282,6 +283,26 @@ export default function OrderPage({
     });
   };
 
+  const activeOrderCount = departments.flatMap((d) => d.rows).filter(hasOrderRowContent).length;
+  const totalPrice = departments.reduce((s, d) => s + d.subtotal, 0);
+
+  function getCountdown(): string | null {
+    const [h, m] = cutoffTime.split(":").map(Number);
+    const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Prague" }));
+    const diff = (h * 60 + m) - (now.getHours() * 60 + now.getMinutes());
+    if (diff <= 0) return null;
+    if (diff < 60) return `za ${diff} min`;
+    const hours = Math.floor(diff / 60);
+    const mins = diff % 60;
+    return mins > 0 ? `za ${hours} h ${mins} min` : `za ${hours} h`;
+  }
+  const [countdown, setCountdown] = useState(getCountdown);
+  useEffect(() => {
+    const id = setInterval(() => setCountdown(getCountdown()), 30_000);
+    return () => clearInterval(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cutoffTime]);
+
   const today = new Date();
   const dayStr =
     today.toLocaleDateString("cs-CZ", { weekday: "long" }).replace(/^\w/, (c) => c.toUpperCase()) +
@@ -318,12 +339,11 @@ export default function OrderPage({
               title={sseConnected ? "Živé aktualizace aktivní" : "Připojování..."}
             />
           </span>
-          {!isSent && !isPastCutoff && (
+          {!isSent && !isPastCutoff && countdown && (
             <span className="v2-fact">
               <IconClock />
               <span>
-                Uzávěrka dnes v{" "}
-                <strong className="v2-accent">{cutoffTime}</strong>
+                Uzávěrka {countdown} ({cutoffTime})
               </span>
             </span>
           )}
@@ -348,11 +368,32 @@ export default function OrderPage({
             <button
               className="v2-send-btn"
               disabled={isSent || isPending}
-              onClick={handleSend}
+              onClick={() => setShowSendConfirm(true)}
               type="button"
             >
               {isPending ? "Odesílám…" : "Odeslat"}
             </button>
+            {showSendConfirm && (
+              <ConfirmModal
+                confirmLabel="Odeslat"
+                confirmVariant="primary"
+                isPending={isPending}
+                onClose={() => setShowSendConfirm(false)}
+                onConfirm={() => { setShowSendConfirm(false); handleSend(); }}
+                title="Odeslat objednávku"
+              >
+                <div className="send-summary">
+                  <div className="send-summary__item">
+                    <span className="send-summary__value">{activeOrderCount}</span>
+                    <span className="send-summary__label">objednávek</span>
+                  </div>
+                  <div className="send-summary__item">
+                    <span className="send-summary__value">{totalPrice} Kč</span>
+                    <span className="send-summary__label">celkem</span>
+                  </div>
+                </div>
+              </ConfirmModal>
+            )}
           </div>
         )}
         {sendError && <p className="v2-send-error">{sendError}</p>}
