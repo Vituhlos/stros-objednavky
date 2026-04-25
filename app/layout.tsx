@@ -37,6 +37,8 @@ export default function RootLayout({
           <div className="orb orb-sky" />
           <div className="orb orb-purple" />
           <div className="orb orb-mint" />
+          <div className="orb orb-warm" />
+          <div className="orb orb-rose" />
         </div>
         {children}
         <SwRegister />
