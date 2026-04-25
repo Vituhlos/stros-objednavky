@@ -11,6 +11,7 @@ import {
   actionUpdatePizzaPrices,
 } from "@/app/actions";
 import AppTopBar from "./AppTopBar";
+import { ConfirmModal } from "./ConfirmModal";
 
 function recalcRows(rows: PizzaOrderRow[], items: PizzaItem[]): PizzaOrderRow[] {
   return rows.map((r) => {
@@ -26,6 +27,7 @@ export default function PizzaPage({ initialData }: { initialData: PizzaOrderData
   const [isPending, startTransition] = useTransition();
   const [scrapeError, setScrapeError] = useState<string | null>(null);
   const [scrapeStatus, setScrapeStatus] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
 
   const totals = computePizzaTotals(rows);
   const totalCount = rows.reduce((s, r) => s + r.count, 0);
@@ -167,7 +169,15 @@ export default function PizzaPage({ initialData }: { initialData: PizzaOrderData
           )}
 
           {rows.length === 0 ? (
-            <div className="v2-empty-state">Zatím žádné objednávky. Přidejte první osobu.</div>
+            <div className="v2-empty-state">
+              <svg aria-hidden className="v2-empty-state__icon" fill="none" height="32" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" width="32">
+                <path d="M12 2a10 10 0 0110 10"/>
+                <path d="M2 12C2 6.48 6.48 2 12 2l-10 20 20-10z"/>
+                <circle cx="10" cy="13" fill="currentColor" r="1.5"/>
+              </svg>
+              <p className="v2-empty-state__text">Zatím nikdo neobjednal</p>
+              <p className="v2-empty-state__hint">Přidej první osobu tlačítkem výše</p>
+            </div>
           ) : (
             <div>
               {rows.map((row, idx) => (
@@ -175,13 +185,21 @@ export default function PizzaPage({ initialData }: { initialData: PizzaOrderData
                   idx={idx}
                   isPending={isPending}
                   key={row.id}
-                  onDelete={handleDeleteRow}
+                  onDelete={(id) => setDeleteConfirmId(id)}
                   onUpdate={handleUpdateRow}
                   pizzaItems={pizzaItems}
                   pricePerPizza={totals.pricePerPizza}
                   row={row}
                 />
               ))}
+              {deleteConfirmId !== null && (
+                <ConfirmModal
+                  message="Tento řádek objednávky pizzy bude odstraněn."
+                  onClose={() => setDeleteConfirmId(null)}
+                  onConfirm={() => { handleDeleteRow(deleteConfirmId); setDeleteConfirmId(null); }}
+                  title="Smazat řádek"
+                />
+              )}
             </div>
           )}
         </section>

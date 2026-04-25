@@ -6,6 +6,7 @@ import { computeRowPrice, EXTRAS_PRICES_DEFAULT, type ExtrasPrices } from "@/lib
 import { hasOrderRowContent } from "@/lib/order-utils";
 import { DepartmentPanel } from "./DepartmentPanel";
 import AppTopBar from "./AppTopBar";
+import { ConfirmModal } from "./ConfirmModal";
 import {
   actionAddRow,
   actionUpdateRow,
@@ -89,6 +90,9 @@ export default function OrderPage({
   extrasPrices?: ExtrasPrices;
 }) {
   const [departments, setDepartments] = useState(initialData.departments);
+  const departmentsRef = useRef(initialData.departments);
+  useEffect(() => { departmentsRef.current = departments; }, [departments]);
+
   const [orderStatus, setOrderStatus] = useState(initialData.order.status);
   const [orderId] = useState(initialData.order.id);
   const [extraEmail, setExtraEmail] = useState(initialData.order.extraEmail ?? "");
@@ -96,6 +100,14 @@ export default function OrderPage({
   const [isPending, startTransition] = useTransition();
   const [sendError, setSendError] = useState<string | null>(null);
   const [clearConfirm, setClearConfirm] = useState(false);
+  const [justSent, setJustSent] = useState(false);
+  const justSentTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [showSendConfirm, setShowSendConfirm] = useState(false);
+
+  type PendingDelete = { rowId: number; rowData: OrderRowEnriched; deptName: string };
+  const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null);
+  const pendingDeleteRef = useRef<PendingDelete | null>(null);
+  const pendingDeleteTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isSent = orderStatus === "sent";
 
@@ -115,15 +127,39 @@ export default function OrderPage({
 
   // ── Real-time sync via SSE ────────────────────────────────
   const [sseConnected, setSseConnected] = useState(false);
+  const [hasEverConnected, setHasEverConnected] = useState(false);
   const isPendingRef = useRef(isPending);
   useEffect(() => { isPendingRef.current = isPending; }, [isPending]);
 
+  const tabNotifCount = useRef(0);
+  const originalTitle = useRef<string>("");
+
+  useEffect(() => {
+    originalTitle.current = document.title;
+    const resetTitle = () => {
+      if (tabNotifCount.current > 0) {
+        tabNotifCount.current = 0;
+        document.title = originalTitle.current;
+      }
+    };
+    window.addEventListener("focus", resetTitle);
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) resetTitle(); });
+    return () => {
+      window.removeEventListener("focus", resetTitle);
+      document.title = originalTitle.current;
+    };
+  }, []);
+
   useEffect(() => {
     const es = new EventSource("/api/sse");
-    es.addEventListener("open", () => setSseConnected(true));
+    es.addEventListener("open", () => { setSseConnected(true); setHasEverConnected(true); });
     es.addEventListener("error", () => setSseConnected(false));
     es.addEventListener("change", () => {
       setSseConnected(true);
+      if (document.hidden) {
+        tabNotifCount.current += 1;
+        document.title = `(${tabNotifCount.current}) Nová objednávka`;
+      }
       if (isPendingRef.current) return;
       fetch("/api/order-refresh")
         .then((r) => r.ok ? r.json() : null)
@@ -243,15 +279,54 @@ export default function OrderPage({
     });
   };
 
+  const commitDelete = useCallback((rowId: number) => {
+    actionDeleteRow(rowId).catch(() => {});
+    setPendingDelete(null);
+    pendingDeleteRef.current = null;
+    pendingDeleteTimer.current = null;
+  }, []);
+
   const handleDeleteRow = useCallback((rowId: number) => {
-    startTransition(async () => {
-      await actionDeleteRow(rowId);
-      setDepartments((prev) =>
-        recalcDepartments(
-          prev.map((d) => ({ ...d, rows: d.rows.filter((r) => r.id !== rowId) }))
-        )
-      );
-    });
+    // If there's already a pending delete, commit it immediately before starting new one
+    if (pendingDeleteTimer.current && pendingDeleteRef.current) {
+      clearTimeout(pendingDeleteTimer.current);
+      actionDeleteRow(pendingDeleteRef.current.rowId).catch(() => {});
+      pendingDeleteRef.current = null;
+      pendingDeleteTimer.current = null;
+    }
+
+    // Find and capture row data before removing from UI
+    const dept = departmentsRef.current.find((d) => d.rows.some((r) => r.id === rowId));
+    const rowData = dept?.rows.find((r) => r.id === rowId);
+
+    // Optimistic remove
+    setDepartments((prev) =>
+      recalcDepartments(prev.map((d) => ({ ...d, rows: d.rows.filter((r) => r.id !== rowId) })))
+    );
+
+    if (!rowData || !dept) {
+      actionDeleteRow(rowId).catch(() => {});
+      return;
+    }
+
+    const info: PendingDelete = { rowId, rowData, deptName: dept.name };
+    pendingDeleteRef.current = info;
+    setPendingDelete(info);
+    pendingDeleteTimer.current = setTimeout(() => commitDelete(rowId), 5000);
+  }, [commitDelete]);
+
+  const handleUndoDelete = useCallback(() => {
+    if (!pendingDeleteTimer.current || !pendingDeleteRef.current) return;
+    clearTimeout(pendingDeleteTimer.current);
+    pendingDeleteTimer.current = null;
+    const { deptName, rowData } = pendingDeleteRef.current;
+    pendingDeleteRef.current = null;
+    setDepartments((prev) =>
+      recalcDepartments(
+        prev.map((d) => d.name === deptName ? { ...d, rows: [...d.rows, rowData] } : d)
+      )
+    );
+    setPendingDelete(null);
   }, []);
 
   const handleSend = () => {
@@ -262,7 +337,9 @@ export default function OrderPage({
         await actionSendOrder(orderId, extraEmail);
         setOrderStatus("sent");
         setSentAt(new Date().toISOString());
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        setJustSent(true);
+        if (justSentTimer.current) clearTimeout(justSentTimer.current);
+        justSentTimer.current = setTimeout(() => setJustSent(false), 2800);
       } catch (error) {
         setSendError(
           error instanceof Error ? error.message : "Odeslání se nezdařilo. Zkuste to znovu."
@@ -277,6 +354,26 @@ export default function OrderPage({
     });
   };
 
+  const activeOrderCount = departments.flatMap((d) => d.rows).filter(hasOrderRowContent).length;
+  const totalPrice = departments.reduce((s, d) => s + d.subtotal, 0);
+
+  function getCountdown(): string | null {
+    const [h, m] = cutoffTime.split(":").map(Number);
+    const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Prague" }));
+    const diff = (h * 60 + m) - (now.getHours() * 60 + now.getMinutes());
+    if (diff <= 0) return null;
+    if (diff < 60) return `za ${diff} min`;
+    const hours = Math.floor(diff / 60);
+    const mins = diff % 60;
+    return mins > 0 ? `za ${hours} h ${mins} min` : `za ${hours} h`;
+  }
+  const [countdown, setCountdown] = useState(getCountdown);
+  useEffect(() => {
+    const id = setInterval(() => setCountdown(getCountdown()), 30_000);
+    return () => clearInterval(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cutoffTime]);
+
   const today = new Date();
   const dayStr =
     today.toLocaleDateString("cs-CZ", { weekday: "long" }).replace(/^\w/, (c) => c.toUpperCase()) +
@@ -286,9 +383,42 @@ export default function OrderPage({
   const allSoups = initialData.todayMenu.soups;
   const allMeals = initialData.todayMenu.meals;
 
+  useEffect(() => {
+    return () => {
+      if (justSentTimer.current) clearTimeout(justSentTimer.current);
+      if (pendingDeleteTimer.current) clearTimeout(pendingDeleteTimer.current);
+    };
+  }, []);
+
+  const showOfflineBanner = hasEverConnected && !sseConnected;
+
   return (
     <div className="v2-shell">
       <AppTopBar />
+      {justSent && (
+        <div aria-live="polite" className="v2-sent-toast" role="status">
+          <div className="v2-sent-toast__inner">
+            <IconCheck />
+            <span>Objednávka odeslána!</span>
+          </div>
+        </div>
+      )}
+      {pendingDelete && (
+        <div aria-live="polite" className="v2-undo-toast" role="status">
+          <span>Řádek smazán</span>
+          <button className="v2-undo-toast__btn" onClick={handleUndoDelete} type="button">
+            Zpět
+          </button>
+        </div>
+      )}
+      {showOfflineBanner && (
+        <div aria-live="assertive" className="v2-offline-banner" role="alert">
+          <svg aria-hidden fill="none" height="14" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="14">
+            <path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          </svg>
+          <span>Odpojeno – živé aktualizace nefungují. Zkontrolujte připojení.</span>
+        </div>
+      )}
 
       {/* ── Info strip ── */}
       <div className="v2-infostrip">
@@ -301,12 +431,11 @@ export default function OrderPage({
               title={sseConnected ? "Živé aktualizace aktivní" : "Připojování..."}
             />
           </span>
-          {!isSent && !isPastCutoff && (
+          {!isSent && !isPastCutoff && countdown && (
             <span className="v2-fact">
               <IconClock />
               <span>
-                Uzávěrka dnes v{" "}
-                <strong className="v2-accent">{cutoffTime}</strong>
+                Uzávěrka {countdown} ({cutoffTime})
               </span>
             </span>
           )}
@@ -331,11 +460,32 @@ export default function OrderPage({
             <button
               className="v2-send-btn"
               disabled={isSent || isPending}
-              onClick={handleSend}
+              onClick={() => setShowSendConfirm(true)}
               type="button"
             >
               {isPending ? "Odesílám…" : "Odeslat"}
             </button>
+            {showSendConfirm && (
+              <ConfirmModal
+                confirmLabel="Odeslat"
+                confirmVariant="primary"
+                isPending={isPending}
+                onClose={() => setShowSendConfirm(false)}
+                onConfirm={() => { setShowSendConfirm(false); handleSend(); }}
+                title="Odeslat objednávku"
+              >
+                <div className="send-summary">
+                  <div className="send-summary__item">
+                    <span className="send-summary__value">{activeOrderCount}</span>
+                    <span className="send-summary__label">objednávek</span>
+                  </div>
+                  <div className="send-summary__item">
+                    <span className="send-summary__value">{totalPrice} Kč</span>
+                    <span className="send-summary__label">celkem</span>
+                  </div>
+                </div>
+              </ConfirmModal>
+            )}
           </div>
         )}
         {sendError && <p className="v2-send-error">{sendError}</p>}
@@ -404,23 +554,23 @@ export default function OrderPage({
                 <strong>Uzávěrka proběhne v {cutoffTime}.</strong>
                 <span> Objednávku po uzávěrce odešle správce.</span>
               </div>
-              {clearConfirm ? (
-                <span style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexShrink: 0, marginLeft: "auto" }}>
-                  <span style={{ fontSize: "0.82rem", color: "var(--v2-text-muted)" }}>Opravdu smazat vše?</span>
-                  <button className="v2-btn v2-btn--danger" disabled={isPending} onClick={handleClear} type="button">
-                    {isPending ? "…" : "Ano, smazat"}
-                  </button>
-                  <button className="v2-btn v2-btn--secondary" onClick={() => setClearConfirm(false)} type="button">Zrušit</button>
-                </span>
-              ) : (
-                <button
-                  className="v2-btn v2-btn--ghost"
-                  onClick={() => setClearConfirm(true)}
-                  style={{ marginLeft: "auto", flexShrink: 0 }}
-                  type="button"
-                >
-                  Smazat objednávku
-                </button>
+              <button
+                className="v2-btn v2-btn--ghost"
+                onClick={() => setClearConfirm(true)}
+                style={{ marginLeft: "auto", flexShrink: 0 }}
+                type="button"
+              >
+                Smazat objednávku
+              </button>
+              {clearConfirm && (
+                <ConfirmModal
+                  confirmLabel="Smazat"
+                  isPending={isPending}
+                  message="Celá dnešní objednávka bude vymazána. Tuto akci nelze vrátit."
+                  onClose={() => setClearConfirm(false)}
+                  onConfirm={handleClear}
+                  title="Smazat objednávku"
+                />
               )}
             </>
           )}

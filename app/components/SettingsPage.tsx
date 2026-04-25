@@ -13,11 +13,16 @@ import {
   actionReorderDepartments,
 } from "@/app/actions";
 import AppTopBar from "./AppTopBar";
+import { ConfirmModal } from "./ConfirmModal";
 
 const ACCENT_OPTIONS = [
-  { value: "blue", label: "Modrá" },
-  { value: "rust", label: "Rezavá" },
-  { value: "green", label: "Zelená" },
+  { value: "blue",   label: "Modrá" },
+  { value: "rust",   label: "Rezavá" },
+  { value: "green",  label: "Zelená" },
+  { value: "amber",  label: "Jantarová" },
+  { value: "navy",   label: "Námořnická" },
+  { value: "orange", label: "Oranžová" },
+  { value: "red",    label: "Červená" },
 ];
 
 const DAY_OPTIONS: { code: string; label: string }[] = [
@@ -78,19 +83,19 @@ function DeptRow({
           <span className="dept-row__label">{dept.label}</span>
           <span className="dept-row__name">({dept.name})</span>
         </div>
-        {confirmDelete ? (
-          <div className="dept-row__actions">
-            <span style={{ fontSize: "0.82rem", color: "var(--v2-text-muted, #6b7280)" }}>Opravdu smazat?</span>
-            <button className="v2-btn v2-btn--danger" onClick={() => onDelete(dept.id)} type="button">Ano, smazat</button>
-            <button className="v2-btn v2-btn--secondary" onClick={() => setConfirmDelete(false)} type="button">Zrušit</button>
-          </div>
-        ) : (
-          <div className="dept-row__actions">
-            <button className="dept-move-btn" disabled={isFirst} onClick={() => onMoveUp(dept.id)} title="Nahoru" type="button">↑</button>
-            <button className="dept-move-btn" disabled={isLast} onClick={() => onMoveDown(dept.id)} title="Dolů" type="button">↓</button>
-            <button className="v2-btn v2-btn--secondary" onClick={() => setEditing(true)} type="button">Upravit</button>
-            <button className="v2-btn v2-btn--danger" onClick={() => setConfirmDelete(true)} type="button">Smazat</button>
-          </div>
+        <div className="dept-row__actions">
+          <button className="dept-move-btn" disabled={isFirst} onClick={() => onMoveUp(dept.id)} title="Nahoru" type="button">↑</button>
+          <button className="dept-move-btn" disabled={isLast} onClick={() => onMoveDown(dept.id)} title="Dolů" type="button">↓</button>
+          <button className="v2-btn v2-btn--secondary" onClick={() => setEditing(true)} type="button">Upravit</button>
+          <button className="v2-btn v2-btn--danger" onClick={() => setConfirmDelete(true)} type="button">Smazat</button>
+        </div>
+        {confirmDelete && (
+          <ConfirmModal
+            message={`Oddělení „${dept.label}" bude trvale smazáno.`}
+            onClose={() => setConfirmDelete(false)}
+            onConfirm={() => { onDelete(dept.id); setConfirmDelete(false); }}
+            title="Smazat oddělení"
+          />
         )}
       </div>
     );
@@ -263,17 +268,15 @@ export default function SettingsPage({
   };
 
   const handleDeptMove = (id: number, direction: "up" | "down") => {
-    setDepartments((prev) => {
-      const idx = prev.findIndex((d) => d.id === id);
-      if (idx < 0) return prev;
-      const next = [...prev];
-      const swap = direction === "up" ? idx - 1 : idx + 1;
-      if (swap < 0 || swap >= next.length) return prev;
-      [next[idx], next[swap]] = [next[swap], next[idx]];
-      startTransition(async () => {
-        await actionReorderDepartments(next.map((d) => d.id));
-      });
-      return next;
+    const idx = departments.findIndex((d) => d.id === id);
+    if (idx < 0) return;
+    const swap = direction === "up" ? idx - 1 : idx + 1;
+    if (swap < 0 || swap >= departments.length) return;
+    const next = [...departments];
+    [next[idx], next[swap]] = [next[swap], next[idx]];
+    setDepartments(next);
+    startTransition(async () => {
+      await actionReorderDepartments(next.map((d) => d.id));
     });
   };
 
@@ -342,7 +345,7 @@ export default function SettingsPage({
           </section>
         ) : (
           <>
-            <form className="settings-form" onSubmit={handleSave} ref={formRef}>
+            <form className="settings-form" id="settings-form" onSubmit={handleSave} ref={formRef}>
               <Section title="SMTP – odchozí pošta">
                 <div className="settings-row">
                   <Field hint="např. smtp.gmail.com" label="SMTP host">
@@ -467,13 +470,6 @@ export default function SettingsPage({
                 </Field>
               </Section>
 
-              <div className="settings-actions">
-                {saveStatus === "saved" && <span className="settings-save-ok">Nastavení uloženo.</span>}
-                {saveStatus === "error" && <span className="settings-save-error">Chyba při ukládání.</span>}
-                <button className="v2-btn v2-btn--primary" disabled={isPending} type="submit">
-                  {isPending ? "Ukládám..." : "Uložit nastavení"}
-                </button>
-              </div>
             </form>
 
             {/* Správa oddělení — mimo hlavní formulář aby nepomíchala submit */}
@@ -522,6 +518,14 @@ export default function SettingsPage({
                   <button className="v2-btn v2-btn--secondary" onClick={() => setShowAddDept(true)} style={{ marginTop: "0.75rem" }} type="button">+ Přidat oddělení</button>
                 )}
               </div>
+            </div>
+
+            <div className="settings-actions">
+              {saveStatus === "saved" && <span className="settings-save-ok">Nastavení uloženo.</span>}
+              {saveStatus === "error" && <span className="settings-save-error">Chyba při ukládání.</span>}
+              <button className="v2-btn v2-btn--primary" disabled={isPending} form="settings-form" type="submit">
+                {isPending ? "Ukládám..." : "Uložit nastavení"}
+              </button>
             </div>
 
             {/* Záloha dat */}

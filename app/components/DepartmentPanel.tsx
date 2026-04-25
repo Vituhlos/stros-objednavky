@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import type { DepartmentData, OrderRowEnriched, MenuItem, Department, MealEntry } from "@/lib/types";
 import { EXTRAS_PRICES_DEFAULT, type ExtrasPrices } from "@/lib/pricing";
 import { hasOrderRowContent } from "@/lib/order-utils";
+import { ConfirmModal } from "./ConfirmModal";
 
 type RowUpdates = Partial<{
   personName: string;
@@ -141,7 +142,10 @@ function OrderEditModal({
   isNew: boolean; defaultSoupPrice?: number; defaultMealPrice?: number; ep: ExtrasPrices;
   onSave: (u: RowUpdates) => void; onClose: () => void; onDelete: () => void;
 }) {
-  const [personName, setPersonName] = useState(row.personName);
+  const [personName, setPersonName] = useState(() => {
+    if (row.personName) return row.personName;
+    try { return localStorage.getItem("lastPersonName") ?? ""; } catch { return ""; }
+  });
   const [soupIds, setSoupIds] = useState<(number | null)[]>(
     row.soupItemId2 != null
       ? [row.soupItemId, row.soupItemId2]
@@ -158,6 +162,7 @@ function OrderEditModal({
   const [tatarkaCount, setTatarkaCount] = useState(row.tatarkaCount);
   const [bbqCount, setBbqCount] = useState(row.bbqCount);
   const [note, setNote] = useState(row.note);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleCancel = () => { if (isNew) onDelete(); else onClose(); };
 
@@ -182,6 +187,9 @@ function OrderEditModal({
   }, []);
 
   const handleSave = () => {
+    if (personName.trim()) {
+      try { localStorage.setItem("lastPersonName", personName.trim()); } catch { /* */ }
+    }
     const firstMeal = mealEntries[0] ?? { itemId: null, count: 1 };
     const extraMeals: MealEntry[] = mealEntries
       .slice(1)
@@ -198,6 +206,7 @@ function OrderEditModal({
       ketchupCount, tatarkaCount, bbqCount, note,
     });
   };
+
 
   return (
     <div className="modal-overlay" onClick={handleCancel}>
@@ -333,11 +342,19 @@ function OrderEditModal({
           </div>
         </div>
         <div className="modal-sheet__footer">
-          {!isNew && <button className="modal-btn modal-btn--danger" onClick={onDelete} type="button">Smazat</button>}
+          {!isNew && <button className="modal-btn modal-btn--danger" onClick={() => setShowDeleteConfirm(true)} type="button">Smazat</button>}
           <button className="modal-btn modal-btn--secondary" onClick={handleCancel} type="button">Zrušit</button>
           <button className="modal-btn modal-btn--primary" onClick={handleSave} type="button">Uložit</button>
         </div>
       </div>
+      {showDeleteConfirm && (
+        <ConfirmModal
+          message="Objednávka této osoby bude odstraněna."
+          onClose={() => setShowDeleteConfirm(false)}
+          onConfirm={onDelete}
+          title="Smazat objednávku"
+        />
+      )}
     </div>
   );
 }
@@ -361,15 +378,15 @@ function getChips(row: OrderRowEnriched): string[] {
 }
 
 function V2OrderRow({
-  row, accent, isSent, onEdit, onDelete,
+  row, accent, isSent, isSaved, onEdit, onDelete,
 }: {
-  row: OrderRowEnriched; accent: string; isSent: boolean; onEdit: () => void; onDelete: () => void;
+  row: OrderRowEnriched; accent: string; isSent: boolean; isSaved: boolean; onEdit: () => void; onDelete: () => void;
 }) {
   const chips = getChips(row);
 
   return (
     <div
-      className={`v2-order-row${!isSent ? " v2-order-row--interactive" : ""}`}
+      className={`v2-order-row${!isSent ? " v2-order-row--interactive" : ""}${isSaved ? " v2-order-row--saved" : ""}`}
       onClick={!isSent ? onEdit : undefined}
     >
       {/* Col 1: Name + avatar */}
@@ -449,6 +466,9 @@ export function DepartmentPanel({ data, soups, meals, isSent, defaultSoupPrice, 
   const [modalState, setModalState] = useState<{ rowId: number; isNew: boolean } | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
+  const [deleteConfirmRowId, setDeleteConfirmRowId] = useState<number | null>(null);
+  const [savedRowId, setSavedRowId] = useState<number | null>(null);
+  const savedRowTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const accent = data.accent;
   const label = data.label;
@@ -511,15 +531,24 @@ export function DepartmentPanel({ data, soups, meals, isSent, defaultSoupPrice, 
 
         {/* Rows */}
         {activeRows.length === 0 ? (
-          <div className="v2-empty-state">Zatím nikdo neobjednal.</div>
+          <div className="v2-empty-state">
+            <svg aria-hidden className="v2-empty-state__icon" fill="none" height="32" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" width="32">
+              <path d="M3 11l1-7h16l1 7"/>
+              <path d="M3 11h18v2a9 9 0 01-18 0v-2z"/>
+              <path d="M12 11V4M8 11V6M16 11V6"/>
+            </svg>
+            <p className="v2-empty-state__text">Zatím nikdo neobjednal</p>
+            {!isSent && <p className="v2-empty-state__hint">Přidej svoji objednávku tlačítkem výše</p>}
+          </div>
         ) : (
           <div className="v2-dept__rows">
             {activeRows.map((row) => (
               <V2OrderRow
                 accent={accent}
+                isSaved={row.id === savedRowId}
                 isSent={isSent}
                 key={row.id}
-                onDelete={() => onDeleteRow(row.id)}
+                onDelete={() => setDeleteConfirmRowId(row.id)}
                 onEdit={() => setModalState({ rowId: row.id, isNew: false })}
                 row={row}
               />
@@ -538,9 +567,26 @@ export function DepartmentPanel({ data, soups, meals, isSent, defaultSoupPrice, 
           meals={meals}
           onClose={() => setModalState(null)}
           onDelete={() => { onDeleteRow(modalState!.rowId); setModalState(null); }}
-          onSave={(updates) => { onUpdateRow(modalState!.rowId, updates); setModalState(null); }}
+          onSave={(updates) => {
+            const rowId = modalState!.rowId;
+            onUpdateRow(rowId, updates);
+            setModalState(null);
+            if (savedRowTimer.current) clearTimeout(savedRowTimer.current);
+            setSavedRowId(rowId);
+            savedRowTimer.current = setTimeout(() => setSavedRowId(null), 1800);
+          }}
           row={modalRow}
           soups={soups}
+        />
+      )}
+
+      {/* Confirm delete row */}
+      {deleteConfirmRowId !== null && (
+        <ConfirmModal
+          message="Objednávka této osoby bude odstraněna."
+          onClose={() => setDeleteConfirmRowId(null)}
+          onConfirm={() => { onDeleteRow(deleteConfirmRowId); setDeleteConfirmRowId(null); }}
+          title="Smazat objednávku"
         />
       )}
     </>
