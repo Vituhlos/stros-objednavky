@@ -1186,9 +1186,9 @@ select {
   position: fixed;
   inset: 0;
   z-index: 200;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  background: rgba(15,23,42,0.22);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -1335,9 +1335,15 @@ select {
 
 @media (min-width: 641px) {
   .modal-sheet {
-    border-radius: 12px;
+    border-radius: 24px;
     max-height: 90dvh;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.9) inset,
+      0 -1px 0 rgba(255,255,255,0.25) inset,
+      1px 0 0 rgba(255,255,255,0.35) inset,
+      -1px 0 0 rgba(255,255,255,0.35) inset,
+      0 24px 60px -16px rgba(15,23,42,0.28),
+      0 4px 12px -4px rgba(15,23,42,0.12);
   }
 
   .modal-sheet--wide {
@@ -1349,8 +1355,8 @@ select {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--v2-border, #e5e7eb);
+  padding: 1.1rem 1.25rem;
+  border-bottom: 1px solid rgba(15,23,42,0.07);
   flex-shrink: 0;
 }
 
@@ -1383,7 +1389,7 @@ select {
 }
 
 .modal-close-btn:hover {
-  background: var(--v2-bg, #f3f4f6);
+  background: rgba(15,23,42,0.07);
   color: var(--v2-text, #111827);
 }
 
@@ -1419,8 +1425,8 @@ select {
 .modal-input,
 .modal-select {
   padding: 0.6rem 0.8rem;
-  border: 1px solid var(--v2-border, #e5e7eb);
-  background: var(--v2-bg, #f3f4f6);
+  border: 1px solid rgba(15,23,42,0.12);
+  background: rgba(255,255,255,0.85);
   font-size: 0.92rem;
   font-family: inherit;
   color: var(--v2-text, #111827);
@@ -1429,33 +1435,33 @@ select {
   transition: border-color 150ms ease, box-shadow 150ms ease;
   -webkit-appearance: none;
   appearance: none;
-  border-radius: 6px;
+  border-radius: 10px;
 }
 
 .modal-input:focus,
 .modal-select:focus {
   outline: none;
-  border-color: var(--v2-orange, #ea580c);
-  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.12);
+  border-color: var(--brand-blue);
+  box-shadow: 0 0 0 3px rgba(50,173,230,0.18);
 }
 
 .modal-note {
   padding: 0.6rem 0.8rem;
-  border: 1px solid var(--v2-border, #e5e7eb);
-  background: var(--v2-bg, #f3f4f6);
+  border: 1px solid rgba(15,23,42,0.12);
+  background: rgba(255,255,255,0.85);
   font-size: 0.92rem;
   font-family: inherit;
   color: var(--v2-text, #111827);
   width: 100%;
   resize: vertical;
-  border-radius: 6px;
+  border-radius: 10px;
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
 .modal-note:focus {
   outline: none;
-  border-color: var(--v2-orange, #ea580c);
-  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.12);
+  border-color: var(--brand-blue);
+  box-shadow: 0 0 0 3px rgba(50,173,230,0.18);
 }
 
 .modal-note::placeholder {
@@ -1467,25 +1473,26 @@ select {
   margin-left: 0.5rem;
   font-size: 0.78rem;
   font-weight: 600;
-  color: var(--v2-orange, #ea580c);
-  background: rgba(234, 88, 12, 0.08);
+  color: var(--brand-blue);
+  background: rgba(50,173,230,0.1);
   padding: 0.1rem 0.4rem;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 
 .modal-extras {
   display: flex;
   flex-direction: column;
   gap: 0;
-  border: 1px solid var(--v2-border, #e5e7eb);
-  border-radius: 8px;
+  border: 1px solid rgba(15,23,42,0.09);
+  border-radius: 14px;
   overflow: clip;
+  background: rgba(255,255,255,0.7);
 }
 
 .modal-extras > .modal-label {
   padding: 0.55rem 0.85rem 0.45rem;
-  background: #f9fafb;
-  border-bottom: 1px solid var(--v2-border, #e5e7eb);
+  background: rgba(247,249,251,0.8);
+  border-bottom: 1px solid rgba(15,23,42,0.07);
   margin: 0;
 }
 
@@ -1495,8 +1502,8 @@ select {
   align-items: center;
   gap: 0.75rem;
   padding: 0.6rem 0.85rem;
-  border-bottom: 1px solid var(--v2-border, #e5e7eb);
-  background: var(--v2-card, white);
+  border-bottom: 1px solid rgba(15,23,42,0.06);
+  background: transparent;
 }
 
 .modal-stepper:last-child {
@@ -1524,8 +1531,15 @@ select {
   display: flex;
   gap: 0.5rem;
   padding: 1rem 1.25rem;
-  border-top: 1px solid var(--v2-border, #e5e7eb);
+  border-top: 1px solid rgba(15,23,42,0.07);
   flex-shrink: 0;
+}
+
+.modal-sheet__body::-webkit-scrollbar { width: 5px; }
+.modal-sheet__body::-webkit-scrollbar-track { background: transparent; }
+.modal-sheet__body::-webkit-scrollbar-thumb {
+  background: rgba(15,23,42,0.15);
+  border-radius: 999px;
 }
 
 .modal-btn {
