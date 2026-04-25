@@ -75,7 +75,13 @@ function RowMenuButton({ onEdit, onDelete }: { onEdit: () => void; onDelete: () 
     e.stopPropagation();
     if (!open && btnRef.current) {
       const r = btnRef.current.getBoundingClientRect();
-      setPos({ top: r.bottom + 4, right: window.innerWidth - r.right });
+      const dropdownH = 88;
+      const clearance = 100; // místo pro bottom navbar
+      const spaceBelow = window.innerHeight - r.bottom - clearance;
+      const top = spaceBelow >= dropdownH
+        ? r.bottom + 4
+        : Math.max(8, r.top - dropdownH - 4);
+      setPos({ top, right: window.innerWidth - r.right });
     }
     setOpen((o) => !o);
   };
