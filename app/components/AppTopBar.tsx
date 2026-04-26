@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import MIcon from "./MIcon";
 
 const NAV = [
   { href: "/",           label: "Objednávky", icon: "restaurant_menu", exact: true },
@@ -18,9 +19,7 @@ export default function AppTopBar() {
       <header className="v2-topbar">
         <div className="v2-topbar__brand">
           <div className="v2-topbar__logo">
-            <span aria-hidden className="material-symbols-outlined msym-fill" style={{ fontSize: 20 }}>
-              restaurant
-            </span>
+            <MIcon name="restaurant" size={20} fill />
           </div>
           <span className="v2-topbar__title">Dnešní objednávka</span>
         </div>
@@ -33,9 +32,7 @@ export default function AppTopBar() {
                 href={href}
                 key={href}
               >
-                <span aria-hidden className={`material-symbols-outlined${isActive ? " msym-fill" : ""}`} style={{ fontSize: 18 }}>
-                  {icon}
-                </span>
+                <MIcon name={icon} size={18} fill={isActive} />
                 <span>{label}</span>
               </Link>
             );
@@ -51,9 +48,7 @@ export default function AppTopBar() {
               href={href}
               key={href}
             >
-              <span aria-hidden className={`material-symbols-outlined${isActive ? " msym-fill" : ""}`} style={{ fontSize: 24 }}>
-                {icon}
-              </span>
+              <MIcon name={icon} size={24} fill={isActive} />
               <span>{label}</span>
             </Link>
           );

@@ -3,6 +3,7 @@
 import { useState, useTransition, useCallback } from "react";
 import type { PizzaOrderData, PizzaOrderRow, PizzaItem } from "@/lib/pizza";
 import { computePizzaTotals, PIZZA_BOX_FEE } from "@/lib/pizza-utils";
+import MIcon from "./MIcon";
 import type { PizzaTotals } from "@/lib/pizza-utils";
 import {
   actionAddPizzaRow,
@@ -170,7 +171,7 @@ export default function PizzaPage({ initialData }: { initialData: PizzaOrderData
 
           {rows.length === 0 ? (
             <div className="v2-empty-state">
-              <span aria-hidden className="material-symbols-outlined msym-fill v2-empty-state__icon" style={{ fontSize: 32 }}>local_pizza</span>
+              <MIcon name="local_pizza" size={32} fill className="v2-empty-state__icon" />
               <p className="v2-empty-state__text">Zatím nikdo neobjednal</p>
               <p className="v2-empty-state__hint">Přidej první osobu tlačítkem výše</p>
             </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import MIcon from "./MIcon";
 
 export function ConfirmModal({
   title,
@@ -45,9 +46,9 @@ export function ConfirmModal({
       <div className="confirm-dialog" onClick={(e) => e.stopPropagation()}>
         <div className={`confirm-dialog__icon${confirmVariant === "primary" ? " confirm-dialog__icon--primary" : ""}`}>
           {confirmVariant === "primary" ? (
-            <span aria-hidden className="material-symbols-outlined msym-fill" style={{ fontSize: 24 }}>send</span>
+            <MIcon name="send" size={24} fill />
           ) : (
-            <span aria-hidden className="material-symbols-outlined msym-fill" style={{ fontSize: 24 }}>warning</span>
+            <MIcon name="warning" size={24} fill />
           )}
         </div>
         <h3 className="confirm-dialog__title">{title}</h3>

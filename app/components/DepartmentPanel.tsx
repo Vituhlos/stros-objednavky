@@ -5,6 +5,7 @@ import type { DepartmentData, OrderRowEnriched, MenuItem, Department, MealEntry 
 import { EXTRAS_PRICES_DEFAULT, type ExtrasPrices } from "@/lib/pricing";
 import { hasOrderRowContent } from "@/lib/order-utils";
 import { ConfirmModal } from "./ConfirmModal";
+import MIcon from "./MIcon";
 
 type RowUpdates = Partial<{
   personName: string;
@@ -44,11 +45,7 @@ const DEPT_ICONS: Partial<Record<Department, string>> = {
 
 function DeptIcon({ name }: { name: Department }) {
   const icon = DEPT_ICONS[name] ?? "groups";
-  return (
-    <span aria-hidden className="material-symbols-outlined msym-fill" style={{ fontSize: 18 }}>
-      {icon}
-    </span>
-  );
+  return <MIcon name={icon} size={18} fill />;
 }
 
 // ── Row context menu ──────────────────────────────────────
@@ -95,7 +92,7 @@ function RowMenuButton({ onEdit, onDelete }: { onEdit: () => void; onDelete: () 
         ref={btnRef}
         type="button"
       >
-        <span aria-hidden className="material-symbols-outlined" style={{ fontSize: 18 }}>more_vert</span>
+        <MIcon name="more_vert" size={18} />
       </button>
       {open && pos && (
         <div
@@ -530,9 +527,7 @@ export function DepartmentPanel({ data, soups, meals, isSent, defaultSoupPrice, 
         {/* Rows */}
         {activeRows.length === 0 ? (
           <div className="v2-empty-state">
-            <span aria-hidden className="material-symbols-outlined v2-empty-state__icon" style={{ fontSize: 32 }}>
-              shopping_basket
-            </span>
+            <MIcon name="shopping_basket" size={32} className="v2-empty-state__icon" />
             <p className="v2-empty-state__text">Zatím nikdo neobjednal</p>
             {!isSent && <p className="v2-empty-state__hint">Přidej svoji objednávku tlačítkem výše</p>}
           </div>

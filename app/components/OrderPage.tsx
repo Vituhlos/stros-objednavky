@@ -7,6 +7,7 @@ import { hasOrderRowContent } from "@/lib/order-utils";
 import { DepartmentPanel } from "./DepartmentPanel";
 import AppTopBar from "./AppTopBar";
 import { ConfirmModal } from "./ConfirmModal";
+import MIcon from "./MIcon";
 import {
   actionAddRow,
   actionUpdateRow,
@@ -19,17 +20,11 @@ import {
 
 // ── Inline SVG icons ──────────────────────────────────────
 
-const Msym = ({ name, size = 16, fill = false }: { name: string; size?: number; fill?: boolean }) => (
-  <span aria-hidden className={`material-symbols-outlined${fill ? " msym-fill" : ""}`} style={{ fontSize: size }}>
-    {name}
-  </span>
-);
-
-const IconCalendar = () => <Msym name="calendar_today" size={14} />;
-const IconClock    = () => <Msym name="schedule" size={14} />;
-const IconInfo     = () => <Msym name="info" size={14} />;
-const IconLock     = () => <Msym name="lock" size={16} fill />;
-const IconCheck    = () => <Msym name="check_circle" size={16} fill />;
+const IconCalendar = () => <MIcon name="calendar_today" size={14} />;
+const IconClock    = () => <MIcon name="schedule" size={14} />;
+const IconInfo     = () => <MIcon name="info" size={14} />;
+const IconLock     = () => <MIcon name="lock" size={16} fill />;
+const IconCheck    = () => <MIcon name="check_circle" size={16} fill />;
 
 // ── Helpers ───────────────────────────────────────────────
 
@@ -390,7 +385,7 @@ export default function OrderPage({
       )}
       {showOfflineBanner && (
         <div aria-live="assertive" className="v2-offline-banner" role="alert">
-          <Msym name="wifi_off" size={14} />
+          <MIcon name="wifi_off" size={14} />
           <span>Odpojeno – živé aktualizace nefungují. Zkontrolujte připojení.</span>
         </div>
       )}
