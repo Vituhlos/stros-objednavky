@@ -400,7 +400,12 @@ function V2OrderRow({
 
       {/* Body: name + food info */}
       <div className="v2-order-row__body">
-        <div className="v2-order-row__body-name">{row.personName || "—"}</div>
+        <div className="v2-order-row__body-name">
+          <span>{row.personName || "—"}</span>
+          {row.note && (
+            <span className="v2-note-chip" title={row.note}>✎ {row.note}</span>
+          )}
+        </div>
         <div className="v2-order-row__body-food">
           {mainFood && <span className="v2-order-row__main">{mainFood}</span>}
           {extraFoods.map((f, i) => (
@@ -414,10 +419,9 @@ function V2OrderRow({
           {soup2Name && <span className="v2-order-row__soup">{soup2Name}</span>}
           {!mainFood && !soupName && <span className="v2-muted">—</span>}
         </div>
-        {(chips.length > 0 || row.note) && (
+        {chips.length > 0 && (
           <div className="v2-order-row__extras">
             {chips.map((c) => <span className="v2-chip" key={c}>{c}</span>)}
-            {row.note && <span className="v2-note-chip" title={row.note}>✎ {row.note}</span>}
           </div>
         )}
       </div>
@@ -491,7 +495,7 @@ export function DepartmentPanel({ data, soups, meals, isSent, defaultSoupPrice, 
           </div>
           {!isSent && (
             <button className="v2-add-btn" disabled={isAdding} onClick={handleAddAndOpen} type="button">
-              {isAdding ? "…" : "+ Přidat sebe"}
+              {isAdding ? "…" : "+ Přidat"}
             </button>
           )}
         </div>
