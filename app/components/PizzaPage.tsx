@@ -77,7 +77,14 @@ export default function PizzaPage({ initialData }: { initialData: PizzaOrderData
     startTransition(async () => {
       try {
         const res = await fetch("/api/pizza/scrape");
-        const json = await res.json() as { items?: Array<{ code: number; name: string; price: number }>; error?: string };
+        let json: { items?: Array<{ code: number; name: string; price: number }>; error?: string };
+        try {
+          json = await res.json() as typeof json;
+        } catch {
+          setScrapeError(`Server vrátil neočekávanou odpověď (HTTP ${res.status}). Zkontrolujte logy.`);
+          setScrapeStatus(null);
+          return;
+        }
         if (!res.ok || json.error) {
           setScrapeError(json.error ?? "Neznámá chyba při načítání ceníku.");
           setScrapeStatus(null);
@@ -88,8 +95,8 @@ export default function PizzaPage({ initialData }: { initialData: PizzaOrderData
         setPizzaItems(items.map((it, idx) => ({ id: idx + 1, ...it })));
         setRows((prev) => recalcRows(prev, items.map((it, idx) => ({ id: idx + 1, ...it }))));
         setScrapeStatus(`Ceník aktualizován – ${items.length} pizz načteno.`);
-      } catch {
-        setScrapeError("Nepodařilo se připojit k webu pizza-dublovice.cz.");
+      } catch (e) {
+        setScrapeError(`Nepodařilo se načíst ceník: ${e instanceof Error ? e.message : "neznámá chyba"}`);
         setScrapeStatus(null);
       }
     });
