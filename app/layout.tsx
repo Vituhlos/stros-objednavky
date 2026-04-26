@@ -14,10 +14,10 @@ const inter = Inter({
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin", "latin-ext"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-jakarta",
   display: "swap",
-  preload: true,
+  preload: false,
 });
 
 
