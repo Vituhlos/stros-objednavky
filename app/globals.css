@@ -33,29 +33,7 @@
    Liquid Glass UI Kit — přeneseno z design-system.css
    ═══════════════════════════════════════════════════════════ */
 
-/* ── Orby (dekorativní pozadí) ── */
-.stage-bg {
-  position: absolute; inset: 0;
-  background: var(--bg);
-  overflow: hidden;
-  isolation: isolate;
-}
-.orb {
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(90px);
-  opacity: 0.6;
-  pointer-events: none;
-}
-.orb-sky    { background: #38bdf8; top: -100px;  left: -100px;  width: 640px; height: 640px; }
-.orb-purple { background: #a855f7; bottom: -120px; right: -120px; width: 660px; height: 660px; }
-.orb-mint   { background: #34d399; top: 35%; right: 15%;  width: 380px; height: 380px; opacity: 0.45; }
-.orb-warm   { background: #fb923c; top: 55%; left: 10%;  width: 300px; height: 300px; opacity: 0.3; }
-.orb-rose   { background: #f472b6; top: -60px; left: 40%; width: 280px; height: 280px; opacity: 0.35; }
-
-@media (max-width: 768px) {
-  .orb-stage { display: none; }
-}
+/* ── Dekorativní pozadí — radial-gradient místo blur orbs ── */
 
 /* ── Plná glass karta ── */
 .glass {
@@ -148,12 +126,18 @@ body {
   font-family: var(--font-inter), sans-serif;
 }
 
-/* Orby – stálá vrstva pod celou appkou */
+/* Dekorativní pozadí — statické radial-gradienty, nulový GPU cost */
 .orb-stage {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
+  background-image:
+    radial-gradient(ellipse 640px 640px at -100px -100px, rgba(56,189,248,0.55) 0%, transparent 70%),
+    radial-gradient(ellipse 660px 660px at calc(100% + 120px) calc(100% + 120px), rgba(168,85,247,0.55) 0%, transparent 70%),
+    radial-gradient(ellipse 380px 380px at 85% 35%, rgba(52,211,153,0.40) 0%, transparent 70%),
+    radial-gradient(ellipse 300px 300px at 10% 55%, rgba(251,146,60,0.28) 0%, transparent 70%),
+    radial-gradient(ellipse 280px 280px at 40% -60px, rgba(244,114,182,0.32) 0%, transparent 70%);
 }
 
 a {
