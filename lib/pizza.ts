@@ -99,6 +99,7 @@ export function replacePizzaItems(
 ): void {
   const db = getDb();
   db.transaction(() => {
+    db.prepare("UPDATE pizza_order_rows SET pizza_item_id = NULL").run();
     db.prepare("DELETE FROM pizza_items").run();
     const stmt = db.prepare(
       "INSERT INTO pizza_items (code, name, price) VALUES (?, ?, ?)"
