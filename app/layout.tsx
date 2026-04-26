@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
-import Script from "next/script";
 import "./globals.css";
 import SwRegister from "./components/SwRegister";
 
@@ -56,13 +55,6 @@ export default function RootLayout({
         </div>
         {children}
         <SwRegister />
-        <Script
-          id="load-material-symbols"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `(function(){var l=document.createElement('link');l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400..500,0..1,0&text=calendar_today%2Bcheck_circle%2Bgroups%2Bhistory%2Bhome_work%2Binfo%2Blocal_pizza%2Block%2Bmenu_book%2Bmore_vert%2Brestaurant%2Brestaurant_menu%2Bschedule%2Bsend%2Bsettings%2Bshopping_basket%2Bwarning%2Bwifi_off&display=swap';document.head.appendChild(l);})()`,
-          }}
-        />
       </body>
     </html>
   );
