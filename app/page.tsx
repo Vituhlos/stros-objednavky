@@ -6,8 +6,12 @@ import OrderPage from "@/app/components/OrderPage";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
+  const t0 = Date.now();
   const data = await getTodayOrderData();
+  console.log(`[perf] getTodayOrderData: ${Date.now() - t0}ms`);
+  const t1 = Date.now();
   const s = getSettings();
+  console.log(`[perf] getSettings: ${Date.now() - t1}ms`);
   const menuEmpty = getMenuWeekLabel() === null;
   return (
     <OrderPage
