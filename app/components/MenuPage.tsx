@@ -278,38 +278,41 @@ function MenuSection({
       ) : editMode ? (
         <div className="px-4 divide-y divide-white/30">
           {items.map((item) => (
-            <div key={item.id} className="group flex items-center gap-2 py-2">
+            <div key={item.id} className="group py-2 space-y-1.5">
               <input
-                className="bg-white/50 border border-white/60 rounded-lg py-1 px-2 text-[11px] font-mono w-10 shrink-0 text-center outline-none focus:border-amber-400/60"
-                defaultValue={item.code}
-                disabled={disabled}
-                onBlur={(e) => { if (e.target.value !== item.code) onUpdate(item.id, { code: e.target.value }); }}
-                title="Kód"
-              />
-              <input
-                className="bg-white/50 border border-white/60 rounded-lg py-1 px-2 text-[12px] text-slate-800 flex-1 min-w-0 outline-none focus:border-amber-400/60"
+                className="bg-white/50 border border-white/60 rounded-lg py-1.5 px-2.5 text-[13px] text-slate-800 w-full outline-none focus:border-amber-400/60"
                 defaultValue={item.name}
                 disabled={disabled}
                 onBlur={(e) => { if (e.target.value !== item.name) onUpdate(item.id, { name: e.target.value }); }}
+                placeholder="Název jídla"
                 title="Název"
               />
-              <input
-                className="bg-white/50 border border-white/60 rounded-lg py-1 px-2 text-[12px] w-16 text-right shrink-0 outline-none focus:border-amber-400/60"
-                defaultValue={item.price}
-                disabled={disabled}
-                min={0}
-                onBlur={(e) => { const p = Number(e.target.value); if (!isNaN(p) && p !== item.price) onUpdate(item.id, { price: p }); }}
-                title="Cena Kč"
-                type="number"
-              />
-              <button
-                className="w-7 h-7 rounded-full inline-flex items-center justify-center text-slate-300 hover:text-red-400 hover:bg-red-50/80 transition opacity-0 group-hover:opacity-100 shrink-0"
-                disabled={disabled}
-                onClick={() => onDelete(item.id)}
-                type="button"
-              >
-                <MIcon name="close" size={13} />
-              </button>
+              <div className="flex items-center gap-2">
+                <input
+                  className="bg-white/50 border border-white/60 rounded-lg py-1 px-2 text-[11px] font-mono w-10 shrink-0 text-center outline-none focus:border-amber-400/60"
+                  defaultValue={item.code}
+                  disabled={disabled}
+                  onBlur={(e) => { if (e.target.value !== item.code) onUpdate(item.id, { code: e.target.value }); }}
+                  title="Kód"
+                />
+                <input
+                  className="bg-white/50 border border-white/60 rounded-lg py-1 px-2 text-[12px] w-16 text-right shrink-0 outline-none focus:border-amber-400/60"
+                  defaultValue={item.price}
+                  disabled={disabled}
+                  min={0}
+                  onBlur={(e) => { const p = Number(e.target.value); if (!isNaN(p) && p !== item.price) onUpdate(item.id, { price: p }); }}
+                  title="Cena Kč"
+                  type="number"
+                />
+                <button
+                  className="ml-auto w-7 h-7 rounded-full inline-flex items-center justify-center text-slate-300 hover:text-red-400 hover:bg-red-50/80 transition shrink-0"
+                  disabled={disabled}
+                  onClick={() => onDelete(item.id)}
+                  type="button"
+                >
+                  <MIcon name="close" size={13} />
+                </button>
+              </div>
             </div>
           ))}
         </div>
