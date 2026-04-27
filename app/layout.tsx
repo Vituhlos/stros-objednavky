@@ -45,7 +45,11 @@ export default function RootLayout({
     <html lang="cs" className={`${inter.variable} ${plusJakarta.variable}`}>
       <head />
       <body className={inter.className}>
-        <div aria-hidden className="orb-stage" />
+        <div className="stage-bg" aria-hidden>
+          <div className="orb orb-sky" />
+          <div className="orb orb-amber" />
+          <div className="orb orb-mint" />
+        </div>
         {children}
         <SwRegister />
       </body>

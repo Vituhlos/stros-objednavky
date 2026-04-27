@@ -13,6 +13,7 @@ import {
 import { useRouter } from "next/navigation";
 import AppTopBar from "./AppTopBar";
 import { ConfirmModal } from "./ConfirmModal";
+import MIcon from "./MIcon";
 
 const DAY_ORDER = ["Po", "Út", "St", "Čt", "Pá"];
 const DAY_LABELS: Record<string, string> = {
@@ -39,7 +40,7 @@ type ImportState =
   | { phase: "done" }
   | { phase: "error"; message: string };
 
-// ── Preview table (import panel) ──────────────────────────────────────────────
+// ── Preview table ──────────────────────────────────────────────────────────────
 
 function PreviewTable({ items }: { items: ParsedMenuItem[] }) {
   const byDay: Record<string, { soups: ParsedMenuItem[]; meals: ParsedMenuItem[] }> = {};
@@ -49,26 +50,26 @@ function PreviewTable({ items }: { items: ParsedMenuItem[] }) {
     else byDay[item.day].meals.push(item);
   }
   return (
-    <div className="menu-preview-grid">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
       {DAY_ORDER.filter((d) => byDay[d]).map((day) => (
-        <div className="menu-day-col" key={day}>
-          <h4 className="menu-day-col__header">{DAY_LABELS[day]}</h4>
+        <div className="glass-soft rounded-2xl p-3" key={day}>
+          <h4 className="font-display font-bold text-[12px] text-slate-700 mb-2">{DAY_LABELS[day]}</h4>
           {byDay[day].soups.length > 0 && (
-            <div className="menu-day-col__section">
-              <p className="menu-day-col__section-label">Polévky</p>
+            <div className="mb-2">
+              <p className="text-[10px] uppercase tracking-wide text-slate-400 font-semibold mb-1">Polévky</p>
               {byDay[day].soups.map((s, i) => (
-                <p className="menu-day-col__item menu-day-col__item--soup" key={i}>
-                  <span className="menu-item-code">{s.code}</span> {s.name}
+                <p className="text-[12px] text-slate-700 py-0.5" key={i}>
+                  <span className="font-mono text-[10px] text-slate-400 mr-1">{s.code}</span>{s.name}
                 </p>
               ))}
             </div>
           )}
           {byDay[day].meals.length > 0 && (
-            <div className="menu-day-col__section">
-              <p className="menu-day-col__section-label">Jídla</p>
+            <div>
+              <p className="text-[10px] uppercase tracking-wide text-slate-400 font-semibold mb-1">Jídla</p>
               {byDay[day].meals.map((m, i) => (
-                <p className="menu-day-col__item" key={i}>
-                  <span className="menu-item-code">{m.code}</span> {m.name}
+                <p className="text-[12px] text-slate-700 py-0.5" key={i}>
+                  <span className="font-mono text-[10px] text-slate-400 mr-1">{m.code}</span>{m.name}
                 </p>
               ))}
             </div>
@@ -79,201 +80,102 @@ function PreviewTable({ items }: { items: ParsedMenuItem[] }) {
   );
 }
 
-// ── Editable item row ─────────────────────────────────────────────────────────
+// ── Menu section ──────────────────────────────────────────────────────────────
 
-function EditableItem({
-  item,
+function MenuSection({
+  title,
+  icon,
+  accent,
+  iconColor,
+  items,
   disabled,
-  onUpdate,
+  editMode,
+  emptyLabel,
+  onAdd,
   onDelete,
+  onUpdate,
 }: {
-  item: MenuItem;
+  title: string;
+  icon: string;
+  accent: string;
+  iconColor: string;
+  items: MenuItem[];
   disabled: boolean;
-  onUpdate: (id: number, updates: Partial<{ code: string; name: string; price: number }>) => void;
+  editMode: boolean;
+  emptyLabel: string;
+  onAdd?: () => void;
   onDelete: (id: number) => void;
+  onUpdate: (id: number, updates: Partial<{ code: string; name: string; price: number }>) => void;
 }) {
   return (
-    <div className="menu-edit-row">
-      <input
-        className="menu-edit-code"
-        defaultValue={item.code}
-        disabled={disabled}
-        onBlur={(e) => { if (e.target.value !== item.code) onUpdate(item.id, { code: e.target.value }); }}
-        title="Kód"
-      />
-      <input
-        className="menu-edit-name"
-        defaultValue={item.name}
-        disabled={disabled}
-        onBlur={(e) => { if (e.target.value !== item.name) onUpdate(item.id, { name: e.target.value }); }}
-        title="Název"
-      />
-      <input
-        className="menu-edit-price"
-        defaultValue={item.price}
-        disabled={disabled}
-        min={0}
-        onBlur={(e) => {
-          const p = Number(e.target.value);
-          if (!isNaN(p) && p !== item.price) onUpdate(item.id, { price: p });
-        }}
-        title="Cena Kč"
-        type="number"
-      />
-      <button
-        className="v2-delete-btn"
-        disabled={disabled}
-        onClick={() => onDelete(item.id)}
-        title="Smazat"
-        type="button"
-      >
-        ×
-      </button>
-    </div>
-  );
-}
-
-// ── View grid ─────────────────────────────────────────────────────────────────
-
-function ViewGrid({
-  menu,
-  todayCode,
-  emptyMessage,
-}: {
-  menu: Record<string, { soups: MenuItem[]; meals: MenuItem[] }>;
-  todayCode: string | null;
-  emptyMessage: string;
-}) {
-  const days = DAY_ORDER.filter((d) => menu[d]);
-  const [activeDay, setActiveDay] = useState<string>(() => {
-    if (todayCode && menu[todayCode]) return todayCode;
-    return days[0] ?? DAY_ORDER[0];
-  });
-
-  if (days.length === 0) {
-    return <p className="v2-empty-state">{emptyMessage}</p>;
-  }
-
-  return (
-    <>
-      {/* Day tab bar — visible on mobile only (hidden by CSS at ≥768px) */}
-      <div className="menu-day-tabs">
-        {days.map((day) => (
+    <div className="glass rounded-3xl overflow-hidden">
+      <div className="flex items-center gap-2.5 px-4 py-3 border-b border-white/40" style={{ background: accent }}>
+        <MIcon name={icon} size={17} fill style={{ color: iconColor }} />
+        <span className="font-display font-bold text-[13.5px] text-slate-900 flex-1">{title}</span>
+        {editMode && onAdd && (
           <button
-            className={[
-              "menu-day-tab",
-              day === activeDay ? "menu-day-tab--active" : "",
-              day === todayCode ? "menu-day-tab--today" : "",
-            ].filter(Boolean).join(" ")}
-            key={day}
-            onClick={() => setActiveDay(day)}
+            className="inline-flex items-center gap-1 text-[12px] font-semibold px-2.5 py-1 rounded-full text-white"
+            disabled={disabled}
+            onClick={onAdd}
+            style={{ background: "linear-gradient(135deg,#F59E0B,#EA580C)" }}
             type="button"
           >
-            {day}
+            <MIcon name="add" size={13} /> Přidat
           </button>
-        ))}
+        )}
       </div>
-      <div className="v2-menu-body">
-        <div className="menu-preview-grid">
-          {days.map((day) => (
-            <div
-              className={[
-                "menu-day-col",
-                day === todayCode ? "menu-day-col--today" : "",
-                day !== activeDay ? "menu-day-col--hidden-mobile" : "",
-              ].filter(Boolean).join(" ")}
-              key={day}
-            >
-              <h4 className="menu-day-col__header">
-                {DAY_LABELS[day]}
-                {day === todayCode && <span className="menu-day-col__today-badge">Dnes</span>}
-              </h4>
-              {menu[day].soups.length > 0 && (
-                <div className="menu-day-col__section">
-                  <p className="menu-day-col__section-label">Polévky</p>
-                  {menu[day].soups.map((s) => (
-                    <p className="menu-day-col__item menu-day-col__item--soup" key={s.id}>
-                      <span className="menu-item-code">{s.code}</span> {s.name}
-                    </p>
-                  ))}
-                </div>
-              )}
-              {menu[day].meals.length > 0 && (
-                <div className="menu-day-col__section">
-                  <p className="menu-day-col__section-label">Jídla</p>
-                  {menu[day].meals.map((m) => (
-                    <p className="menu-day-col__item" key={m.id}>
-                      <span className="menu-item-code">{m.code}</span> {m.name}
-                    </p>
-                  ))}
-                </div>
-              )}
+      {items.length === 0 ? (
+        <div className="px-4 py-4 text-[12.5px] text-slate-400 text-center">{emptyLabel}</div>
+      ) : editMode ? (
+        <div className="px-4 divide-y divide-white/30">
+          {items.map((item) => (
+            <div key={item.id} className="group flex items-center gap-2 py-2">
+              <input
+                className="modal-input !py-1 !px-2 text-[11px] font-mono w-10 shrink-0"
+                defaultValue={item.code}
+                disabled={disabled}
+                onBlur={(e) => { if (e.target.value !== item.code) onUpdate(item.id, { code: e.target.value }); }}
+                title="Kód"
+              />
+              <input
+                className="modal-input !py-1 !px-2 text-[12px] flex-1 min-w-0"
+                defaultValue={item.name}
+                disabled={disabled}
+                onBlur={(e) => { if (e.target.value !== item.name) onUpdate(item.id, { name: e.target.value }); }}
+                title="Název"
+              />
+              <input
+                className="modal-input !py-1 !px-2 text-[12px] w-16 text-right shrink-0"
+                defaultValue={item.price}
+                disabled={disabled}
+                min={0}
+                onBlur={(e) => { const p = Number(e.target.value); if (!isNaN(p) && p !== item.price) onUpdate(item.id, { price: p }); }}
+                title="Cena Kč"
+                type="number"
+              />
+              <button
+                className="w-7 h-7 rounded-full inline-flex items-center justify-center text-slate-300 hover:text-red-400 hover:bg-red-50/80 transition opacity-0 group-hover:opacity-100 shrink-0"
+                disabled={disabled}
+                onClick={() => onDelete(item.id)}
+                type="button"
+              >
+                <MIcon name="close" size={13} />
+              </button>
             </div>
           ))}
         </div>
-      </div>
-    </>
-  );
-}
-
-// ── Edit grid ─────────────────────────────────────────────────────────────────
-
-function EditGrid({
-  menu,
-  todayCode,
-  disabled,
-  onUpdate,
-  onDelete,
-  onAdd,
-}: {
-  menu: Record<string, { soups: MenuItem[]; meals: MenuItem[] }>;
-  todayCode: string | null;
-  disabled: boolean;
-  onUpdate: (id: number, updates: Partial<{ code: string; name: string; price: number }>) => void;
-  onDelete: (id: number) => void;
-  onAdd: (day: string, type: "Polévka" | "Jídlo") => void;
-}) {
-  return (
-    <div className="menu-edit-grid">
-      {DAY_ORDER.map((day) => {
-        const dayData = menu[day] ?? { soups: [], meals: [] };
-        return (
-          <div className={`menu-edit-col${day === todayCode ? " menu-edit-col--today" : ""}`} key={day}>
-            <div className="menu-edit-col__header">
-              <span>{DAY_LABELS[day]}</span>
-              {day === todayCode && <span className="menu-day-col__today-badge">Dnes</span>}
-            </div>
-            <div className="menu-edit-section">
-              <div className="menu-edit-section__label">
-                <span>Polévky</span>
-                <div className="menu-edit-col-head">
-                  <span>Kód</span><span>Název</span><span>Kč</span><span></span>
-                </div>
-              </div>
-              {dayData.soups.map((s) => (
-                <EditableItem disabled={disabled} item={s} key={s.id} onDelete={onDelete} onUpdate={onUpdate} />
-              ))}
-              <button className="menu-add-btn" disabled={disabled} onClick={() => onAdd(day, "Polévka")} type="button">
-                + Polévka
-              </button>
-            </div>
-            <div className="menu-edit-section">
-              <div className="menu-edit-section__label">
-                <span>Jídla</span>
-                <div className="menu-edit-col-head">
-                  <span>Kód</span><span>Název</span><span>Kč</span><span></span>
-                </div>
-              </div>
-              {dayData.meals.map((m) => (
-                <EditableItem disabled={disabled} item={m} key={m.id} onDelete={onDelete} onUpdate={onUpdate} />
-              ))}
-              <button className="menu-add-btn" disabled={disabled} onClick={() => onAdd(day, "Jídlo")} type="button">
-                + Jídlo
-              </button>
-            </div>
+      ) : (
+        items.map((item, i) => (
+          <div
+            key={item.id}
+            className={`flex items-center gap-3 px-4 py-3 ${i < items.length - 1 ? "border-b border-white/30" : ""}`}
+          >
+            <span className="font-mono text-[11px] text-slate-400 w-7 shrink-0">{item.code}</span>
+            <span className="flex-1 text-[13px] text-slate-800">{item.name}</span>
+            <span className="font-display font-semibold text-[13px] text-slate-700">{item.price} Kč</span>
           </div>
-        );
-      })}
+        ))
+      )}
     </div>
   );
 }
@@ -306,6 +208,11 @@ export default function MenuPage({
   const activeWeekStart = activeWeek === "current" ? currentWeekStart : nextWeekStart;
   const activeWeekLabel = activeWeek === "current" ? currentWeekLabel : nextWeekLabel;
   const hasPdfActive = activeWeek === "current" ? hasPdfCurrent : hasPdfNext;
+  const activeMenu = activeWeek === "current" ? currentMenu : initialNextMenu;
+
+  const activeDays = DAY_ORDER.filter((d) => activeMenu[d]);
+  const defaultDay = todayCode && activeMenu[todayCode] ? todayCode : (activeDays[0] ?? DAY_ORDER[0]);
+  const [activeDay, setActiveDay] = useState<string>(defaultDay);
 
   const handleWeekSwitch = (week: "current" | "next") => {
     setActiveWeek(week);
@@ -396,8 +303,7 @@ export default function MenuPage({
   const handleAdd = useCallback((day: string, type: "Polévka" | "Jídlo") => {
     startTransition(async () => {
       const newItem = await actionAddMenuItem({
-        day,
-        type,
+        day, type,
         code: type === "Polévka" ? "A" : "1",
         name: type === "Polévka" ? "Nová polévka" : "Nové jídlo",
         price: type === "Polévka" ? 35 : 120,
@@ -425,109 +331,265 @@ export default function MenuPage({
   };
 
   const isImportOpen = importState.phase !== "idle" && importState.phase !== "done";
+  const dayMenu = activeMenu[activeDay] ?? { soups: [], meals: [] };
+  const isReadOnly = activeWeek === "next";
 
   return (
-    <div className="v2-shell">
+    <div className="k-shell">
       <AppTopBar />
 
-      {/* ── Infostrip ── */}
-      <div className="v2-infostrip">
-        <div className="v2-infostrip__facts">
-          <span style={{ fontWeight: 700, color: "var(--v2-text)", fontSize: "0.95rem" }}>Jídelníček LIMA</span>
-          {activeWeekLabel && (
-            <span className="v2-fact">
-              <strong className="v2-accent">{activeWeekLabel}</strong>
-            </span>
-          )}
-        </div>
-        <div className="v2-infostrip__send">
+      {/* Desktop topbar */}
+      <div className="hidden md:flex px-5 py-2.5 border-b border-white/50 items-center gap-3 topbar shrink-0">
+        <span className="font-display font-bold text-[15px] text-slate-900">Jídelníček LIMA</span>
+        {activeWeekLabel && (
+          <span className="text-[12px] text-slate-500">Týden <strong className="text-amber-600">{activeWeekLabel}</strong></span>
+        )}
+        {hasPdfActive && (
+          <a className="inline-flex items-center gap-1 text-[12px] font-semibold px-2.5 py-1.5 rounded-xl glass-soft text-slate-600"
+            download href={`/api/menu/pdf/${activeWeekStart}`}>
+            ↓ PDF
+          </a>
+        )}
+        <div className="ml-auto flex items-center gap-2">
           {activeWeek === "current" && (
             <button
-              className={`v2-btn ${editMode ? "v2-btn--primary" : "v2-btn--secondary"}`}
+              className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl glass-soft ${editMode ? "text-amber-600" : "text-slate-600"}`}
               onClick={() => { setEditMode((v) => !v); setImportState({ phase: "idle" }); }}
               type="button"
             >
               {editMode ? "Zavřít úpravu" : "Upravit ručně"}
             </button>
           )}
+          {activeWeek === "next" && hasNextWeek && (
+            <button
+              className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl text-red-600"
+              style={{ background: "rgba(220,38,38,0.08)", border: "1px solid rgba(220,38,38,0.2)" }}
+              disabled={isPending}
+              onClick={() => setConfirmDeleteNext(true)}
+              type="button"
+            >
+              Smazat příští týden
+            </button>
+          )}
           <button
-            className="v2-btn v2-btn--primary"
-            onClick={() => {
-              setEditMode(false);
-              setImportState({ phase: "uploading" });
-            }}
+            className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl glass-soft text-slate-600"
+            onClick={() => { setEditMode(false); setImportState({ phase: "uploading" }); }}
             type="button"
           >
-            Importovat PDF
+            <MIcon name="upload_file" size={14} /> Import PDF
           </button>
         </div>
       </div>
 
-      {/* ── Import modal ── */}
+      {/* Mobile topbar */}
+      <div className="md:hidden border-b border-white/50 topbar shrink-0">
+        <div className="flex items-center gap-3 px-4 py-2.5">
+          <span className="font-display font-bold text-[14px] text-slate-900 flex-1">Jídelníček LIMA</span>
+          {activeWeekLabel && <span className="text-[11px] text-slate-500">{activeWeekLabel}</span>}
+          <button
+            className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-xl glass-soft text-slate-600"
+            onClick={() => { setEditMode(false); setImportState({ phase: "uploading" }); }}
+            type="button"
+          >
+            <MIcon name="upload_file" size={13} /> PDF
+          </button>
+        </div>
+      </div>
+
+      {/* Week tabs */}
+      <div className="flex gap-1.5 px-4 pt-3 pb-1 shrink-0">
+        {(["current", "next"] as const).map((week) => {
+          const active = activeWeek === week;
+          const label = week === "current" ? "Aktuální týden" : "Příští týden";
+          return (
+            <button
+              key={week}
+              className="text-[12px] font-semibold px-3 py-1.5 rounded-xl transition"
+              onClick={() => handleWeekSwitch(week)}
+              style={active ? { background: "linear-gradient(135deg,#F59E0B,#EA580C)", color: "white" } : {}}
+              type="button"
+            >
+              <span className={active ? "text-white" : "text-slate-500"}>{label}</span>
+            </button>
+          );
+        })}
+        {hasPdfActive && (
+          <a className="ml-auto inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-xl glass-soft text-slate-600 md:hidden"
+            download href={`/api/menu/pdf/${activeWeekStart}`}>
+            ↓ PDF
+          </a>
+        )}
+        {activeWeek === "current" && (
+          <button
+            className={`md:hidden inline-flex items-center text-[11px] font-semibold px-2.5 py-1.5 rounded-xl glass-soft ${editMode ? "text-amber-600" : "text-slate-600"}`}
+            onClick={() => { setEditMode((v) => !v); setImportState({ phase: "idle" }); }}
+            type="button"
+          >
+            {editMode ? "Zavřít" : "Upravit"}
+          </button>
+        )}
+      </div>
+
+      {/* Day tabs */}
+      <div className="flex gap-1.5 overflow-x-auto no-scrollbar px-4 py-2 shrink-0">
+        {DAY_ORDER.map((day) => {
+          const active = activeDay === day;
+          const isToday = day === todayCode;
+          const hasData = !!activeMenu[day];
+          return (
+            <button
+              key={day}
+              className="shrink-0 flex flex-col items-center px-2.5 py-1.5 rounded-xl transition"
+              onClick={() => setActiveDay(day)}
+              style={active ? { background: "linear-gradient(135deg,#F59E0B,#EA580C)" } : {}}
+              type="button"
+            >
+              <span className={`text-[9.5px] font-bold uppercase tracking-wide leading-none ${active ? "text-white/75" : hasData ? "text-slate-500" : "text-slate-300"}`}>
+                {day}
+              </span>
+              <span className={`font-display font-bold text-[12px] leading-tight mt-0.5 ${active ? "text-white" : hasData ? "text-slate-700" : "text-slate-300"}`}>
+                {DAY_LABELS[day].slice(0, 2)}.
+              </span>
+              {isToday && (
+                <span className="w-1 h-1 rounded-full mt-0.5" style={{ background: active ? "rgba(255,255,255,0.75)" : "#F59E0B" }} />
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto scroll-area px-4 pb-28 md:pb-8 space-y-3">
+        <div className="font-display font-bold text-[17px] text-slate-900 mb-1">{DAY_LABELS[activeDay]}</div>
+
+        <MenuSection
+          accent="rgba(245,158,11,0.12)"
+          disabled={isPending}
+          editMode={!isReadOnly && editMode}
+          emptyLabel="Žádné polévky pro tento den."
+          icon="restaurant"
+          iconColor="#D97706"
+          items={dayMenu.soups}
+          onAdd={() => handleAdd(activeDay, "Polévka")}
+          onDelete={(id) => setConfirmDeleteItemId(id)}
+          onUpdate={handleUpdate}
+          title="Polévky"
+        />
+
+        <MenuSection
+          accent="rgba(234,88,12,0.1)"
+          disabled={isPending}
+          editMode={!isReadOnly && editMode}
+          emptyLabel="Žádná jídla pro tento den."
+          icon="restaurant_menu"
+          iconColor="#EA580C"
+          items={dayMenu.meals}
+          onAdd={() => handleAdd(activeDay, "Jídlo")}
+          onDelete={(id) => setConfirmDeleteItemId(id)}
+          onUpdate={handleUpdate}
+          title="Jídla"
+        />
+      </div>
+
+      {/* Confirm modals */}
+      {confirmDeleteItemId !== null && (
+        <ConfirmModal
+          message="Tato položka jídelníčku bude trvale odstraněna."
+          onClose={() => setConfirmDeleteItemId(null)}
+          onConfirm={() => { handleDelete(confirmDeleteItemId); setConfirmDeleteItemId(null); }}
+          title="Smazat položku"
+        />
+      )}
+      {confirmDeleteNext && (
+        <ConfirmModal
+          confirmLabel="Smazat"
+          isPending={isPending}
+          message="Celý jídelníček příštího týdne bude trvale odstraněn."
+          onClose={() => setConfirmDeleteNext(false)}
+          onConfirm={handleDeleteNextWeek}
+          title="Smazat příští týden"
+        />
+      )}
+
+      {/* Import modal */}
       {isImportOpen && (
-        <div className="modal-overlay" onClick={() => setImportState({ phase: "idle" })}>
+        <div
+          className="modal-overlay"
+          onClick={() => setImportState({ phase: "idle" })}
+        >
           <div
-            className={`modal-sheet${importState.phase === "preview" ? " modal-sheet--wide" : ""}`}
+            className={`modal-sheet${importState.phase === "preview" ? " !w-full sm:!w-[760px]" : ""}`}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-sheet__header">
               <h3 className="modal-sheet__title">
                 {importState.phase === "preview" ? "Náhled importu" : "Importovat PDF jídelníčku"}
               </h3>
-              <button aria-label="Zavřít" className="modal-close-btn" onClick={() => setImportState({ phase: "idle" })} type="button">×</button>
+              <button
+                aria-label="Zavřít"
+                className="w-8 h-8 rounded-full glass-soft inline-flex items-center justify-center text-slate-500 font-bold"
+                onClick={() => setImportState({ phase: "idle" })}
+                type="button"
+              >
+                <MIcon name="close" size={16} />
+              </button>
             </div>
             <div className="modal-sheet__body">
               {importState.phase === "uploading" && (
                 <>
                   <div
-                    className={`drop-zone${isDragging ? " drop-zone--active" : ""}`}
+                    className={`flex flex-col items-center gap-3 p-8 rounded-2xl border-2 border-dashed cursor-pointer transition ${isDragging ? "border-amber-400 bg-amber-50/50" : "border-white/50 glass-soft"}`}
                     onClick={() => fileInputRef.current?.click()}
                     onDragLeave={() => setIsDragging(false)}
                     onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                     onDrop={(e) => { e.preventDefault(); setIsDragging(false); const f = e.dataTransfer.files[0]; if (f) handleFile(f); }}
                   >
-                    <span className="drop-zone__icon">PDF</span>
-                    <p>Přetáhněte PDF sem nebo klikněte pro výběr souboru</p>
+                    <MIcon name="upload_file" size={32} style={{ color: "#D97706" }} />
+                    <p className="text-[13px] text-slate-600 text-center">Přetáhněte PDF sem nebo klikněte pro výběr</p>
                     <input accept=".pdf" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} ref={fileInputRef} style={{ display: "none" }} type="file" />
                   </div>
-                  <p className="import-status">Čekám na soubor...</p>
+                  <p className="text-[12px] text-slate-400 text-center">Čekám na soubor...</p>
                 </>
               )}
               {importState.phase === "error" && (
-                <div className="import-error">
+                <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-[13px] text-red-700">
                   <strong>Chyba:</strong> {importState.message}
-                  <button className="import-retry-btn" onClick={() => setImportState({ phase: "uploading" })} type="button">Zkusit znovu</button>
+                  <button className="ml-3 text-[12px] font-semibold text-red-600 underline" onClick={() => setImportState({ phase: "uploading" })} type="button">Zkusit znovu</button>
                 </div>
               )}
               {importState.phase === "preview" && (
                 <>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
-                    <span className="import-status" style={{ margin: 0 }}>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-[12.5px] text-slate-600">
                       Rozpoznáno <strong>{importState.result.items.length}</strong> položek
                       {importState.result.weekLabel && <>, týden <strong>{importState.result.weekLabel}</strong></>}
                     </span>
-                    <span style={{ marginLeft: "auto", display: "flex", gap: "0.4rem" }}>
-                      <span style={{ fontSize: "0.83rem", color: "var(--v2-text-muted)", alignSelf: "center" }}>Uložit jako:</span>
+                    <div className="ml-auto flex items-center gap-1.5">
+                      <span className="text-[11px] text-slate-400">Uložit jako:</span>
                       <button
-                        className={`v2-btn ${importState.targetWeekStart === currentWeekStart ? "v2-btn--primary" : "v2-btn--secondary"}`}
+                        className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg ${importState.targetWeekStart === currentWeekStart ? "text-white" : "glass-soft text-slate-600"}`}
                         onClick={() => setImportState((prev) => prev.phase === "preview" ? { ...prev, targetWeekStart: currentWeekStart, targetLabel: `aktuální týden${currentWeekLabel ? ` (${currentWeekLabel})` : ""}` } : prev)}
+                        style={importState.targetWeekStart === currentWeekStart ? { background: "linear-gradient(135deg,#F59E0B,#EA580C)" } : {}}
                         type="button"
                       >
-                        Aktuální týden
+                        Aktuální
                       </button>
                       <button
-                        className={`v2-btn ${importState.targetWeekStart === nextWeekStart ? "v2-btn--primary" : "v2-btn--secondary"}`}
+                        className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg ${importState.targetWeekStart === nextWeekStart ? "text-white" : "glass-soft text-slate-600"}`}
                         onClick={() => setImportState((prev) => prev.phase === "preview" ? { ...prev, targetWeekStart: nextWeekStart, targetLabel: `příští týden${nextWeekLabel ? ` (${nextWeekLabel})` : ""}` } : prev)}
+                        style={importState.targetWeekStart === nextWeekStart ? { background: "linear-gradient(135deg,#F59E0B,#EA580C)" } : {}}
                         type="button"
                       >
-                        Příští týden
+                        Příští
                       </button>
-                    </span>
+                    </div>
                   </div>
                   <PreviewTable items={importState.result.items} />
                 </>
               )}
-              {importState.phase === "saving" && <p className="import-status">Ukládám jídelníček...</p>}
+              {importState.phase === "saving" && (
+                <p className="text-[13px] text-slate-500 text-center py-4">Ukládám jídelníček...</p>
+              )}
             </div>
             {importState.phase === "preview" && (
               <div className="modal-sheet__footer">
@@ -540,105 +602,6 @@ export default function MenuPage({
           </div>
         </div>
       )}
-
-      {/* ── Content ── */}
-      <main className="v2-content">
-        <section className="v2-dept">
-          {/* Card header */}
-          <div className="v2-dept__head">
-            <div>
-              <h2 className="v2-dept__title">Jídelníček</h2>
-              <span className="v2-dept__count">
-                {activeWeekLabel ?? "Jídelníček není naplněný"}
-              </span>
-            </div>
-            <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-              {hasPdfActive && (
-                <a
-                  className="v2-btn v2-btn--secondary"
-                  download
-                  href={`/api/menu/pdf/${activeWeekStart}`}
-                  style={{ fontSize: "0.8rem" }}
-                >
-                  ↓ PDF
-                </a>
-              )}
-              {activeWeek === "next" && hasNextWeek && (
-                <button
-                  className="v2-btn v2-btn--danger"
-                  disabled={isPending}
-                  onClick={() => setConfirmDeleteNext(true)}
-                  type="button"
-                >
-                  Smazat
-                </button>
-              )}
-              {confirmDeleteNext && (
-                <ConfirmModal
-                  confirmLabel="Smazat"
-                  isPending={isPending}
-                  message="Celý jídelníček příštího týdne bude trvale odstraněn."
-                  onClose={() => setConfirmDeleteNext(false)}
-                  onConfirm={handleDeleteNextWeek}
-                  title="Smazat příští týden"
-                />
-              )}
-            </div>
-          </div>
-
-          {/* Week tab bar */}
-          <div className="menu-week-tabs">
-            <button
-              className={`menu-week-tab${activeWeek === "current" ? " menu-week-tab--active" : ""}`}
-              onClick={() => handleWeekSwitch("current")}
-              type="button"
-            >
-              Aktuální týden
-            </button>
-            <button
-              className={`menu-week-tab${activeWeek === "next" ? " menu-week-tab--active" : ""}`}
-              onClick={() => handleWeekSwitch("next")}
-              type="button"
-            >
-              Příští týden
-            </button>
-          </div>
-
-          {/* Content area */}
-          {activeWeek === "current" && editMode ? (
-            <div style={{ padding: "0.75rem 1.25rem 1.25rem", overflowX: "auto" }}>
-              <EditGrid
-                disabled={isPending}
-                menu={currentMenu}
-                onAdd={handleAdd}
-                onDelete={(id) => setConfirmDeleteItemId(id)}
-                onUpdate={handleUpdate}
-                todayCode={todayCode}
-              />
-              {confirmDeleteItemId !== null && (
-                <ConfirmModal
-                  message="Tato položka jídelníčku bude trvale odstraněna."
-                  onClose={() => setConfirmDeleteItemId(null)}
-                  onConfirm={() => { handleDelete(confirmDeleteItemId); setConfirmDeleteItemId(null); }}
-                  title="Smazat položku"
-                />
-              )}
-            </div>
-          ) : activeWeek === "current" ? (
-            <ViewGrid
-              emptyMessage="Jídelníček není naplněný. Importujte PDF nebo použijte ruční úpravu."
-              menu={currentMenu}
-              todayCode={todayCode}
-            />
-          ) : (
-            <ViewGrid
-              emptyMessage="Zatím žádný jídelníček. Importujte PDF příštího týdne — app ho automaticky uloží sem."
-              menu={initialNextMenu}
-              todayCode={null}
-            />
-          )}
-        </section>
-      </main>
     </div>
   );
 }

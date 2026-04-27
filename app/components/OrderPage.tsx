@@ -18,14 +18,6 @@ import {
   actionReopenOrder,
 } from "@/app/actions";
 
-// ── Inline SVG icons ──────────────────────────────────────
-
-const IconCalendar = () => <MIcon name="calendar_today" size={14} />;
-const IconClock    = () => <MIcon name="schedule" size={14} />;
-const IconInfo     = () => <MIcon name="info" size={14} />;
-const IconLock     = () => <MIcon name="lock" size={16} fill />;
-const IconCheck    = () => <MIcon name="check_circle" size={16} fill />;
-
 // ── Helpers ───────────────────────────────────────────────
 
 function getPragueNow() {
@@ -381,189 +373,254 @@ export default function OrderPage({
   const showOfflineBanner = hasEverConnected && !sseConnected;
 
   return (
-    <div className="v2-shell">
+    <div className="k-shell">
       <AppTopBar />
+
+      {/* ── Toasts & banners (fixed/absolute) ── */}
       {justSent && (
-        <div aria-live="polite" className="v2-sent-toast" role="status">
-          <div className="v2-sent-toast__inner">
-            <IconCheck />
-            <span>Objednávka odeslána!</span>
+        <div aria-live="polite" role="status" className="fixed top-16 left-1/2 -translate-x-1/2 z-[300] fade-up pointer-events-none">
+          <div className="glass rounded-full px-5 py-2.5 flex items-center gap-2 shadow-lg">
+            <MIcon name="check_circle" size={16} fill style={{ color: "#16a34a" }} />
+            <span className="font-display font-semibold text-[13px] text-slate-900">Objednávka odeslána!</span>
           </div>
         </div>
       )}
       {pendingDelete && (
-        <div aria-live="polite" className="v2-undo-toast" role="status">
+        <div aria-live="polite" role="status" className="k-toast">
           <span>Řádek smazán</span>
-          <button className="v2-undo-toast__btn" onClick={handleUndoDelete} type="button">
-            Zpět
-          </button>
+          <button className="k-toast__undo" onClick={handleUndoDelete} type="button">Zpět</button>
         </div>
       )}
       {showOfflineBanner && (
-        <div aria-live="assertive" className="v2-offline-banner" role="alert">
+        <div aria-live="assertive" role="alert" className="k-offline">
           <MIcon name="wifi_off" size={14} />
-          <span>Odpojeno – živé aktualizace nefungují. Zkontrolujte připojení.</span>
+          <span>Odpojeno – živé aktualizace nefungují.</span>
         </div>
       )}
 
-      {/* ── Info strip ── */}
-      <div className="v2-infostrip">
-        <div className="v2-infostrip__facts">
-          <span className="v2-fact">
-            <IconCalendar />
-            <span>{dayStr}</span>
+      {/* ── Desktop info strip ── */}
+      <div className="hidden md:flex px-5 py-2 border-b border-white/50 items-center gap-4 topbar shrink-0">
+        <div className="flex items-center gap-3 flex-1 text-[12px] text-slate-600">
+          <span className="inline-flex items-center gap-1.5">
+            <MIcon name="calendar_today" size={13} style={{ color: "#D97706" }} />
+            <span className="font-medium">{dayStr}</span>
             <span
-              className={`sse-dot${sseConnected ? " sse-dot--on" : ""}`}
+              className={`w-1.5 h-1.5 rounded-full ${sseConnected ? "bg-green-400" : "bg-slate-300"}`}
               title={sseConnected ? "Živé aktualizace aktivní" : "Připojování..."}
             />
           </span>
           {!isSent && !isPastCutoff && countdown && (
-            <span className="v2-fact">
-              <IconClock />
-              <span>
-                Uzávěrka {countdown} ({cutoffTime})
-              </span>
+            <span className="inline-flex items-center gap-1 text-slate-500">
+              <MIcon name="schedule" size={13} /> Uzávěrka {countdown} ({cutoffTime})
             </span>
           )}
           {!isSent && isPastCutoff && (
-            <span className="v2-fact" style={{ color: "var(--v2-orange)" }}>
-              <IconClock />
-              <span>Po uzávěrce – objednávka ještě nebyla odeslána</span>
+            <span className="inline-flex items-center gap-1 text-orange-600">
+              <MIcon name="schedule" size={13} /> Po uzávěrce
+            </span>
+          )}
+          {isSent && sentAt && (
+            <span className="inline-flex items-center gap-1 text-green-700 font-semibold">
+              <MIcon name="check_circle" size={13} fill /> Odesláno v {new Date(sentAt).toLocaleTimeString("cs-CZ", { hour: "2-digit", minute: "2-digit" })}
             </span>
           )}
         </div>
         {!isSent && (
-          <div className="v2-infostrip__send">
+          <div className="flex items-center gap-2 shrink-0">
             <input
-              className="v2-email-input"
+              className="text-[12px] px-3 py-1.5 rounded-xl glass-soft outline-none placeholder:text-slate-400 w-[180px]"
               defaultValue={extraEmail}
-              disabled={isSent}
               onBlur={handleEmailBlur}
               onChange={(e) => setExtraEmail(e.target.value)}
               placeholder="Další e-mail (volitelné)"
               type="email"
             />
             <button
-              className="v2-send-btn"
-              disabled={isSent || isPending}
+              className="px-4 py-1.5 rounded-xl text-[12.5px] font-semibold text-white disabled:opacity-50"
+              disabled={isPending}
               onClick={() => setShowSendConfirm(true)}
+              style={{ background: "linear-gradient(135deg,#F59E0B,#EA580C)", boxShadow: "0 4px 12px -4px rgba(245,158,11,0.4)" }}
               type="button"
             >
               {isPending ? "Odesílám…" : "Odeslat"}
             </button>
-            {showSendConfirm && (
-              <ConfirmModal
-                confirmLabel="Odeslat"
-                confirmVariant="primary"
-                isPending={isPending}
-                onClose={() => setShowSendConfirm(false)}
-                onConfirm={() => { setShowSendConfirm(false); handleSend(); }}
-                title="Odeslat objednávku"
-              >
-                <div className="send-summary">
-                  <div className="send-summary__item">
-                    <span className="send-summary__value">{activeOrderCount}</span>
-                    <span className="send-summary__label">objednávek</span>
-                  </div>
-                  <div className="send-summary__item">
-                    <span className="send-summary__value">{totalPrice} Kč</span>
-                    <span className="send-summary__label">celkem</span>
-                  </div>
-                </div>
-              </ConfirmModal>
-            )}
           </div>
         )}
-        {sendError && <p className="v2-send-error">{sendError}</p>}
+        {isSent && (
+          <button
+            className="shrink-0 text-[12px] font-semibold px-3 py-1.5 rounded-xl glass-soft text-slate-600 disabled:opacity-50"
+            disabled={isPending}
+            onClick={handleReopen}
+            type="button"
+          >
+            {isPending ? "…" : "Znovu otevřít"}
+          </button>
+        )}
+        {sendError && <span className="text-[11.5px] text-red-600">{sendError}</span>}
       </div>
 
-      {/* ── Alerts ── */}
-      {menuEmpty && !isSent && (
-        <div className="v2-alert v2-alert--warn">
-          <strong>Jídelníček není naplněný.</strong>{" "}
-          Přejděte do{" "}
-          <a href="/jidelnicek" style={{ textDecoration: "underline" }}>Jídelníčku</a>
-          {" "}a importujte PDF nebo přidejte položky ručně.
+      {/* ── Mobile info strip ── */}
+      <div className="md:hidden border-b border-white/50 topbar shrink-0">
+        <div className="px-4 py-2 flex items-center gap-2 text-[11.5px] text-slate-600 flex-wrap">
+          <MIcon name="calendar_today" size={12} style={{ color: "#D97706" }} />
+          <span className="flex-1">{dayStr}</span>
+          <span
+            className={`w-1.5 h-1.5 rounded-full ${sseConnected ? "bg-green-400" : "bg-slate-300"}`}
+            title={sseConnected ? "Živé aktualizace aktivní" : "Připojování..."}
+          />
+          {!isSent && !isPastCutoff && countdown && (
+            <span className="inline-flex items-center gap-1 text-slate-500">
+              <MIcon name="schedule" size={12} /> {cutoffTime}
+            </span>
+          )}
+          {isSent && (
+            <span className="inline-flex items-center gap-1 text-green-700 font-semibold">
+              <MIcon name="check_circle" size={12} fill /> Odesláno
+            </span>
+          )}
         </div>
-      )}
-
-      {/* ── Main content ── */}
-      <main className="v2-content">
-        <div className="v2-dept-grid">
-          {departments.map((dept) => (
-            <DepartmentPanel
-              data={dept}
-              defaultMealPrice={defaultMealPrice}
-              defaultSoupPrice={defaultSoupPrice}
-              extrasPrices={extrasPrices}
-              isSent={isSent}
-              key={dept.name}
-              meals={allMeals}
-              onAddRow={() => handleAddRow(dept.name)}
-              onDeleteRow={handleDeleteRow}
-              onUpdateRow={handleUpdateRow}
-              soups={allSoups}
+        {!isSent && (
+          <div className="px-4 pb-2 flex items-center gap-2">
+            <input
+              className="flex-1 text-[12px] px-3 py-1.5 rounded-xl glass-soft outline-none placeholder:text-slate-400 min-w-0"
+              defaultValue={extraEmail}
+              onBlur={handleEmailBlur}
+              onChange={(e) => setExtraEmail(e.target.value)}
+              placeholder="Další e-mail (volitelné)"
+              type="email"
             />
-          ))}
-        </div>
+            <button
+              className="shrink-0 px-4 py-1.5 rounded-xl text-[12.5px] font-semibold text-white disabled:opacity-50"
+              disabled={isPending}
+              onClick={() => setShowSendConfirm(true)}
+              style={{ background: "linear-gradient(135deg,#F59E0B,#EA580C)" }}
+              type="button"
+            >
+              {isPending ? "…" : "Odeslat"}
+            </button>
+          </div>
+        )}
+      </div>
 
-        {/* ── Bottom status bar ── */}
-        <div className={`v2-statusbar${isSent ? " v2-statusbar--sent" : ""}`}>
-          {isSent ? (
-            <>
-              <span className="v2-statusbar__icon v2-statusbar__icon--green"><IconCheck /></span>
-              <div style={{ flex: 1 }}>
-                <strong>Objednávka byla odeslána.</strong>
-                {sentAt && (
-                  <span>
-                    {" "}v{" "}
-                    {new Date(sentAt).toLocaleTimeString("cs-CZ", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
-                )}
-                <span> Další úpravy nejsou možné.</span>
-              </div>
+      {/* ── Scrollable main content ── */}
+      <main className="flex-1 overflow-y-auto scroll-area p-4">
+        <div className="flex flex-col gap-4 pb-20">
+
+          {menuEmpty && !isSent && (
+            <div className="glass rounded-2xl px-4 py-3 flex items-center gap-3 text-[12.5px]"
+              style={{ borderColor: "rgba(245,158,11,0.3)", background: "rgba(245,158,11,0.07)" }}>
+              <MIcon name="warning" size={16} style={{ color: "#D97706" }} />
+              <span className="text-slate-700">
+                <strong>Jídelníček není naplněný.</strong>{" "}
+                Přejděte do{" "}
+                <a href="/jidelnicek" className="underline text-amber-700">Jídelníčku</a>
+                {" "}a importujte PDF nebo přidejte položky ručně.
+              </span>
+            </div>
+          )}
+
+          {/* Department panels — 3-col on desktop */}
+          <div className="grid md:grid-cols-3 gap-4">
+            {departments.map((dept) => (
+              <DepartmentPanel
+                data={dept}
+                defaultMealPrice={defaultMealPrice}
+                defaultSoupPrice={defaultSoupPrice}
+                extrasPrices={extrasPrices}
+                isSent={isSent}
+                key={dept.name}
+                meals={allMeals}
+                onAddRow={() => handleAddRow(dept.name)}
+                onDeleteRow={handleDeleteRow}
+                onUpdateRow={handleUpdateRow}
+                soups={allSoups}
+              />
+            ))}
+          </div>
+
+          {/* Bottom status bar */}
+          <div
+            className="glass rounded-2xl px-4 py-3 flex items-center gap-3"
+            style={isSent ? { borderColor: "rgba(34,197,94,0.3)", background: "rgba(34,197,94,0.07)" } : {}}
+          >
+            <div
+              className="w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0"
+              style={{ background: isSent ? "rgba(34,197,94,0.15)" : "rgba(100,116,139,0.1)" }}
+            >
+              <MIcon name={isSent ? "check_circle" : "lock"} size={18} fill style={{ color: isSent ? "#16a34a" : "#94a3b8" }} />
+            </div>
+            <div className="flex-1 text-[12.5px] text-slate-700 leading-snug">
+              {isSent ? (
+                <>
+                  <strong className="text-green-700">Objednávka odeslána</strong>
+                  {sentAt && <span> v {new Date(sentAt).toLocaleTimeString("cs-CZ", { hour: "2-digit", minute: "2-digit" })}</span>}
+                  <span className="text-slate-500"> · Další úpravy nejsou možné.</span>
+                </>
+              ) : (
+                <>
+                  <strong>Uzávěrka v {cutoffTime}.</strong>
+                  <span className="text-slate-500"> Objednávku po uzávěrce odešle správce.</span>
+                </>
+              )}
+            </div>
+            {!isSent && totalPrice > 0 && (
+              <span className="font-display font-bold text-[14px] text-slate-800 shrink-0">{totalPrice} Kč</span>
+            )}
+            {!isSent && (
               <button
-                className="v2-btn v2-btn--secondary"
+                className="shrink-0 text-[11.5px] font-medium px-3 py-1.5 rounded-xl glass-soft text-slate-500"
+                onClick={() => setClearConfirm(true)}
+                type="button"
+              >
+                Smazat
+              </button>
+            )}
+            {isSent && (
+              <button
+                className="shrink-0 text-[12px] font-semibold px-3 py-1.5 rounded-xl glass-soft text-slate-600 disabled:opacity-50"
                 disabled={isPending}
                 onClick={handleReopen}
-                style={{ marginLeft: "auto", flexShrink: 0 }}
                 type="button"
               >
                 {isPending ? "…" : "Znovu otevřít"}
               </button>
-            </>
-          ) : (
-            <>
-              <span className="v2-statusbar__icon"><IconLock /></span>
-              <div style={{ flex: 1 }}>
-                <strong>Uzávěrka proběhne v {cutoffTime}.</strong>
-                <span> Objednávku po uzávěrce odešle správce.</span>
-              </div>
-              <button
-                className="v2-btn v2-btn--ghost"
-                onClick={() => setClearConfirm(true)}
-                style={{ marginLeft: "auto", flexShrink: 0 }}
-                type="button"
-              >
-                Smazat objednávku
-              </button>
-              {clearConfirm && (
-                <ConfirmModal
-                  confirmLabel="Smazat"
-                  isPending={isPending}
-                  message="Celá dnešní objednávka bude vymazána. Tuto akci nelze vrátit."
-                  onClose={() => setClearConfirm(false)}
-                  onConfirm={handleClear}
-                  title="Smazat objednávku"
-                />
-              )}
-            </>
-          )}
+            )}
+          </div>
         </div>
       </main>
+
+      {/* ── Modals ── */}
+      {showSendConfirm && (
+        <ConfirmModal
+          confirmLabel="Odeslat"
+          confirmVariant="primary"
+          isPending={isPending}
+          onClose={() => setShowSendConfirm(false)}
+          onConfirm={() => { setShowSendConfirm(false); handleSend(); }}
+          title="Odeslat objednávku"
+        >
+          <div className="send-summary">
+            <div className="send-summary__item">
+              <span className="send-summary__value">{activeOrderCount}</span>
+              <span className="send-summary__label">objednávek</span>
+            </div>
+            <div className="send-summary__item">
+              <span className="send-summary__value">{totalPrice} Kč</span>
+              <span className="send-summary__label">celkem</span>
+            </div>
+          </div>
+        </ConfirmModal>
+      )}
+      {clearConfirm && (
+        <ConfirmModal
+          confirmLabel="Smazat"
+          isPending={isPending}
+          message="Celá dnešní objednávka bude vymazána. Tuto akci nelze vrátit."
+          onClose={() => setClearConfirm(false)}
+          onConfirm={handleClear}
+          title="Smazat objednávku"
+        />
+      )}
     </div>
   );
 }
