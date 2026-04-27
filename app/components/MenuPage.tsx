@@ -107,15 +107,14 @@ function WeekGrid({
             style={isToday ? { boxShadow: "0 0 0 2px rgba(245,158,11,0.45)" } : {}}
           >
             {/* Day header */}
-            <div
-              className="px-3 py-2.5 border-b border-white/40"
-              style={isToday ? { background: "linear-gradient(135deg,rgba(245,158,11,0.13),rgba(234,88,12,0.08))" } : { background: "rgba(255,255,255,0.25)" }}
-            >
-              <div className="flex items-center justify-between">
-                <span className={`font-display font-bold text-[11px] uppercase tracking-wider ${isToday ? "text-amber-500" : "text-slate-600"}`}>{DAY_LABELS[day]}</span>
-                {isToday && <span className="text-[9.5px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full" style={{ background: "rgba(245,158,11,0.15)", color: "#D97706" }}>Dnes</span>}
+            <div className="px-3 pt-3 pb-2.5 border-b border-white/40">
+              <div className="flex items-start justify-between gap-1">
+                <span className={`font-display font-bold text-[26px] leading-none ${isToday ? "text-amber-500" : "text-slate-800"}`}>{dayDates[day]}</span>
+                {isToday && (
+                  <span className="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full mt-0.5 shrink-0" style={{ background: "rgba(245,158,11,0.18)", color: "#B45309" }}>Dnes</span>
+                )}
               </div>
-              <span className={`font-display font-bold text-[22px] leading-tight ${isToday ? "text-amber-600" : "text-slate-800"}`}>{dayDates[day]}</span>
+              <span className={`text-[11.5px] font-semibold mt-1 block ${isToday ? "text-amber-600" : "text-slate-500"}`}>{DAY_LABELS[day]}</span>
             </div>
 
             {!hasItems && !editMode ? (
