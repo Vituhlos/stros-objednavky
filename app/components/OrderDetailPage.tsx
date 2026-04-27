@@ -58,12 +58,14 @@ function ReadOnlyRow({ row, accent }: { row: OrderRowEnriched; accent: string })
         {row.mainItem ? (
           <span>
             {(row.mealCount || 1) > 1 && <strong>{row.mealCount}× </strong>}
+            {row.mainItem.code && <span className="menu-item-code">{row.mainItem.code}</span>}{" "}
             {row.mainItem.name}
             {row.extraMealItems.map((em, i) => (
               <span key={i}>
                 <br />
                 <span style={{ color: "var(--v2-text-muted)", fontSize: "0.82em" }}>
                   {em.count > 1 && <strong>{em.count}× </strong>}
+                  {em.item.code && <span className="menu-item-code">{em.item.code}</span>}{" "}
                   {em.item.name}
                 </span>
               </span>
@@ -74,11 +76,15 @@ function ReadOnlyRow({ row, accent }: { row: OrderRowEnriched; accent: string })
       <div className="v2-order-row__soup">
         {row.soupItem ? (
           <span>
+            {row.soupItem.code && <span className="menu-item-code">{row.soupItem.code}</span>}{" "}
             {row.soupItem.name}
             {row.soupItem2 && (
               <>
                 <br />
-                <span style={{ color: "var(--v2-text-muted)", fontSize: "0.82em" }}>{row.soupItem2.name}</span>
+                <span style={{ color: "var(--v2-text-muted)", fontSize: "0.82em" }}>
+                  {row.soupItem2.code && <span className="menu-item-code">{row.soupItem2.code}</span>}{" "}
+                  {row.soupItem2.name}
+                </span>
               </>
             )}
           </span>
