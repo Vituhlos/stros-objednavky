@@ -140,23 +140,23 @@ function WeekGrid({
             {/* Day header */}
             <div className="px-3 pt-3 pb-2.5 border-b border-white/40">
               <div className="flex items-start justify-between gap-1">
-                <span className={`font-display font-bold text-[26px] leading-none ${isToday ? "text-amber-500" : "text-slate-800"}`}>{dayDates[day]}</span>
+                <span className={`font-display font-bold text-[28px] leading-none ${isToday ? "text-amber-700" : "text-slate-800"}`}>{dayDates[day]}</span>
                 {isToday && (
-                  <span className="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full mt-0.5 shrink-0" style={{ background: "rgba(245,158,11,0.18)", color: "#B45309" }}>Dnes</span>
+                  <span className="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full mt-0.5 shrink-0" style={{ background: "rgba(245,158,11,0.25)", color: "#92400E" }}>Dnes</span>
                 )}
               </div>
-              <span className={`text-[11.5px] font-semibold mt-1 block ${isToday ? "text-amber-600" : "text-slate-500"}`}>{DAY_LABELS[day]}</span>
+              <span className={`text-[12px] font-semibold mt-0.5 block ${isToday ? "text-amber-700" : "text-slate-500"}`}>{DAY_LABELS[day]}</span>
             </div>
 
             {!hasItems && !editMode ? (
               <div className="px-3 py-5 text-[11.5px] text-slate-300 text-center">–</div>
             ) : (
-              <div className="px-3 py-2 space-y-2">
+              <div className="px-3 py-2.5 space-y-3">
                 {/* Soups */}
                 {(soups.length > 0 || editMode) && (
                   <div>
-                    <div className="flex items-center gap-1 mb-1">
-                      <span className="text-[9.5px] uppercase tracking-wide font-bold text-amber-600">Polévky</span>
+                    <div className="flex items-center gap-1 mb-1.5">
+                      <span className="text-[10.5px] uppercase tracking-wide font-bold text-amber-600">Polévky</span>
                       {editMode && (
                         <button
                           className="ml-auto w-4 h-4 rounded-full inline-flex items-center justify-center text-white hover:opacity-80 transition"
@@ -177,8 +177,8 @@ function WeekGrid({
                 {/* Meals */}
                 {(meals.length > 0 || editMode) && (
                   <div>
-                    <div className="flex items-center gap-1 mb-1">
-                      <span className="text-[9.5px] uppercase tracking-wide font-bold text-orange-500">Jídla</span>
+                    <div className="flex items-center gap-1 mb-1.5">
+                      <span className="text-[10.5px] uppercase tracking-wide font-bold text-orange-500">Jídla</span>
                       {editMode && (
                         <button
                           className="ml-auto w-4 h-4 rounded-full inline-flex items-center justify-center text-white hover:opacity-80 transition"
@@ -252,10 +252,10 @@ function WeekItem({
     );
   }
   return (
-    <div className="flex items-baseline gap-1 py-0.5">
-      <span className="font-mono text-[10px] text-slate-400 w-5 shrink-0 text-right">{item.code}</span>
-      <span className="flex-1 text-[12px] text-slate-700 leading-snug">{item.name}</span>
-      <span className="shrink-0 text-[11px] font-medium text-slate-400 tabular-nums">{item.price} Kč</span>
+    <div className="flex items-start gap-1 py-0.5">
+      <span className="font-mono text-[11px] text-slate-400 w-5 shrink-0 text-right mt-px">{item.code}</span>
+      <span className="flex-1 min-w-0 text-[13px] text-slate-700 leading-snug">{item.name}</span>
+      <span className="shrink-0 text-[12px] font-medium text-slate-400 tabular-nums mt-px">{item.price} Kč</span>
     </div>
   );
 }
