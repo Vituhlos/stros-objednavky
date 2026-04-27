@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useTransition, useCallback } from "react";
+import { useState, useRef, useTransition, useCallback, useEffect } from "react";
 import type { MenuItem } from "@/lib/types";
 import type { ParsedMenuItem, ParseResult } from "@/lib/parse-menu";
 import {
@@ -14,6 +14,37 @@ import { useRouter } from "next/navigation";
 import AppTopBar from "./AppTopBar";
 import { ConfirmModal } from "./ConfirmModal";
 import MIcon from "./MIcon";
+
+// Textarea that auto-grows to fit its content
+function AutoTextarea({ defaultValue, disabled, onCommit, placeholder, title }: {
+  defaultValue: string; disabled: boolean; placeholder?: string; title?: string;
+  onCommit: (value: string) => void;
+}) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }, [defaultValue]);
+  return (
+    <textarea
+      ref={ref}
+      className="bg-white/50 border border-white/60 rounded-lg py-1.5 px-2.5 text-[13px] text-slate-800 w-full outline-none focus:border-amber-400/60 resize-none overflow-hidden leading-snug"
+      defaultValue={defaultValue}
+      disabled={disabled}
+      onBlur={(e) => { if (e.target.value !== defaultValue) onCommit(e.target.value); }}
+      onInput={(e) => {
+        const el = e.currentTarget;
+        el.style.height = "auto";
+        el.style.height = el.scrollHeight + "px";
+      }}
+      placeholder={placeholder}
+      rows={1}
+      title={title}
+    />
+  );
+}
 
 const DAY_ORDER = ["Po", "Út", "St", "Čt", "Pá"];
 const DAY_LABELS: Record<string, string> = {
@@ -279,11 +310,10 @@ function MenuSection({
         <div className="px-4 divide-y divide-white/30">
           {items.map((item) => (
             <div key={item.id} className="group py-2 space-y-1.5">
-              <input
-                className="bg-white/50 border border-white/60 rounded-lg py-1.5 px-2.5 text-[13px] text-slate-800 w-full outline-none focus:border-amber-400/60"
+              <AutoTextarea
                 defaultValue={item.name}
                 disabled={disabled}
-                onBlur={(e) => { if (e.target.value !== item.name) onUpdate(item.id, { name: e.target.value }); }}
+                onCommit={(v) => onUpdate(item.id, { name: v })}
                 placeholder="Název jídla"
                 title="Název"
               />
