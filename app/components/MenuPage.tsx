@@ -108,14 +108,14 @@ function WeekGrid({
           >
             {/* Day header */}
             <div
-              className="px-3 py-2.5 border-b border-white/40 flex items-center gap-2"
+              className="px-3 py-2.5 border-b border-white/40"
               style={isToday ? { background: "linear-gradient(135deg,rgba(245,158,11,0.13),rgba(234,88,12,0.08))" } : { background: "rgba(255,255,255,0.25)" }}
             >
-              <span className={`font-display font-bold text-[16px] ${isToday ? "text-amber-600" : "text-slate-800"}`}>{dayDates[day]}</span>
-              <div className="flex flex-col leading-none">
-                <span className={`text-[9px] font-bold uppercase tracking-wide ${isToday ? "text-amber-500" : "text-slate-400"}`}>{day}</span>
-                {isToday && <span className="text-[9px] font-semibold text-amber-500">Dnes</span>}
+              <div className="flex items-center justify-between">
+                <span className={`font-display font-bold text-[11px] uppercase tracking-wider ${isToday ? "text-amber-500" : "text-slate-400"}`}>{DAY_LABELS[day]}</span>
+                {isToday && <span className="text-[9.5px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full" style={{ background: "rgba(245,158,11,0.15)", color: "#D97706" }}>Dnes</span>}
               </div>
+              <span className={`font-display font-bold text-[22px] leading-tight ${isToday ? "text-amber-600" : "text-slate-800"}`}>{dayDates[day]}</span>
             </div>
 
             {!hasItems && !editMode ? (
