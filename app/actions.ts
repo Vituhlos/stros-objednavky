@@ -91,6 +91,7 @@ export async function actionUpdateExtraEmail(
 ): Promise<void> {
   updateExtraEmail(orderId, email);
   revalidatePath("/");
+  broadcast();
 }
 
 export async function actionConfirmMenuImport(
@@ -154,7 +155,10 @@ export async function actionUpdatePizzaRow(
   rowId: number,
   updates: Partial<{ personName: string; pizzaItemId: number | null; count: number }>
 ): Promise<PizzaOrderRow> {
-  return updatePizzaRow(rowId, updates);
+  const row = updatePizzaRow(rowId, updates);
+  revalidatePath("/pizza");
+  broadcast();
+  return row;
 }
 
 export async function actionDeletePizzaRow(rowId: number): Promise<void> {

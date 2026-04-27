@@ -149,6 +149,31 @@ export function setMenuForWeek(
          OR or2.main_item_id   IN (SELECT id FROM menu_items WHERE week_start = ?)
     `).all(weekStart, weekStart, weekStart, weekStart, weekStart, weekStart) as RefRow[];
 
+    // Capture extra_meals references — rows with any extra meal item from this week
+    const weekItemIds = (db.prepare("SELECT id FROM menu_items WHERE week_start = ?").all(weekStart) as { id: number }[]).map((r) => r.id);
+    const weekItemIdSet = new Set(weekItemIds);
+
+    interface ExtraMealRow { row_id: number; extra_meals: string; }
+    interface ExtraMealEntry { itemId: number; count: number; }
+    const extraMealRows: ExtraMealRow[] = [];
+    if (weekItemIds.length > 0) {
+      const allRows = db.prepare("SELECT id AS row_id, extra_meals FROM order_rows WHERE extra_meals IS NOT NULL AND extra_meals != '[]' AND extra_meals != ''").all() as ExtraMealRow[];
+      for (const r of allRows) {
+        try {
+          const entries: ExtraMealEntry[] = JSON.parse(r.extra_meals);
+          if (entries.some((e) => weekItemIdSet.has(e.itemId))) extraMealRows.push(r);
+        } catch { /* ignore malformed JSON */ }
+      }
+    }
+
+    // Also build a lookup map: oldItemId → {day, type, code, name}
+    interface ItemMeta { day: string; type: string; code: string; name: string; }
+    const oldItemMeta = new Map<number, ItemMeta>();
+    if (weekItemIds.length > 0) {
+      const metaRows = db.prepare("SELECT id, day, type, code, name FROM menu_items WHERE week_start = ?").all(weekStart) as (ItemMeta & { id: number })[];
+      for (const m of metaRows) oldItemMeta.set(m.id, { day: m.day, type: m.type, code: m.code, name: m.name });
+    }
+
     db.prepare("UPDATE order_rows SET soup_item_id = NULL WHERE soup_item_id IN (SELECT id FROM menu_items WHERE week_start = ?)").run(weekStart);
     db.prepare("UPDATE order_rows SET soup_item_id_2 = NULL WHERE soup_item_id_2 IN (SELECT id FROM menu_items WHERE week_start = ?)").run(weekStart);
     db.prepare("UPDATE order_rows SET main_item_id = NULL WHERE main_item_id IN (SELECT id FROM menu_items WHERE week_start = ?)").run(weekStart);
@@ -187,6 +212,24 @@ export function setMenuForWeek(
         const newId = findNewId(ref.main_day, "Jídlo", ref.main_code!, ref.main_name ?? "");
         if (newId) db.prepare("UPDATE order_rows SET main_item_id=? WHERE id=?").run(newId, ref.row_id);
       }
+    }
+
+    // Re-link extra_meals JSON
+    for (const r of extraMealRows) {
+      try {
+        type ExtraMealEntry = { itemId: number; count: number };
+        const entries: ExtraMealEntry[] = JSON.parse(r.extra_meals);
+        let changed = false;
+        const updated = entries.map((e) => {
+          if (!weekItemIdSet.has(e.itemId)) return e;
+          const meta = oldItemMeta.get(e.itemId);
+          if (!meta) return e;
+          const newId = findNewId(meta.day, meta.type, meta.code, meta.name);
+          if (newId && newId !== e.itemId) { changed = true; return { ...e, itemId: newId }; }
+          return e;
+        });
+        if (changed) db.prepare("UPDATE order_rows SET extra_meals=? WHERE id=?").run(JSON.stringify(updated), r.row_id);
+      } catch { /* ignore malformed JSON */ }
     }
   });
   transaction();

@@ -221,7 +221,7 @@ function OrderEditModal({
                     const val = e.target.value ? Number(e.target.value) : null;
                     setMealEntries((prev) => prev.map((ent, i) => i === idx ? { ...ent, itemId: val } : ent));
                   }}
-                  style={{ flex: 1 }}
+                  style={{ flex: 1, width: "auto", minWidth: 0 }}
                   value={entry.itemId ?? ""}
                 >
                   <option value="">— žádné jídlo —</option>
