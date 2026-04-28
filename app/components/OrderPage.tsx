@@ -330,6 +330,10 @@ export default function OrderPage({
     () => departments.flatMap((d) => d.rows).filter(hasOrderRowContent).length,
     [departments]
   );
+  const existingNames = useMemo(
+    () => departments.flatMap((d) => d.rows).filter(hasOrderRowContent).map((r) => r.personName.trim()).filter(Boolean),
+    [departments]
+  );
   const totalPrice = useMemo(
     () => departments.reduce((s, d) => s + d.subtotal, 0),
     [departments]
@@ -526,6 +530,7 @@ export default function OrderPage({
                 data={dept}
                 defaultMealPrice={defaultMealPrice}
                 defaultSoupPrice={defaultSoupPrice}
+                existingNames={existingNames}
                 extrasPrices={extrasPrices}
                 isSent={isSent}
                 key={dept.name}

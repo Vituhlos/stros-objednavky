@@ -28,6 +28,7 @@ interface Props {
   soups: import("@/lib/types").MenuItem[];
   meals: import("@/lib/types").MenuItem[];
   isSent: boolean;
+  existingNames?: string[];
   defaultSoupPrice?: number;
   defaultMealPrice?: number;
   extrasPrices?: ExtrasPrices;
@@ -80,10 +81,11 @@ function ModalStepper({
 // ── Edit modal ────────────────────────────────────────────
 
 function OrderEditModal({
-  row, soups, meals, isNew, defaultSoupPrice, defaultMealPrice, ep, onSave, onClose, onDelete,
+  row, soups, meals, isNew, defaultSoupPrice, defaultMealPrice, ep, existingNames, onSave, onClose, onDelete,
 }: {
   row: OrderRowEnriched; soups: import("@/lib/types").MenuItem[]; meals: import("@/lib/types").MenuItem[];
   isNew: boolean; defaultSoupPrice?: number; defaultMealPrice?: number; ep: ExtrasPrices;
+  existingNames: string[];
   onSave: (u: RowUpdates) => void; onClose: () => void; onDelete: () => void;
 }) {
   const [personName, setPersonName] = useState(() => {
@@ -105,6 +107,7 @@ function OrderEditModal({
   const [bbqCount, setBbqCount] = useState(row.bbqCount);
   const [note, setNote] = useState(row.note);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const handleCancel = () => { if (isNew) onDelete(); else onClose(); };
 
@@ -128,10 +131,31 @@ function OrderEditModal({
     };
   }, []);
 
+  const hasFood =
+    soupIds.some((id) => id != null) ||
+    mealEntries.some((e) => e.itemId != null) ||
+    rollCount > 0 || breadDumplingCount > 0 || potatoDumplingCount > 0;
+
+  const isDuplicateName =
+    personName.trim() !== "" &&
+    personName.trim().toLowerCase() !== row.personName.trim().toLowerCase() &&
+    existingNames.some((n) => n.toLowerCase() === personName.trim().toLowerCase());
+
   const handleSave = () => {
-    if (personName.trim()) {
-      try { localStorage.setItem("lastPersonName", personName.trim()); } catch { /* */ }
+    if (!personName.trim()) {
+      setValidationError("Zadejte jméno osoby.");
+      return;
     }
+    if (!hasFood) {
+      setValidationError("Vyberte alespoň jedno jídlo nebo přílohu.");
+      return;
+    }
+    if (isDuplicateName) {
+      setValidationError(`„${personName.trim()}" už v objednávce je.`);
+      return;
+    }
+    setValidationError(null);
+    try { localStorage.setItem("lastPersonName", personName.trim()); } catch { /* */ }
     const firstMeal = mealEntries[0] ?? { itemId: null, count: 1 };
     const extraMeals: MealEntry[] = mealEntries
       .slice(1)
@@ -164,7 +188,18 @@ function OrderEditModal({
         <div className="modal-sheet__body">
           <div className="modal-field">
             <label className="modal-label" htmlFor="modal-name">Jméno</label>
-            <input autoFocus className="modal-input" id="modal-name" onChange={(e) => setPersonName(e.target.value)} placeholder="Jméno osoby..." type="text" value={personName} />
+            <input
+              autoFocus
+              className="modal-input"
+              id="modal-name"
+              onChange={(e) => { setPersonName(e.target.value); setValidationError(null); }}
+              placeholder="Jméno osoby..."
+              type="text"
+              value={personName}
+            />
+            {isDuplicateName && (
+              <p className="text-[11.5px] text-amber-700 mt-1">⚠ Toto jméno už v objednávce je.</p>
+            )}
           </div>
 
           {soupIds.map((soupId, idx) => (
@@ -274,10 +309,13 @@ function OrderEditModal({
             <ModalStepper label="BBQ omáčka" onChange={setBbqCount} price={ep.bbq} value={bbqCount} />
           </div>
         </div>
+        {validationError && (
+          <div className="px-4 pb-2 text-[12px] text-red-600 font-medium">{validationError}</div>
+        )}
         <div className="modal-sheet__footer">
           {!isNew && <button className="modal-btn modal-btn--danger" onClick={() => setShowDeleteConfirm(true)} type="button">Smazat</button>}
           <button className="modal-btn modal-btn--secondary" onClick={handleCancel} type="button">Zrušit</button>
-          <button className="modal-btn modal-btn--primary" onClick={handleSave} type="button">Uložit</button>
+          <button className="modal-btn modal-btn--primary" disabled={isDuplicateName} onClick={handleSave} type="button">Uložit</button>
         </div>
       </div>
       {showDeleteConfirm && (
@@ -408,7 +446,7 @@ function pluralOrders(n: number): string {
 
 // ── Main component ────────────────────────────────────────
 
-export function DepartmentPanel({ data, soups, meals, isSent, defaultSoupPrice, defaultMealPrice, extrasPrices = EXTRAS_PRICES_DEFAULT, onAddRow, onUpdateRow, onDeleteRow }: Props) {
+export function DepartmentPanel({ data, soups, meals, isSent, existingNames = [], defaultSoupPrice, defaultMealPrice, extrasPrices = EXTRAS_PRICES_DEFAULT, onAddRow, onUpdateRow, onDeleteRow }: Props) {
   const [modalState, setModalState] = useState<{ rowId: number; isNew: boolean } | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
@@ -501,6 +539,7 @@ export function DepartmentPanel({ data, soups, meals, isSent, defaultSoupPrice, 
           defaultMealPrice={defaultMealPrice}
           defaultSoupPrice={defaultSoupPrice}
           ep={extrasPrices}
+          existingNames={existingNames}
           isNew={modalState!.isNew}
           meals={meals}
           onClose={() => setModalState(null)}
