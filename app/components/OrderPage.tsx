@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, useCallback, useEffect, useRef, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import type { OrderData, OrderRowEnriched, Department, DepartmentData, MealEntry } from "@/lib/types";
 import { computeRowPrice, EXTRAS_PRICES_DEFAULT, type ExtrasPrices } from "@/lib/pricing";
 import { hasOrderRowContent } from "@/lib/order-utils";
@@ -19,6 +20,21 @@ import {
 } from "@/app/actions";
 
 // ── Helpers ───────────────────────────────────────────────
+
+function addDays(iso: string, n: number): string {
+  const [y, m, d] = iso.split("-").map(Number);
+  const date = new Date(y, m - 1, d + n);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function getDayLabel(date: string, todayDate: string): string {
+  if (date === todayDate) return "Dnes";
+  if (date === addDays(todayDate, 1)) return "Zítra";
+  const [y, m, d] = date.split("-").map(Number);
+  const obj = new Date(y, m - 1, d);
+  const wd = obj.toLocaleDateString("cs-CZ", { weekday: "short" });
+  return `${wd.charAt(0).toUpperCase() + wd.slice(1)} ${d}.${m}.`;
+}
 
 function getPragueNow() {
   return new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Prague" }));
@@ -54,6 +70,9 @@ export default function OrderPage({
   defaultSoupPrice = 30,
   defaultMealPrice = 110,
   extrasPrices = EXTRAS_PRICES_DEFAULT,
+  availableDates,
+  selectedDate,
+  todayDate,
 }: {
   initialData: OrderData;
   cutoffTime?: string;
@@ -61,7 +80,14 @@ export default function OrderPage({
   defaultSoupPrice?: number;
   defaultMealPrice?: number;
   extrasPrices?: ExtrasPrices;
+  availableDates?: string[];
+  selectedDate?: string;
+  todayDate?: string;
 }) {
+  const router = useRouter();
+  const isFutureDay = !!(selectedDate && todayDate && selectedDate > todayDate);
+  const showDayPicker = !!(availableDates && availableDates.length > 1 && todayDate);
+
   const [departments, setDepartments] = useState(initialData.departments);
   const departmentsRef = useRef(initialData.departments);
   useEffect(() => { departmentsRef.current = departments; }, [departments]);
@@ -136,6 +162,7 @@ export default function OrderPage({
         return;
       }
       if (isPendingRef.current) return;
+      if (isFutureDay) return;
       fetch("/api/order-refresh")
         .then((r) => r.ok ? r.json() : null)
         .then((data: { departments: DepartmentData[]; totalPrice: number; status: string; sentAt: string | null } | null) => {
@@ -429,7 +456,7 @@ export default function OrderPage({
             </span>
           )}
         </div>
-        {!isSent && (
+        {!isSent && !isFutureDay && (
           <div className="flex items-center gap-2 shrink-0">
             <input
               className="text-[12px] px-3 py-1.5 rounded-xl glass-soft outline-none placeholder:text-stone-400 w-[180px]"
@@ -449,6 +476,12 @@ export default function OrderPage({
               {isPending ? "Odesílám…" : "Odeslat"}
             </button>
           </div>
+        )}
+        {isFutureDay && !isSent && (
+          <span className="text-[11.5px] text-stone-500 inline-flex items-center gap-1.5 shrink-0">
+            <MIcon name="schedule" size={13} />
+            Odešle se automaticky v den samotný
+          </span>
         )}
         {isSent && (
           <button
@@ -483,7 +516,7 @@ export default function OrderPage({
             </span>
           )}
         </div>
-        {!isSent && (
+        {!isSent && !isFutureDay && (
           <div className="px-4 pb-2 flex items-center gap-2">
             <input
               className="flex-1 text-[12px] px-3 py-1.5 rounded-xl glass-soft outline-none placeholder:text-stone-400 min-w-0"
@@ -504,11 +537,44 @@ export default function OrderPage({
             </button>
           </div>
         )}
+        {isFutureDay && !isSent && (
+          <div className="px-4 pb-2">
+            <span className="text-[11px] text-stone-500 inline-flex items-center gap-1">
+              <MIcon name="schedule" size={12} />
+              Odešle se automaticky v den samotný
+            </span>
+          </div>
+        )}
       </div>
 
       {/* ── Scrollable main content ── */}
       <main className="flex-1 overflow-y-auto scroll-area p-4">
         <div className="flex flex-col gap-4 pb-20">
+
+          {showDayPicker && (
+            <div className="flex gap-1.5 overflow-x-auto pb-0.5 no-scrollbar">
+              {availableDates!.map((date) => {
+                const isActive = date === selectedDate;
+                return (
+                  <button
+                    key={date}
+                    className={`flex-shrink-0 px-4 py-2 rounded-2xl text-[12.5px] font-semibold transition-all active:scale-[0.96] ${
+                      isActive ? "" : "glass-btn text-stone-600 hover:text-stone-800"
+                    }`}
+                    onClick={() => router.push(date === todayDate ? "/" : `/?date=${date}`)}
+                    style={isActive ? {
+                      background: "linear-gradient(135deg,#F59E0B,#EA580C)",
+                      color: "white",
+                      boxShadow: "0 2px 8px -2px rgba(234,88,12,0.35)",
+                    } : {}}
+                    type="button"
+                  >
+                    {getDayLabel(date, todayDate!)}
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {menuEmpty && !isSent && (
             <div className="glass rounded-2xl px-4 py-3 flex items-center gap-3 text-[12.5px]"
@@ -560,6 +626,11 @@ export default function OrderPage({
                   <strong className="text-green-700">Objednávka odeslána</strong>
                   {sentAt && <span> v {new Date(sentAt).toLocaleTimeString("cs-CZ", { hour: "2-digit", minute: "2-digit" })}</span>}
                   <span className="text-stone-500"> · Další úpravy nejsou možné.</span>
+                </>
+              ) : isFutureDay ? (
+                <>
+                  <strong>Objednávka dopředu.</strong>
+                  <span className="text-stone-500"> Odešle se automaticky v den samotný v {cutoffTime}.</span>
                 </>
               ) : (
                 <>

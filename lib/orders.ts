@@ -8,6 +8,8 @@ import {
   getMenuItemById,
   getMenuItemsForDay,
   getTodayDayCode,
+  getDayCodeForISO,
+  getMondayISO,
   seedMenuIfEmpty,
   getWeekLabel,
 } from "./menu";
@@ -96,6 +98,16 @@ function enrichRow(row: OrderRow, soupPrice: number, mealPrice: number, ep: Extr
   };
 }
 
+function getOrCreateOrderForDate(date: string): Order {
+  const db = getDb();
+  let order = db.prepare("SELECT * FROM orders WHERE date = ?").get(date) as Record<string, unknown> | undefined;
+  if (!order) {
+    const result = db.prepare("INSERT INTO orders (date, status) VALUES (?, 'draft')").run(date);
+    order = db.prepare("SELECT * FROM orders WHERE id = ?").get(result.lastInsertRowid) as Record<string, unknown>;
+  }
+  return mapOrder(order);
+}
+
 function getOrCreateTodayOrder(): Order {
   const db = getDb();
   const today = new Date().toISOString().slice(0, 10);
@@ -130,6 +142,40 @@ export function getTodayOrderData(): OrderData {
     )
     .all(order.id) as Record<string, unknown>[];
 
+  const rows = rawRows.map((r) => enrichRow(mapOrderRow(r), soupPrice, mealPrice, ep));
+
+  const depts = getDepartments();
+  const departments: DepartmentData[] = depts.map((dept) => {
+    const deptRows = rows.filter((r) => r.department === dept.name);
+    const subtotal = deptRows.filter((r) => r.personName || r.soupItemId || r.mainItemId).reduce((s, r) => s + r.rowPrice, 0);
+    return { name: dept.name, label: dept.label, emailLabel: dept.emailLabel, accent: dept.accent, rows: deptRows, subtotal };
+  });
+
+  return {
+    order,
+    departments,
+    todayMenu,
+    totalPrice: departments.reduce((s, d) => s + d.subtotal, 0),
+    dayCode,
+  };
+}
+
+export function getOrderDataForDate(date: string): OrderData {
+  seedMenuIfEmpty(getWeekLabel());
+  const order = getOrCreateOrderForDate(date);
+  const db = getDb();
+  const { soupPrice, mealPrice, ep } = readDefaultPrices();
+
+  const dayCode = getDayCodeForISO(date);
+  const [y, m, d] = date.split("-").map(Number);
+  const weekStart = getMondayISO(new Date(y, m - 1, d));
+  const todayMenu = dayCode
+    ? getMenuItemsForDay(dayCode, weekStart)
+    : { soups: [], meals: [] };
+
+  const rawRows = db
+    .prepare("SELECT * FROM order_rows WHERE order_id = ? ORDER BY department, sort_order, id")
+    .all(order.id) as Record<string, unknown>[];
   const rows = rawRows.map((r) => enrichRow(mapOrderRow(r), soupPrice, mealPrice, ep));
 
   const depts = getDepartments();

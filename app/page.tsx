@@ -1,16 +1,44 @@
-import { getTodayOrderData } from "@/lib/orders";
+import { getOrderDataForDate } from "@/lib/orders";
 import { getSettings } from "@/lib/settings";
-import { getMenuWeekLabel } from "@/lib/menu";
+import { getMenuWeekLabel, getMenuDates, getMondayISO } from "@/lib/menu";
 import OrderPage from "@/app/components/OrderPage";
 
 export const dynamic = "force-dynamic";
 
-export default async function HomePage() {
-  const data = await getTodayOrderData();
+function getPragueNow(): Date {
+  return new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Prague" }));
+}
+
+function dateToISO(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+export default async function HomePage({ searchParams }: { searchParams: Promise<{ date?: string }> }) {
+  const params = await searchParams;
+  const pragueNow = getPragueNow();
+  const todayISO = dateToISO(pragueNow);
+
+  const tomorrowDate = new Date(pragueNow);
+  tomorrowDate.setDate(pragueNow.getDate() + 1);
+  const tomorrowISO = dateToISO(tomorrowDate);
+
+  const menuDates = getMenuDates();
+  const allDates = [...new Set([todayISO, ...menuDates.filter((d) => d >= todayISO)])].sort();
+
+  const isAfterNoon = pragueNow.getHours() >= 12;
+  const autoDate = isAfterNoon && menuDates.includes(tomorrowISO) ? tomorrowISO : todayISO;
+  const selectedDate = params.date && allDates.includes(params.date) ? params.date : autoDate;
+
+  const data = getOrderDataForDate(selectedDate);
   const s = getSettings();
-  const menuEmpty = getMenuWeekLabel() === null;
+
+  const [sy, sm, sd] = selectedDate.split("-").map(Number);
+  const selectedWeekStart = getMondayISO(new Date(sy, sm - 1, sd));
+  const menuEmpty = getMenuWeekLabel(selectedWeekStart) === null;
+
   return (
     <OrderPage
+      availableDates={allDates}
       cutoffTime={s.cutoffTime}
       defaultMealPrice={parseInt(s.defaultMealPrice) || 110}
       defaultSoupPrice={parseInt(s.defaultSoupPrice) || 30}
@@ -24,6 +52,8 @@ export default async function HomePage() {
       }}
       initialData={data}
       menuEmpty={menuEmpty}
+      selectedDate={selectedDate}
+      todayDate={todayISO}
     />
   );
 }

@@ -15,6 +15,30 @@ export function getTodayDayCode(): DayCode | null {
   return JS_DAY_TO_CODE[day] ?? null;
 }
 
+export function getDayCodeForISO(iso: string): DayCode | null {
+  const [y, m, d] = iso.split("-").map(Number);
+  return JS_DAY_TO_CODE[new Date(y, m - 1, d).getDay()] ?? null;
+}
+
+export function getMenuDates(): string[] {
+  const db = getDb();
+  const rows = db
+    .prepare("SELECT DISTINCT week_start, day FROM menu_items WHERE week_start IS NOT NULL ORDER BY week_start, day")
+    .all() as { week_start: string; day: string }[];
+  const offsets: Record<string, number> = { Po: 0, Út: 1, St: 2, Čt: 3, Pá: 4 };
+  const seen = new Set<string>();
+  const dates: string[] = [];
+  for (const r of rows) {
+    const off = offsets[r.day];
+    if (off === undefined) continue;
+    const [y, m, d] = r.week_start.split("-").map(Number);
+    const date = new Date(y, m - 1, d + off);
+    const iso = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    if (!seen.has(iso)) { seen.add(iso); dates.push(iso); }
+  }
+  return dates.sort();
+}
+
 // ISO date of Monday of the week containing `date`
 export function getMondayISO(date: Date = new Date()): string {
   const d = new Date(date);
