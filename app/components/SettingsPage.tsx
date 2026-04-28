@@ -64,7 +64,7 @@ function Section({ title, icon, children }: { title: string; icon?: string; chil
     <div className="glass rounded-3xl overflow-hidden">
       <div className="flex items-center gap-2.5 px-4 py-3 border-b border-white/40" style={{ background: "rgba(245,158,11,0.07)" }}>
         {icon && <MIcon name={icon as "settings"} size={17} fill style={{ color: "#D97706" }} />}
-        <span className="font-display font-bold text-[13.5px] text-slate-900">{title}</span>
+        <span className="font-display font-bold text-[13.5px] text-stone-900">{title}</span>
       </div>
       <div className="p-4 flex flex-col gap-3">{children}</div>
     </div>
@@ -76,8 +76,8 @@ function Section({ title, icon, children }: { title: string; icon?: string; chil
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[11.5px] font-semibold text-slate-600">{label}</span>
-      {hint && <span className="text-[10.5px] text-slate-400 -mt-0.5">{hint}</span>}
+      <span className="text-[11.5px] font-semibold text-stone-600">{label}</span>
+      {hint && <span className="text-[10.5px] text-stone-400 -mt-0.5">{hint}</span>}
       {children}
     </div>
   );
@@ -93,7 +93,7 @@ function Toggle({ name, defaultChecked, label }: { name: string; defaultChecked:
         <div className="w-11 h-[22px] rounded-full transition-colors bg-black/15 peer-checked:[background:linear-gradient(135deg,#F59E0B,#EA580C)]" />
         <div className="absolute top-[3px] left-[3px] w-4 h-4 rounded-full bg-white shadow transition-transform peer-checked:translate-x-[18px]" />
       </div>
-      <span className="text-[13px] text-slate-700">{label}</span>
+      <span className="text-[13px] text-stone-700">{label}</span>
     </label>
   );
 }
@@ -122,19 +122,19 @@ function DeptRow({
     return (
       <div className="glass-soft rounded-2xl px-3 py-2.5 flex items-center gap-3">
         <span className="w-3 h-3 rounded-full shrink-0" style={{ background: dotColor }} />
-        <span className="text-[13px] font-semibold text-slate-800 flex-1">{dept.label}</span>
-        <span className="text-[11px] text-slate-400">({dept.name})</span>
+        <span className="text-[13px] font-semibold text-stone-800 flex-1">{dept.label}</span>
+        <span className="text-[11px] text-stone-400">({dept.name})</span>
         <div className="flex items-center gap-1">
           <button
-            className="w-7 h-7 rounded-full inline-flex items-center justify-center text-slate-400 hover:bg-white/60 transition disabled:opacity-30"
+            className="w-7 h-7 rounded-full inline-flex items-center justify-center text-stone-400 hover:bg-white/60 transition disabled:opacity-30"
             disabled={isFirst} onClick={() => onMoveUp(dept.id)} title="Nahoru" type="button"
           >↑</button>
           <button
-            className="w-7 h-7 rounded-full inline-flex items-center justify-center text-slate-400 hover:bg-white/60 transition disabled:opacity-30"
+            className="w-7 h-7 rounded-full inline-flex items-center justify-center text-stone-400 hover:bg-white/60 transition disabled:opacity-30"
             disabled={isLast} onClick={() => onMoveDown(dept.id)} title="Dolů" type="button"
           >↓</button>
           <button
-            className="text-[11.5px] font-semibold px-2.5 py-1 rounded-lg glass-soft text-slate-600"
+            className="text-[11.5px] font-semibold px-2.5 py-1 rounded-lg glass-soft text-stone-600"
             onClick={() => setEditing(true)} type="button"
           >Upravit</button>
           <button
@@ -355,13 +355,13 @@ export default function SettingsPage({
       {/* Desktop topbar */}
       <div className="hidden md:flex px-5 py-2.5 border-b border-white/50 items-center gap-3 topbar shrink-0">
         <MIcon name="settings" size={16} fill style={{ color: "#D97706" }} />
-        <span className="font-display font-bold text-[15px] text-slate-900">Nastavení</span>
-        <span className="text-[12px] text-slate-500">SMTP, e-mail příjemce, čas uzávěrky, PIN</span>
+        <span className="font-display font-bold text-[15px] text-stone-900">Nastavení</span>
+        <span className="text-[12px] text-stone-500">SMTP, e-mail příjemce, čas uzávěrky, PIN</span>
       </div>
 
       {/* Mobile topbar */}
       <div className="md:hidden border-b border-white/50 topbar shrink-0 px-4 py-2.5">
-        <span className="font-display font-bold text-[14px] text-slate-900">Nastavení</span>
+        <span className="font-display font-bold text-[14px] text-stone-900">Nastavení</span>
       </div>
 
       <main className="flex-1 overflow-y-auto scroll-area p-4 md:p-5 space-y-4 pb-28 md:pb-8">
@@ -373,8 +373,8 @@ export default function SettingsPage({
                 <MIcon name="lock" size={28} fill style={{ color: "#EA580C" }} />
               </div>
               <div className="text-center">
-                <p className="font-display font-bold text-[17px] text-slate-900">Přístup chráněn PINem</p>
-                <p className="text-[12.5px] text-slate-500 mt-1">Zadejte PIN pro zobrazení nastavení</p>
+                <p className="font-display font-bold text-[17px] text-stone-900">Přístup chráněn PINem</p>
+                <p className="text-[12.5px] text-stone-500 mt-1">Zadejte PIN pro zobrazení nastavení</p>
               </div>
               <form className="w-full flex flex-col gap-3" onSubmit={handlePinSubmit}>
                 <input
@@ -429,7 +429,7 @@ export default function SettingsPage({
                   </div>
                   <div className="flex items-center gap-3 pt-1">
                     <button
-                      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl glass-soft text-slate-600"
+                      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl glass-soft text-stone-600"
                       disabled={isPending}
                       onClick={handleSmtpTest}
                       type="button"
@@ -437,7 +437,7 @@ export default function SettingsPage({
                       Testovat připojení
                     </button>
                     {smtpTestMsg && (
-                      <span className={`text-[12px] font-medium ${smtpTestStatus === "ok" ? "text-emerald-600" : smtpTestStatus === "error" ? "text-red-500" : "text-slate-500"}`}>
+                      <span className={`text-[12px] font-medium ${smtpTestStatus === "ok" ? "text-emerald-600" : smtpTestStatus === "error" ? "text-red-500" : "text-stone-500"}`}>
                         {smtpTestMsg}
                       </span>
                     )}
@@ -462,7 +462,7 @@ export default function SettingsPage({
                 </Section>
 
                 <Section icon="schedule" title="Automatické odeslání">
-                  <p className="text-[12.5px] text-slate-500">
+                  <p className="text-[12.5px] text-stone-500">
                     Objednávka se automaticky odešle v nastavenou dobu. Přeskočí se pokud je den označen jako zavřený nebo pokud není splněný minimální počet objednávek.
                   </p>
                   <Toggle defaultChecked={settings.autoSendEnabled === "true"} label="Zapnout automatické odeslání" name="autoSendEnabled" />
@@ -488,7 +488,7 @@ export default function SettingsPage({
                             <div className="w-9 h-[20px] rounded-full bg-black/15 transition-colors peer-checked:[background:linear-gradient(135deg,#F59E0B,#EA580C)]" />
                             <div className="absolute top-[3px] left-[3px] w-3.5 h-3.5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-[16px]" />
                           </div>
-                          <span className="text-[12px] font-semibold text-slate-700">{d.label}</span>
+                          <span className="text-[12px] font-semibold text-stone-700">{d.label}</span>
                         </label>
                       ))}
                     </div>
@@ -496,7 +496,7 @@ export default function SettingsPage({
                 </Section>
 
                 <Section icon="restaurant" title="Ceník jídel">
-                  <p className="text-[12.5px] text-slate-500">
+                  <p className="text-[12.5px] text-stone-500">
                     Výchozí ceny používané při importu jídelního lístku z webu. Existující položky v menu se nemění.
                   </p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -510,7 +510,7 @@ export default function SettingsPage({
                 </Section>
 
                 <Section icon="shopping_basket" title="Přílohy a doplňky">
-                  <p className="text-[12.5px] text-slate-500">
+                  <p className="text-[12.5px] text-stone-500">
                     Ceny příloh zobrazované v modalu a používané pro výpočet ceny řádku.
                   </p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -546,7 +546,7 @@ export default function SettingsPage({
 
             {/* Departments — outside the form to avoid accidental submit */}
             <Section icon="groups" title="Oddělení">
-              <p className="text-[12.5px] text-slate-500">
+              <p className="text-[12.5px] text-stone-500">
                 Správa oddělení zobrazovaných v objednávkovém formuláři. Změny se projeví okamžitě.
               </p>
               {deptError && (
@@ -597,7 +597,7 @@ export default function SettingsPage({
                 </div>
               ) : (
                 <button
-                  className="self-start inline-flex items-center gap-1 text-[12px] font-semibold px-3 py-1.5 rounded-xl glass-soft text-slate-600 hover:bg-white/50 active:scale-[0.97] transition"
+                  className="self-start inline-flex items-center gap-1 text-[12px] font-semibold px-3 py-1.5 rounded-xl glass-soft text-stone-600 hover:bg-white/50 active:scale-[0.97] transition"
                   onClick={() => setShowAddDept(true)}
                   type="button"
                 >
@@ -626,11 +626,11 @@ export default function SettingsPage({
 
             {/* Backup */}
             <Section icon="build" title="Záloha dat">
-              <p className="text-[12.5px] text-slate-500">
+              <p className="text-[12.5px] text-stone-500">
                 Stáhněte zálohu všech objednávek, jídelníčků a nastavení oddělení ve formátu JSON.
               </p>
               <a
-                className="self-start inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl glass-soft text-slate-600"
+                className="self-start inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl glass-soft text-stone-600"
                 download
                 href="/api/backup"
               >
@@ -641,27 +641,27 @@ export default function SettingsPage({
             {/* Audit log */}
             <Section icon="history" title="Historie změn">
               {initialAuditLog.length === 0 ? (
-                <p className="text-[12.5px] text-slate-400 text-center py-2">Zatím žádné záznamy.</p>
+                <p className="text-[12.5px] text-stone-400 text-center py-2">Zatím žádné záznamy.</p>
               ) : (
                 <div className="overflow-x-auto -mx-4 -mb-4">
                   <table className="w-full text-[12px]">
                     <thead>
                       <tr className="border-b border-white/40" style={{ background: "rgba(255,255,255,0.4)" }}>
-                        <th className="text-left px-4 py-2 font-display font-semibold text-slate-500 text-[10.5px] uppercase tracking-wide">Čas</th>
-                        <th className="text-left px-3 py-2 font-display font-semibold text-slate-500 text-[10.5px] uppercase tracking-wide">Akce</th>
-                        <th className="text-left px-3 py-2 font-display font-semibold text-slate-500 text-[10.5px] uppercase tracking-wide hidden sm:table-cell">Oddělení</th>
-                        <th className="text-left px-3 py-2 font-display font-semibold text-slate-500 text-[10.5px] uppercase tracking-wide hidden sm:table-cell">Osoba</th>
-                        <th className="text-left px-3 py-2 font-display font-semibold text-slate-500 text-[10.5px] uppercase tracking-wide hidden md:table-cell">Detail</th>
+                        <th className="text-left px-4 py-2 font-display font-semibold text-stone-500 text-[10.5px] uppercase tracking-wide">Čas</th>
+                        <th className="text-left px-3 py-2 font-display font-semibold text-stone-500 text-[10.5px] uppercase tracking-wide">Akce</th>
+                        <th className="text-left px-3 py-2 font-display font-semibold text-stone-500 text-[10.5px] uppercase tracking-wide hidden sm:table-cell">Oddělení</th>
+                        <th className="text-left px-3 py-2 font-display font-semibold text-stone-500 text-[10.5px] uppercase tracking-wide hidden sm:table-cell">Osoba</th>
+                        <th className="text-left px-3 py-2 font-display font-semibold text-stone-500 text-[10.5px] uppercase tracking-wide hidden md:table-cell">Detail</th>
                       </tr>
                     </thead>
                     <tbody>
                       {initialAuditLog.map((entry) => (
                         <tr key={entry.id} className="border-b border-white/30 last:border-0 hover:bg-white/20 transition">
-                          <td className="px-4 py-2 text-slate-500 font-mono text-[11px]">{formatTs(entry.ts)}</td>
-                          <td className="px-3 py-2 font-medium text-slate-700">{ACTION_LABELS[entry.action] ?? entry.action}</td>
-                          <td className="px-3 py-2 text-slate-500 hidden sm:table-cell">{entry.department ?? "—"}</td>
-                          <td className="px-3 py-2 text-slate-500 hidden sm:table-cell">{entry.personName ?? "—"}</td>
-                          <td className="px-3 py-2 text-slate-400 hidden md:table-cell">{entry.details ?? ""}</td>
+                          <td className="px-4 py-2 text-stone-500 font-mono text-[11px]">{formatTs(entry.ts)}</td>
+                          <td className="px-3 py-2 font-medium text-stone-700">{ACTION_LABELS[entry.action] ?? entry.action}</td>
+                          <td className="px-3 py-2 text-stone-500 hidden sm:table-cell">{entry.department ?? "—"}</td>
+                          <td className="px-3 py-2 text-stone-500 hidden sm:table-cell">{entry.personName ?? "—"}</td>
+                          <td className="px-3 py-2 text-stone-400 hidden md:table-cell">{entry.details ?? ""}</td>
                         </tr>
                       ))}
                     </tbody>

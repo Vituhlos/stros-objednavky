@@ -27,9 +27,9 @@ function SidebarClock() {
 
   return (
     <div className="glass-soft rounded-2xl p-3">
-      <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold mb-0.5">Dnes</div>
-      <div className="font-display font-bold text-[15px] text-slate-900">{timeStr}</div>
-      <div className="text-[11.5px] text-slate-500 leading-snug">{dateStr}</div>
+      <div className="text-[10px] uppercase tracking-wider text-stone-400 font-semibold mb-0.5">Dnes</div>
+      <div className="font-display font-bold text-[15px] text-stone-900">{timeStr}</div>
+      <div className="text-[11.5px] text-stone-500 leading-snug">{dateStr}</div>
     </div>
   );
 }
@@ -79,7 +79,7 @@ export default function AppTopBar() {
                   fill={isActive}
                   style={isActive ? { color: "#D97706" } : { color: "#94a3b8" }}
                 />
-                <span className={`flex-1 text-[13px] font-display font-semibold ${isActive ? "text-slate-900" : "text-slate-500"}`}>
+                <span className={`flex-1 text-[13px] font-display font-semibold ${isActive ? "text-stone-900" : "text-stone-500"}`}>
                   {label}
                 </span>
               </Link>
@@ -110,7 +110,7 @@ export default function AppTopBar() {
                   fill={isActive}
                   style={isActive ? { color: "#D97706" } : { color: "#94a3b8" }}
                 />
-                <span className={`text-[9.5px] font-semibold font-display leading-none ${isActive ? "text-slate-800" : "text-slate-400"}`}>
+                <span className={`text-[9.5px] font-semibold font-display leading-none ${isActive ? "text-stone-800" : "text-stone-400"}`}>
                   {shortLabel}
                 </span>
                 {isActive && (

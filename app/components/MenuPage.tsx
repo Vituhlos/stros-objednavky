@@ -30,7 +30,7 @@ function AutoTextarea({ defaultValue, disabled, onCommit, placeholder, title }: 
   return (
     <textarea
       ref={ref}
-      className="bg-white/50 border border-white/60 rounded-lg py-1.5 px-2.5 text-[13px] text-slate-800 w-full outline-none focus:border-amber-400/60 resize-none overflow-hidden leading-snug"
+      className="bg-white/50 border border-white/60 rounded-lg py-1.5 px-2.5 text-[13px] text-stone-800 w-full outline-none focus:border-amber-400/60 resize-none overflow-hidden leading-snug"
       defaultValue={defaultValue}
       disabled={disabled}
       onBlur={(e) => { if (e.target.value !== defaultValue) onCommit(e.target.value); }}
@@ -84,23 +84,23 @@ function PreviewTable({ items }: { items: ParsedMenuItem[] }) {
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
       {DAY_ORDER.filter((d) => byDay[d]).map((day) => (
         <div className="glass-soft rounded-2xl p-3" key={day}>
-          <h4 className="font-display font-bold text-[12px] text-slate-700 mb-2">{DAY_LABELS[day]}</h4>
+          <h4 className="font-display font-bold text-[12px] text-stone-700 mb-2">{DAY_LABELS[day]}</h4>
           {byDay[day].soups.length > 0 && (
             <div className="mb-2">
-              <p className="font-display text-[10px] uppercase tracking-wide text-slate-500 font-semibold mb-1">Polévky</p>
+              <p className="font-display text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-1">Polévky</p>
               {byDay[day].soups.map((s, i) => (
-                <p className="text-[12px] text-slate-700 py-0.5" key={i}>
-                  <span className="font-mono text-[10px] text-slate-400 mr-1">{s.code}</span>{s.name}
+                <p className="text-[12px] text-stone-700 py-0.5" key={i}>
+                  <span className="font-mono text-[10px] text-stone-400 mr-1">{s.code}</span>{s.name}
                 </p>
               ))}
             </div>
           )}
           {byDay[day].meals.length > 0 && (
             <div>
-              <p className="font-display text-[10px] uppercase tracking-wide text-slate-500 font-semibold mb-1">Jídla</p>
+              <p className="font-display text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-1">Jídla</p>
               {byDay[day].meals.map((m, i) => (
-                <p className="text-[12px] text-slate-700 py-0.5" key={i}>
-                  <span className="font-mono text-[10px] text-slate-400 mr-1">{m.code}</span>{m.name}
+                <p className="text-[12px] text-stone-700 py-0.5" key={i}>
+                  <span className="font-mono text-[10px] text-stone-400 mr-1">{m.code}</span>{m.name}
                 </p>
               ))}
             </div>
@@ -139,23 +139,23 @@ function WeekGrid({
             {/* Day header */}
             <div className="px-3 pt-3 pb-2.5 border-b border-white/40">
               <div className="flex items-start justify-between gap-1">
-                <span className="font-display font-bold text-[28px] leading-none text-slate-900">{dayDates[day]}</span>
+                <span className="font-display font-bold text-[28px] leading-none text-stone-900">{dayDates[day]}</span>
                 {isToday && (
                   <span className="w-1.5 h-1.5 rounded-full mt-1 shrink-0" style={{ background: "rgba(245,158,11,0.7)" }} />
                 )}
               </div>
-              <span className="text-[12px] font-semibold mt-0.5 block text-slate-500">{DAY_LABELS[day]}</span>
+              <span className="text-[12px] font-semibold mt-0.5 block text-stone-500">{DAY_LABELS[day]}</span>
             </div>
 
             {!hasItems && !editMode ? (
-              <div className="px-3 py-5 text-[11.5px] text-slate-300 text-center">–</div>
+              <div className="px-3 py-5 text-[11.5px] text-stone-300 text-center">–</div>
             ) : (
               <div className="px-3 py-2.5 space-y-3">
                 {/* Soups */}
                 {(soups.length > 0 || editMode) && (
                   <div>
                     <div className="flex items-center gap-1 mb-1.5">
-                      <span className="font-display text-[10px] uppercase tracking-widest font-semibold text-slate-500">Polévky</span>
+                      <span className="font-display text-[10px] uppercase tracking-widest font-semibold text-stone-500">Polévky</span>
                       {editMode && (
                         <button
                           className="ml-auto w-4 h-4 rounded-full inline-flex items-center justify-center text-white hover:opacity-80 transition"
@@ -170,14 +170,14 @@ function WeekGrid({
                     {soups.map((item) => (
                       <WeekItem disabled={disabled} editMode={editMode} item={item} key={item.id} onDelete={onDelete} onUpdate={onUpdate} />
                     ))}
-                    {soups.length === 0 && editMode && <p className="text-[11px] text-slate-300 py-0.5">Žádné</p>}
+                    {soups.length === 0 && editMode && <p className="text-[11px] text-stone-300 py-0.5">Žádné</p>}
                   </div>
                 )}
                 {/* Meals */}
                 {(meals.length > 0 || editMode) && (
                   <div>
                     <div className="flex items-center gap-1 mb-1.5">
-                      <span className="font-display text-[10px] uppercase tracking-widest font-semibold text-slate-500">Jídla</span>
+                      <span className="font-display text-[10px] uppercase tracking-widest font-semibold text-stone-500">Jídla</span>
                       {editMode && (
                         <button
                           className="ml-auto w-4 h-4 rounded-full inline-flex items-center justify-center text-white hover:opacity-80 transition"
@@ -192,7 +192,7 @@ function WeekGrid({
                     {meals.map((item) => (
                       <WeekItem disabled={disabled} editMode={editMode} item={item} key={item.id} onDelete={onDelete} onUpdate={onUpdate} />
                     ))}
-                    {meals.length === 0 && editMode && <p className="text-[11px] text-slate-300 py-0.5">Žádné</p>}
+                    {meals.length === 0 && editMode && <p className="text-[11px] text-stone-300 py-0.5">Žádné</p>}
                   </div>
                 )}
               </div>
@@ -224,7 +224,7 @@ function WeekItem({
           title="Kód"
         />
         <input
-          className="bg-white/50 border border-white/60 rounded-lg py-0.5 px-1.5 text-[11px] text-slate-800 flex-1 min-w-0 outline-none focus:border-amber-400/60"
+          className="bg-white/50 border border-white/60 rounded-lg py-0.5 px-1.5 text-[11px] text-stone-800 flex-1 min-w-0 outline-none focus:border-amber-400/60"
           defaultValue={item.name}
           disabled={disabled}
           onBlur={(e) => { if (e.target.value !== item.name) onUpdate(item.id, { name: e.target.value }); }}
@@ -240,7 +240,7 @@ function WeekItem({
           type="number"
         />
         <button
-          className="w-5 h-5 rounded-full inline-flex items-center justify-center text-slate-300 hover:text-red-400 hover:bg-red-50/80 transition opacity-0 group-hover:opacity-100 shrink-0"
+          className="w-5 h-5 rounded-full inline-flex items-center justify-center text-stone-300 hover:text-red-400 hover:bg-red-50/80 transition opacity-0 group-hover:opacity-100 shrink-0"
           disabled={disabled}
           onClick={() => onDelete(item.id)}
           type="button"
@@ -252,9 +252,9 @@ function WeekItem({
   }
   return (
     <div className="flex items-start gap-1 py-0.5">
-      <span className="font-mono text-[11px] text-slate-400 w-5 shrink-0 text-right mt-px">{item.code}</span>
-      <span className="flex-1 min-w-0 text-[13px] text-slate-700 leading-snug">{item.name}</span>
-      <span className="shrink-0 text-[12px] font-medium text-slate-400 tabular-nums mt-px">{item.price} Kč</span>
+      <span className="font-mono text-[11px] text-stone-400 w-5 shrink-0 text-right mt-px">{item.code}</span>
+      <span className="flex-1 min-w-0 text-[13px] text-stone-700 leading-snug">{item.name}</span>
+      <span className="shrink-0 text-[12px] font-medium text-stone-400 tabular-nums mt-px">{item.price} Kč</span>
     </div>
   );
 }
@@ -290,7 +290,7 @@ function MenuSection({
     <div className="glass rounded-3xl overflow-hidden">
       <div className="flex items-center gap-2.5 px-4 py-3 border-b border-white/40" style={{ background: accent }}>
         <MIcon name={icon} size={17} fill style={{ color: iconColor }} />
-        <span className="font-display font-bold text-[13.5px] text-slate-900 flex-1">{title}</span>
+        <span className="font-display font-bold text-[13.5px] text-stone-900 flex-1">{title}</span>
         {editMode && onAdd && (
           <button
             className="inline-flex items-center gap-1 text-[12px] font-semibold px-2.5 py-1 rounded-full text-white disabled:opacity-50 hover:opacity-[0.88] active:scale-[0.97] transition"
@@ -304,7 +304,7 @@ function MenuSection({
         )}
       </div>
       {items.length === 0 ? (
-        <div className="px-4 py-4 text-[12.5px] text-slate-400 text-center">{emptyLabel}</div>
+        <div className="px-4 py-4 text-[12.5px] text-stone-400 text-center">{emptyLabel}</div>
       ) : editMode ? (
         <div className="px-4 divide-y divide-white/30">
           {items.map((item) => (
@@ -334,7 +334,7 @@ function MenuSection({
                   type="number"
                 />
                 <button
-                  className="ml-auto w-7 h-7 rounded-full inline-flex items-center justify-center text-slate-300 hover:text-red-400 hover:bg-red-50/80 transition shrink-0"
+                  className="ml-auto w-7 h-7 rounded-full inline-flex items-center justify-center text-stone-300 hover:text-red-400 hover:bg-red-50/80 transition shrink-0"
                   disabled={disabled}
                   onClick={() => onDelete(item.id)}
                   type="button"
@@ -351,9 +351,9 @@ function MenuSection({
             key={item.id}
             className={`flex items-baseline gap-2 px-4 py-2.5 ${i < items.length - 1 ? "border-b border-white/30" : ""}`}
           >
-            <span className="font-mono text-[11px] text-slate-400 w-6 shrink-0 text-right">{item.code}</span>
-            <span className="flex-1 text-[13px] text-slate-800 leading-snug">{item.name}</span>
-            <span className="shrink-0 font-semibold text-[12.5px] text-slate-500 tabular-nums">{item.price} Kč</span>
+            <span className="font-mono text-[11px] text-stone-400 w-6 shrink-0 text-right">{item.code}</span>
+            <span className="flex-1 text-[13px] text-stone-800 leading-snug">{item.name}</span>
+            <span className="shrink-0 font-semibold text-[12.5px] text-stone-500 tabular-nums">{item.price} Kč</span>
           </div>
         ))
       )}
@@ -535,12 +535,12 @@ export default function MenuPage({
 
       {/* Desktop topbar */}
       <div className="hidden md:flex px-5 py-2.5 border-b border-white/50 items-center gap-3 topbar shrink-0">
-        <span className="font-display font-bold text-[15px] text-slate-900">Jídelníček LIMA</span>
+        <span className="font-display font-bold text-[15px] text-stone-900">Jídelníček LIMA</span>
         {activeWeekLabel && (
-          <span className="text-[12px] text-slate-500">Týden <strong className="text-slate-700">{activeWeekLabel}</strong></span>
+          <span className="text-[12px] text-stone-500">Týden <strong className="text-stone-700">{activeWeekLabel}</strong></span>
         )}
         {hasPdfActive && (
-          <a className="inline-flex items-center gap-1 text-[12px] font-semibold px-2.5 py-1.5 rounded-xl glass-soft text-slate-600"
+          <a className="inline-flex items-center gap-1 text-[12px] font-semibold px-2.5 py-1.5 rounded-xl glass-soft text-stone-600"
             download href={`/api/menu/pdf/${activeWeekStart}`}>
             ↓ PDF
           </a>
@@ -548,7 +548,7 @@ export default function MenuPage({
         <div className="ml-auto flex items-center gap-2">
           {activeWeek === "current" && (
             <button
-              className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl glass-soft hover:bg-white/50 active:scale-[0.97] transition ${editMode ? "text-slate-900" : "text-slate-600"}`}
+              className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl glass-soft hover:bg-white/50 active:scale-[0.97] transition ${editMode ? "text-stone-900" : "text-stone-600"}`}
               onClick={() => { setEditMode((v) => !v); setImportState({ phase: "idle" }); }}
               type="button"
             >
@@ -567,7 +567,7 @@ export default function MenuPage({
             </button>
           )}
           <button
-            className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl glass-soft text-slate-600 hover:bg-white/50 active:scale-[0.97] transition"
+            className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl glass-soft text-stone-600 hover:bg-white/50 active:scale-[0.97] transition"
             onClick={() => { setEditMode(false); setImportState({ phase: "uploading" }); }}
             type="button"
           >
@@ -579,10 +579,10 @@ export default function MenuPage({
       {/* Mobile topbar */}
       <div className="md:hidden border-b border-white/50 topbar shrink-0">
         <div className="flex items-center gap-3 px-4 py-2.5">
-          <span className="font-display font-bold text-[14px] text-slate-900 flex-1">Jídelníček LIMA</span>
-          {activeWeekLabel && <span className="text-[11px] text-slate-500">{activeWeekLabel}</span>}
+          <span className="font-display font-bold text-[14px] text-stone-900 flex-1">Jídelníček LIMA</span>
+          {activeWeekLabel && <span className="text-[11px] text-stone-500">{activeWeekLabel}</span>}
           <button
-            className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-xl glass-soft text-slate-600 hover:bg-white/50 active:scale-[0.97] transition"
+            className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-xl glass-soft text-stone-600 hover:bg-white/50 active:scale-[0.97] transition"
             onClick={() => { setEditMode(false); setImportState({ phase: "uploading" }); }}
             type="button"
           >
@@ -604,19 +604,19 @@ export default function MenuPage({
               style={active ? { background: "linear-gradient(135deg,#F59E0B,#EA580C)", color: "white" } : {}}
               type="button"
             >
-              <span className={active ? "text-white" : "text-slate-500"}>{label}</span>
+              <span className={active ? "text-white" : "text-stone-500"}>{label}</span>
             </button>
           );
         })}
         {hasPdfActive && (
-          <a className="ml-auto inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-xl glass-soft text-slate-600 md:hidden"
+          <a className="ml-auto inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-xl glass-soft text-stone-600 md:hidden"
             download href={`/api/menu/pdf/${activeWeekStart}`}>
             ↓ PDF
           </a>
         )}
         {activeWeek === "current" && (
           <button
-            className={`md:hidden inline-flex items-center text-[11px] font-semibold px-2.5 py-1.5 rounded-xl glass-soft hover:bg-white/50 active:scale-[0.97] transition ${editMode ? "text-slate-900" : "text-slate-600"}`}
+            className={`md:hidden inline-flex items-center text-[11px] font-semibold px-2.5 py-1.5 rounded-xl glass-soft hover:bg-white/50 active:scale-[0.97] transition ${editMode ? "text-stone-900" : "text-stone-600"}`}
             onClick={() => { setEditMode((v) => !v); setImportState({ phase: "idle" }); }}
             type="button"
           >
@@ -642,8 +642,8 @@ export default function MenuPage({
               }
               type="button"
             >
-              <span className={`text-[9.5px] font-bold uppercase tracking-wide leading-none ${active ? "text-white/80" : "text-slate-500"}`}>{day}</span>
-              <span className={`font-display font-bold text-[14px] leading-tight mt-0.5 ${active ? "text-white" : "text-slate-700"}`}>{dayDates[day]}</span>
+              <span className={`text-[9.5px] font-bold uppercase tracking-wide leading-none ${active ? "text-white/80" : "text-stone-500"}`}>{day}</span>
+              <span className={`font-display font-bold text-[14px] leading-tight mt-0.5 ${active ? "text-white" : "text-stone-700"}`}>{dayDates[day]}</span>
               {isToday && <span className="w-1.5 h-1.5 rounded-full mt-0.5" style={{ background: active ? "rgba(255,255,255,0.8)" : "#F59E0B" }} />}
             </button>
           );
@@ -667,7 +667,7 @@ export default function MenuPage({
       {/* Mobile: single day view */}
       <div className="md:hidden flex-1 overflow-y-auto scroll-area px-4 pb-28">
         <div className="space-y-3">
-          <div className="font-display font-bold text-[17px] text-slate-900 mb-1 pt-2">{DAY_LABELS[activeDay]}</div>
+          <div className="font-display font-bold text-[17px] text-stone-900 mb-1 pt-2">{DAY_LABELS[activeDay]}</div>
           <MenuSection
             accent="rgba(245,158,11,0.12)"
             disabled={isPending}
@@ -733,7 +733,7 @@ export default function MenuPage({
               </h3>
               <button
                 aria-label="Zavřít"
-                className="w-8 h-8 rounded-full glass-soft inline-flex items-center justify-center text-slate-500 font-bold"
+                className="w-8 h-8 rounded-full glass-soft inline-flex items-center justify-center text-stone-500 font-bold"
                 onClick={() => setImportState({ phase: "idle" })}
                 type="button"
               >
@@ -751,10 +751,10 @@ export default function MenuPage({
                     onDrop={(e) => { e.preventDefault(); setIsDragging(false); const f = e.dataTransfer.files[0]; if (f) handleFile(f); }}
                   >
                     <MIcon name="upload_file" size={32} style={{ color: "#D97706" }} />
-                    <p className="text-[13px] text-slate-600 text-center">Přetáhněte PDF sem nebo klikněte pro výběr</p>
+                    <p className="text-[13px] text-stone-600 text-center">Přetáhněte PDF sem nebo klikněte pro výběr</p>
                     <input accept=".pdf" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} ref={fileInputRef} style={{ display: "none" }} type="file" />
                   </div>
-                  <p className="text-[12px] text-slate-400 text-center">Čekám na soubor...</p>
+                  <p className="text-[12px] text-stone-400 text-center">Čekám na soubor...</p>
                 </>
               )}
               {importState.phase === "error" && (
@@ -766,14 +766,14 @@ export default function MenuPage({
               {importState.phase === "preview" && (
                 <>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[12.5px] text-slate-600">
+                    <span className="text-[12.5px] text-stone-600">
                       Rozpoznáno <strong>{importState.result.items.length}</strong> položek
                       {importState.result.weekLabel && <>, týden <strong>{importState.result.weekLabel}</strong></>}
                     </span>
                     <div className="ml-auto flex items-center gap-1.5">
-                      <span className="text-[11px] text-slate-400">Uložit jako:</span>
+                      <span className="text-[11px] text-stone-400">Uložit jako:</span>
                       <button
-                        className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg ${importState.targetWeekStart === currentWeekStart ? "text-white" : "glass-soft text-slate-600"}`}
+                        className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg ${importState.targetWeekStart === currentWeekStart ? "text-white" : "glass-soft text-stone-600"}`}
                         onClick={() => setImportState((prev) => prev.phase === "preview" ? { ...prev, targetWeekStart: currentWeekStart, targetLabel: `aktuální týden${currentWeekLabel ? ` (${currentWeekLabel})` : ""}` } : prev)}
                         style={importState.targetWeekStart === currentWeekStart ? { background: "linear-gradient(135deg,#F59E0B,#EA580C)" } : {}}
                         type="button"
@@ -781,7 +781,7 @@ export default function MenuPage({
                         Aktuální
                       </button>
                       <button
-                        className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg ${importState.targetWeekStart === nextWeekStart ? "text-white" : "glass-soft text-slate-600"}`}
+                        className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg ${importState.targetWeekStart === nextWeekStart ? "text-white" : "glass-soft text-stone-600"}`}
                         onClick={() => setImportState((prev) => prev.phase === "preview" ? { ...prev, targetWeekStart: nextWeekStart, targetLabel: `příští týden${nextWeekLabel ? ` (${nextWeekLabel})` : ""}` } : prev)}
                         style={importState.targetWeekStart === nextWeekStart ? { background: "linear-gradient(135deg,#F59E0B,#EA580C)" } : {}}
                         type="button"
@@ -794,7 +794,7 @@ export default function MenuPage({
                 </>
               )}
               {importState.phase === "saving" && (
-                <p className="text-[13px] text-slate-500 text-center py-4">Ukládám jídelníček...</p>
+                <p className="text-[13px] text-stone-500 text-center py-4">Ukládám jídelníček...</p>
               )}
             </div>
             {importState.phase === "preview" && (

@@ -156,7 +156,7 @@ function OrderEditModal({
           <h3 className="modal-sheet__title">{isNew ? "Přidat objednávku" : "Upravit objednávku"}</h3>
           <button
             aria-label="Zavřít"
-            className="w-8 h-8 rounded-full glass-soft inline-flex items-center justify-center text-slate-500 text-lg font-bold leading-none"
+            className="w-8 h-8 rounded-full glass-soft inline-flex items-center justify-center text-stone-500 text-lg font-bold leading-none"
             onClick={handleCancel}
             type="button"
           >×</button>
@@ -332,55 +332,55 @@ function OrderRow({ row, accent, isSent, onEdit, onDelete }: {
       {/* Body */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-display font-semibold text-[13px] text-slate-900 leading-none">{row.personName || "—"}</span>
+          <span className="font-display font-semibold text-[13px] text-stone-900 leading-none">{row.personName || "—"}</span>
           {row.note && (
-            <span className="text-[10.5px] px-1.5 py-0.5 rounded-full bg-slate-100/80 text-slate-600 border border-slate-200/70 max-w-[120px] truncate" title={row.note}>
+            <span className="text-[10.5px] px-1.5 py-0.5 rounded-full bg-slate-100/80 text-stone-600 border border-slate-200/70 max-w-[120px] truncate" title={row.note}>
               ✎ {row.note}
             </span>
           )}
         </div>
         <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 mt-0.5">
           {row.mainItem && (
-            <span className="text-[11.5px] text-slate-600 leading-snug">
+            <span className="text-[11.5px] text-stone-600 leading-snug">
               {(row.mealCount || 1) > 1 ? `${row.mealCount}× ` : ""}
-              {row.mainItem.code && <span className="font-mono text-[10.5px] text-slate-400 mr-0.5">{row.mainItem.code}</span>}
+              {row.mainItem.code && <span className="font-mono text-[10.5px] text-stone-400 mr-0.5">{row.mainItem.code}</span>}
               {row.mainItem.name}
             </span>
           )}
           {row.extraMealItems.map((e, i) => (
-            <span key={i} className="text-[11.5px] text-slate-600 leading-snug">
-              <span className="text-slate-300 mx-0.5">+</span>
+            <span key={i} className="text-[11.5px] text-stone-600 leading-snug">
+              <span className="text-stone-300 mx-0.5">+</span>
               {e.count > 1 ? `${e.count}× ` : ""}
-              {e.item.code && <span className="font-mono text-[10.5px] text-slate-400 mr-0.5">{e.item.code}</span>}
+              {e.item.code && <span className="font-mono text-[10.5px] text-stone-400 mr-0.5">{e.item.code}</span>}
               {e.item.name}
             </span>
           ))}
           {(row.mainItem || row.extraMealItems.length > 0) && row.soupItem && (
-            <span className="text-slate-300 text-[11px]">·</span>
+            <span className="text-stone-300 text-[11px]">·</span>
           )}
           {row.soupItem && (
-            <span className="text-[11.5px] text-slate-500 leading-snug">
-              {row.soupItem.code && <span className="font-mono text-[10.5px] text-slate-400 mr-0.5">{row.soupItem.code}</span>}
+            <span className="text-[11.5px] text-stone-500 leading-snug">
+              {row.soupItem.code && <span className="font-mono text-[10.5px] text-stone-400 mr-0.5">{row.soupItem.code}</span>}
               {row.soupItem.name}
             </span>
           )}
-          {row.soupItem && row.soupItem2 && <span className="text-slate-300 text-[11px]">+</span>}
+          {row.soupItem && row.soupItem2 && <span className="text-stone-300 text-[11px]">+</span>}
           {row.soupItem2 && (
-            <span className="text-[11.5px] text-slate-500 leading-snug">
-              {row.soupItem2.code && <span className="font-mono text-[10.5px] text-slate-400 mr-0.5">{row.soupItem2.code}</span>}
+            <span className="text-[11.5px] text-stone-500 leading-snug">
+              {row.soupItem2.code && <span className="font-mono text-[10.5px] text-stone-400 mr-0.5">{row.soupItem2.code}</span>}
               {row.soupItem2.name}
             </span>
           )}
-          {!row.mainItem && !row.soupItem && <span className="text-[11.5px] text-slate-400">—</span>}
+          {!row.mainItem && !row.soupItem && <span className="text-[11.5px] text-stone-400">—</span>}
           {chips.map((c) => (
-            <span key={c} className="text-[10.5px] px-1.5 py-0.5 rounded-full bg-white/70 border border-white/90 text-slate-500">{c}</span>
+            <span key={c} className="text-[10.5px] px-1.5 py-0.5 rounded-full bg-white/70 border border-white/90 text-stone-500">{c}</span>
           ))}
         </div>
       </div>
 
       {/* Price */}
-      <div className="shrink-0 font-display font-bold text-[13px] text-slate-800">
-        {row.rowPrice > 0 ? `${row.rowPrice} Kč` : <span className="text-slate-400 font-normal">—</span>}
+      <div className="shrink-0 font-display font-bold text-[13px] text-stone-800">
+        {row.rowPrice > 0 ? `${row.rowPrice} Kč` : <span className="text-stone-400 font-normal">—</span>}
       </div>
 
       {/* Delete button (hover on desktop, always visible on touch) */}
@@ -389,7 +389,7 @@ function OrderRow({ row, accent, isSent, onEdit, onDelete }: {
           type="button"
           aria-label="Smazat"
           onClick={(e) => { e.stopPropagation(); onDelete(); }}
-          className="shrink-0 w-7 h-7 rounded-full inline-flex items-center justify-center text-slate-300 hover:text-red-400 hover:bg-red-50/80 transition opacity-0 group-hover:opacity-100"
+          className="shrink-0 w-7 h-7 rounded-full inline-flex items-center justify-center text-stone-300 hover:text-red-400 hover:bg-red-50/80 transition opacity-0 group-hover:opacity-100"
         >
           <MIcon name="close" size={15} />
         </button>
@@ -444,10 +444,10 @@ export function DepartmentPanel({ data, soups, meals, isSent, defaultSoupPrice, 
             <DeptIcon name={data.name} color={dc.icon} />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="font-display font-bold text-[14px] text-slate-900 leading-none">{data.label}</div>
-            <div className="text-[11.5px] text-slate-500 mt-0.5">
+            <div className="font-display font-bold text-[14px] text-stone-900 leading-none">{data.label}</div>
+            <div className="text-[11.5px] text-stone-500 mt-0.5">
               {activeRows.length} {pluralOrders(activeRows.length)}
-              {data.subtotal > 0 && <> · <strong className="text-slate-700">{data.subtotal} Kč</strong></>}
+              {data.subtotal > 0 && <> · <strong className="text-stone-700">{data.subtotal} Kč</strong></>}
             </div>
           </div>
           {!isSent && (
@@ -471,7 +471,7 @@ export function DepartmentPanel({ data, soups, meals, isSent, defaultSoupPrice, 
         {/* Rows */}
         <div className={isSent ? "dept-rows-sent" : ""}>
           {activeRows.length === 0 ? (
-            <div className="px-4 py-5 text-center text-[12.5px] text-slate-400">Zatím nikdo neobjednal.</div>
+            <div className="px-4 py-5 text-center text-[12.5px] text-stone-400">Zatím nikdo neobjednal.</div>
           ) : (
             activeRows.map((row) => (
               <OrderRow
@@ -490,7 +490,7 @@ export function DepartmentPanel({ data, soups, meals, isSent, defaultSoupPrice, 
         {isSent && activeRows.length > 0 && (
           <div className="flex items-center gap-1.5 px-4 py-2 border-t border-white/30">
             <MIcon name="lock" size={12} style={{ color: "#94a3b8" }} />
-            <span className="text-[11px] text-slate-400">Odesláno — pouze pro čtení</span>
+            <span className="text-[11px] text-stone-400">Odesláno — pouze pro čtení</span>
           </div>
         )}
       </section>

@@ -381,7 +381,7 @@ export default function OrderPage({
         <div aria-live="polite" role="status" className="fixed top-16 left-1/2 -translate-x-1/2 z-[300] fade-up pointer-events-none">
           <div className="glass rounded-full px-5 py-2.5 flex items-center gap-2 shadow-lg">
             <MIcon name="check_circle" size={16} fill style={{ color: "#16a34a" }} />
-            <span className="font-display font-semibold text-[13px] text-slate-900">Objednávka odeslána!</span>
+            <span className="font-display font-semibold text-[13px] text-stone-900">Objednávka odeslána!</span>
           </div>
         </div>
       )}
@@ -400,7 +400,7 @@ export default function OrderPage({
 
       {/* ── Desktop info strip ── */}
       <div className="hidden md:flex px-5 py-2 border-b border-white/50 items-center gap-4 topbar shrink-0">
-        <div className="flex items-center gap-3 flex-1 text-[12px] text-slate-600">
+        <div className="flex items-center gap-3 flex-1 text-[12px] text-stone-600">
           <span className="inline-flex items-center gap-1.5">
             <MIcon name="calendar_today" size={13} style={{ color: "#D97706" }} />
             <span className="font-medium">{dayStr}</span>
@@ -410,7 +410,7 @@ export default function OrderPage({
             />
           </span>
           {!isSent && !isPastCutoff && countdown && (
-            <span className="inline-flex items-center gap-1 text-slate-500">
+            <span className="inline-flex items-center gap-1 text-stone-500">
               <MIcon name="schedule" size={13} /> Uzávěrka {countdown} ({cutoffTime})
             </span>
           )}
@@ -428,7 +428,7 @@ export default function OrderPage({
         {!isSent && (
           <div className="flex items-center gap-2 shrink-0">
             <input
-              className="text-[12px] px-3 py-1.5 rounded-xl glass-soft outline-none placeholder:text-slate-400 w-[180px]"
+              className="text-[12px] px-3 py-1.5 rounded-xl glass-soft outline-none placeholder:text-stone-400 w-[180px]"
               defaultValue={extraEmail}
               onBlur={handleEmailBlur}
               onChange={(e) => setExtraEmail(e.target.value)}
@@ -448,7 +448,7 @@ export default function OrderPage({
         )}
         {isSent && (
           <button
-            className="shrink-0 text-[12px] font-semibold px-3 py-1.5 rounded-full glass-soft text-slate-600 disabled:opacity-50 hover:bg-white/50 active:scale-[0.97] transition"
+            className="shrink-0 text-[12px] font-semibold px-3 py-1.5 rounded-full glass-soft text-stone-600 disabled:opacity-50 hover:bg-white/50 active:scale-[0.97] transition"
             disabled={isPending}
             onClick={handleReopen}
             type="button"
@@ -461,7 +461,7 @@ export default function OrderPage({
 
       {/* ── Mobile info strip ── */}
       <div className="md:hidden border-b border-white/50 topbar shrink-0">
-        <div className="px-4 py-2 flex items-center gap-2 text-[11.5px] text-slate-600 flex-wrap">
+        <div className="px-4 py-2 flex items-center gap-2 text-[11.5px] text-stone-600 flex-wrap">
           <MIcon name="calendar_today" size={12} style={{ color: "#D97706" }} />
           <span className="flex-1">{dayStr}</span>
           <span
@@ -469,7 +469,7 @@ export default function OrderPage({
             title={sseConnected ? "Živé aktualizace aktivní" : "Připojování..."}
           />
           {!isSent && !isPastCutoff && countdown && (
-            <span className="inline-flex items-center gap-1 text-slate-500">
+            <span className="inline-flex items-center gap-1 text-stone-500">
               <MIcon name="schedule" size={12} /> {cutoffTime}
             </span>
           )}
@@ -482,7 +482,7 @@ export default function OrderPage({
         {!isSent && (
           <div className="px-4 pb-2 flex items-center gap-2">
             <input
-              className="flex-1 text-[12px] px-3 py-1.5 rounded-xl glass-soft outline-none placeholder:text-slate-400 min-w-0"
+              className="flex-1 text-[12px] px-3 py-1.5 rounded-xl glass-soft outline-none placeholder:text-stone-400 min-w-0"
               defaultValue={extraEmail}
               onBlur={handleEmailBlur}
               onChange={(e) => setExtraEmail(e.target.value)}
@@ -510,10 +510,10 @@ export default function OrderPage({
             <div className="glass rounded-2xl px-4 py-3 flex items-center gap-3 text-[12.5px]"
               style={{ borderColor: "rgba(245,158,11,0.3)", background: "rgba(245,158,11,0.07)" }}>
               <MIcon name="warning" size={16} style={{ color: "#D97706" }} />
-              <span className="text-slate-700">
+              <span className="text-stone-700">
                 <strong>Jídelníček není naplněný.</strong>{" "}
                 Přejděte do{" "}
-                <a href="/jidelnicek" className="underline text-slate-700 hover:text-slate-900">Jídelníčku</a>
+                <a href="/jidelnicek" className="underline text-stone-700 hover:text-stone-900">Jídelníčku</a>
                 {" "}a importujte PDF nebo přidejte položky ručně.
               </span>
             </div>
@@ -549,26 +549,26 @@ export default function OrderPage({
             >
               <MIcon name={isSent ? "check_circle" : "lock"} size={18} fill style={{ color: isSent ? "#16a34a" : "#94a3b8" }} />
             </div>
-            <div className="flex-1 text-[12.5px] text-slate-700 leading-snug">
+            <div className="flex-1 text-[12.5px] text-stone-700 leading-snug">
               {isSent ? (
                 <>
                   <strong className="text-green-700">Objednávka odeslána</strong>
                   {sentAt && <span> v {new Date(sentAt).toLocaleTimeString("cs-CZ", { hour: "2-digit", minute: "2-digit" })}</span>}
-                  <span className="text-slate-500"> · Další úpravy nejsou možné.</span>
+                  <span className="text-stone-500"> · Další úpravy nejsou možné.</span>
                 </>
               ) : (
                 <>
                   <strong>Uzávěrka v {cutoffTime}.</strong>
-                  <span className="text-slate-500"> Objednávku po uzávěrce odešle správce.</span>
+                  <span className="text-stone-500"> Objednávku po uzávěrce odešle správce.</span>
                 </>
               )}
             </div>
             {!isSent && totalPrice > 0 && (
-              <span className="font-display font-bold text-[14px] text-slate-800 shrink-0">{totalPrice} Kč</span>
+              <span className="font-display font-bold text-[14px] text-stone-800 shrink-0">{totalPrice} Kč</span>
             )}
             {!isSent && (
               <button
-                className="shrink-0 text-[11.5px] font-medium px-3 py-1.5 rounded-full glass-soft text-slate-500 hover:bg-white/50 active:scale-[0.97] transition"
+                className="shrink-0 text-[11.5px] font-medium px-3 py-1.5 rounded-full glass-soft text-stone-500 hover:bg-white/50 active:scale-[0.97] transition"
                 onClick={() => setClearConfirm(true)}
                 type="button"
               >
@@ -577,7 +577,7 @@ export default function OrderPage({
             )}
             {isSent && (
               <button
-                className="shrink-0 text-[12px] font-semibold px-3 py-1.5 rounded-full glass-soft text-slate-600 disabled:opacity-50 hover:bg-white/50 active:scale-[0.97] transition"
+                className="shrink-0 text-[12px] font-semibold px-3 py-1.5 rounded-full glass-soft text-stone-600 disabled:opacity-50 hover:bg-white/50 active:scale-[0.97] transition"
                 disabled={isPending}
                 onClick={handleReopen}
                 type="button"

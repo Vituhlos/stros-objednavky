@@ -71,10 +71,10 @@ export default function HistoryPage({
 
       {/* Desktop topbar */}
       <div className="hidden md:flex px-5 py-2.5 border-b border-white/50 items-center gap-4 topbar shrink-0">
-        <span className="font-display font-bold text-[15px] text-slate-900 flex-1">Historie objednávek</span>
-        <span className="text-[12px] text-slate-500">
-          <strong className="text-slate-700">{sentCount}</strong> obědů ·{" "}
-          <strong className="text-slate-700">{pizzaSentCount}</strong> pizz
+        <span className="font-display font-bold text-[15px] text-stone-900 flex-1">Historie objednávek</span>
+        <span className="text-[12px] text-stone-500">
+          <strong className="text-stone-700">{sentCount}</strong> obědů ·{" "}
+          <strong className="text-stone-700">{pizzaSentCount}</strong> pizz
         </span>
         <input
           className="modal-input !py-1.5 !text-[12px] w-56"
@@ -88,8 +88,8 @@ export default function HistoryPage({
       {/* Mobile topbar */}
       <div className="md:hidden border-b border-white/50 topbar shrink-0">
         <div className="flex items-center gap-3 px-4 py-2.5">
-          <span className="font-display font-bold text-[14px] text-slate-900 flex-1">Historie</span>
-          <span className="text-[11px] text-slate-500">{sentCount} obědů · {pizzaSentCount} pizz</span>
+          <span className="font-display font-bold text-[14px] text-stone-900 flex-1">Historie</span>
+          <span className="text-[11px] text-stone-500">{sentCount} obědů · {pizzaSentCount} pizz</span>
         </div>
         <div className="px-4 pb-2.5">
           <input
@@ -108,11 +108,11 @@ export default function HistoryPage({
         <section className="glass rounded-3xl overflow-hidden">
           <div className="flex items-center gap-2.5 px-4 py-3 border-b border-white/40" style={{ background: "rgba(59,130,246,0.07)" }}>
             <MIcon name="restaurant_menu" size={17} fill style={{ color: "#3B82F6" }} />
-            <span className="font-display font-bold text-[13.5px] text-slate-900 flex-1">Obědy LIMA</span>
-            <span className="text-[11px] text-slate-500">{orders.length} záznamů · {sentCount} odesláno</span>
+            <span className="font-display font-bold text-[13.5px] text-stone-900 flex-1">Obědy LIMA</span>
+            <span className="text-[11px] text-stone-500">{orders.length} záznamů · {sentCount} odesláno</span>
           </div>
           {filteredOrders.length === 0 ? (
-            <div className="px-4 py-6 text-[13px] text-slate-400 text-center">
+            <div className="px-4 py-6 text-[13px] text-stone-400 text-center">
               {q ? "Žádné výsledky pro hledaný výraz" : "Zatím žádné objednávky v databázi."}
             </div>
           ) : (
@@ -120,24 +120,24 @@ export default function HistoryPage({
               <table className="w-full text-[12.5px]">
                 <thead>
                   <tr className="border-b border-white/40" style={{ background: "rgba(255,255,255,0.4)" }}>
-                    <th className="text-left px-4 py-2 font-display font-semibold text-slate-600 text-[11px] uppercase tracking-wide">Datum</th>
-                    <th className="text-left px-3 py-2 font-display font-semibold text-slate-600 text-[11px] uppercase tracking-wide">Stav</th>
-                    <th className="text-left px-3 py-2 font-display font-semibold text-slate-600 text-[11px] uppercase tracking-wide hidden sm:table-cell">Odesláno</th>
-                    <th className="text-left px-3 py-2 font-display font-semibold text-slate-600 text-[11px] uppercase tracking-wide hidden sm:table-cell">Řádků</th>
-                    <th className="text-left px-3 py-2 font-display font-semibold text-slate-600 text-[11px] uppercase tracking-wide hidden md:table-cell">Doplňkový e-mail</th>
+                    <th className="text-left px-4 py-2 font-display font-semibold text-stone-600 text-[11px] uppercase tracking-wide">Datum</th>
+                    <th className="text-left px-3 py-2 font-display font-semibold text-stone-600 text-[11px] uppercase tracking-wide">Stav</th>
+                    <th className="text-left px-3 py-2 font-display font-semibold text-stone-600 text-[11px] uppercase tracking-wide hidden sm:table-cell">Odesláno</th>
+                    <th className="text-left px-3 py-2 font-display font-semibold text-stone-600 text-[11px] uppercase tracking-wide hidden sm:table-cell">Řádků</th>
+                    <th className="text-left px-3 py-2 font-display font-semibold text-stone-600 text-[11px] uppercase tracking-wide hidden md:table-cell">Doplňkový e-mail</th>
                     <th className="px-3 py-2"></th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredOrders.map((order) => (
                     <tr key={order.id} className="border-b border-white/30 last:border-0 hover:bg-white/20 transition">
-                      <td className="px-4 py-2.5 font-semibold text-slate-800">{formatDate(order.date)}</td>
+                      <td className="px-4 py-2.5 font-semibold text-stone-800">{formatDate(order.date)}</td>
                       <td className="px-3 py-2.5"><StatusBadge status={order.status} /></td>
-                      <td className="px-3 py-2.5 text-slate-500 hidden sm:table-cell">{formatSentAt(order.sentAt)}</td>
-                      <td className="px-3 py-2.5 text-slate-500 hidden sm:table-cell">{order.rowCount}</td>
-                      <td className="px-3 py-2.5 text-slate-500 hidden md:table-cell">{order.extraEmail ?? "–"}</td>
+                      <td className="px-3 py-2.5 text-stone-500 hidden sm:table-cell">{formatSentAt(order.sentAt)}</td>
+                      <td className="px-3 py-2.5 text-stone-500 hidden sm:table-cell">{order.rowCount}</td>
+                      <td className="px-3 py-2.5 text-stone-500 hidden md:table-cell">{order.extraEmail ?? "–"}</td>
                       <td className="px-3 py-2.5">
-                        <Link className="text-slate-600 hover:text-slate-900 font-semibold text-[12px] transition" href={`/historie/${order.id}`}>
+                        <Link className="text-stone-600 hover:text-stone-900 font-semibold text-[12px] transition" href={`/historie/${order.id}`}>
                           Detail →
                         </Link>
                       </td>
@@ -153,11 +153,11 @@ export default function HistoryPage({
         <section className="glass rounded-3xl overflow-hidden">
           <div className="flex items-center gap-2.5 px-4 py-3 border-b border-white/40" style={{ background: "rgba(234,88,12,0.07)" }}>
             <MIcon name="local_pizza" size={17} fill style={{ color: "#EA580C" }} />
-            <span className="font-display font-bold text-[13.5px] text-slate-900 flex-1">Pizza</span>
-            <span className="text-[11px] text-slate-500">{pizzaOrders.length} záznamů · {pizzaSentCount} odesláno</span>
+            <span className="font-display font-bold text-[13.5px] text-stone-900 flex-1">Pizza</span>
+            <span className="text-[11px] text-stone-500">{pizzaOrders.length} záznamů · {pizzaSentCount} odesláno</span>
           </div>
           {filteredPizza.length === 0 ? (
-            <div className="px-4 py-6 text-[13px] text-slate-400 text-center">
+            <div className="px-4 py-6 text-[13px] text-stone-400 text-center">
               {q ? "Žádné výsledky pro hledaný výraz" : "Zatím žádné pizzové objednávky v databázi."}
             </div>
           ) : (
@@ -165,22 +165,22 @@ export default function HistoryPage({
               <table className="w-full text-[12.5px]">
                 <thead>
                   <tr className="border-b border-white/40" style={{ background: "rgba(255,255,255,0.4)" }}>
-                    <th className="text-left px-4 py-2 font-display font-semibold text-slate-600 text-[11px] uppercase tracking-wide">Datum</th>
-                    <th className="text-left px-3 py-2 font-display font-semibold text-slate-600 text-[11px] uppercase tracking-wide">Stav</th>
-                    <th className="text-left px-3 py-2 font-display font-semibold text-slate-600 text-[11px] uppercase tracking-wide hidden sm:table-cell">Odesláno</th>
-                    <th className="text-left px-3 py-2 font-display font-semibold text-slate-600 text-[11px] uppercase tracking-wide hidden sm:table-cell">Řádků</th>
+                    <th className="text-left px-4 py-2 font-display font-semibold text-stone-600 text-[11px] uppercase tracking-wide">Datum</th>
+                    <th className="text-left px-3 py-2 font-display font-semibold text-stone-600 text-[11px] uppercase tracking-wide">Stav</th>
+                    <th className="text-left px-3 py-2 font-display font-semibold text-stone-600 text-[11px] uppercase tracking-wide hidden sm:table-cell">Odesláno</th>
+                    <th className="text-left px-3 py-2 font-display font-semibold text-stone-600 text-[11px] uppercase tracking-wide hidden sm:table-cell">Řádků</th>
                     <th className="px-3 py-2"></th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredPizza.map((order) => (
                     <tr key={order.id} className="border-b border-white/30 last:border-0 hover:bg-white/20 transition">
-                      <td className="px-4 py-2.5 font-semibold text-slate-800">{formatDate(order.date)}</td>
+                      <td className="px-4 py-2.5 font-semibold text-stone-800">{formatDate(order.date)}</td>
                       <td className="px-3 py-2.5"><StatusBadge status={order.status} /></td>
-                      <td className="px-3 py-2.5 text-slate-500 hidden sm:table-cell">{formatSentAt(order.sentAt)}</td>
-                      <td className="px-3 py-2.5 text-slate-500 hidden sm:table-cell">{order.rowCount}</td>
+                      <td className="px-3 py-2.5 text-stone-500 hidden sm:table-cell">{formatSentAt(order.sentAt)}</td>
+                      <td className="px-3 py-2.5 text-stone-500 hidden sm:table-cell">{order.rowCount}</td>
                       <td className="px-3 py-2.5">
-                        <Link className="text-slate-600 hover:text-slate-900 font-semibold text-[12px] transition" href={`/historie/pizza/${order.id}`}>
+                        <Link className="text-stone-600 hover:text-stone-900 font-semibold text-[12px] transition" href={`/historie/pizza/${order.id}`}>
                           Detail →
                         </Link>
                       </td>

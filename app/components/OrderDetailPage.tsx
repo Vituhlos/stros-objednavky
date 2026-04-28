@@ -67,18 +67,18 @@ function ReadOnlyRow({ row, dc }: { row: OrderRowEnriched; dc: typeof DC_DEFAULT
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2 flex-wrap">
-          <span className="text-[13px] font-semibold text-slate-800">{row.personName || "—"}</span>
+          <span className="text-[13px] font-semibold text-stone-800">{row.personName || "—"}</span>
           {row.rowPrice > 0 && (
-            <span className="text-[12px] font-display font-bold text-slate-600 ml-auto shrink-0">{row.rowPrice} Kč</span>
+            <span className="text-[12px] font-display font-bold text-stone-600 ml-auto shrink-0">{row.rowPrice} Kč</span>
           )}
         </div>
         {row.mainItem && (
-          <div className="text-[12px] text-slate-600 mt-0.5">
-            {(row.mealCount || 1) > 1 && <strong className="text-slate-800">{row.mealCount}× </strong>}
-            {row.mainItem.code && <span className="font-mono text-[10.5px] text-slate-400 mr-0.5">{row.mainItem.code}</span>}
+          <div className="text-[12px] text-stone-600 mt-0.5">
+            {(row.mealCount || 1) > 1 && <strong className="text-stone-800">{row.mealCount}× </strong>}
+            {row.mainItem.code && <span className="font-mono text-[10.5px] text-stone-400 mr-0.5">{row.mainItem.code}</span>}
             {row.mainItem.name}
             {row.extraMealItems.map((em, i) => (
-              <span key={i} className="block text-[11.5px] text-slate-400">
+              <span key={i} className="block text-[11.5px] text-stone-400">
                 {em.count > 1 && <strong>{em.count}× </strong>}
                 {em.item.code && <span className="font-mono text-[10px] mr-0.5">{em.item.code}</span>}
                 {em.item.name}
@@ -87,18 +87,18 @@ function ReadOnlyRow({ row, dc }: { row: OrderRowEnriched; dc: typeof DC_DEFAULT
           </div>
         )}
         {row.soupItem && (
-          <div className="text-[11.5px] text-slate-500 mt-0.5">
+          <div className="text-[11.5px] text-stone-500 mt-0.5">
             Polévka: {row.soupItem.code && <span className="font-mono text-[10.5px] mr-0.5">{row.soupItem.code}</span>}{row.soupItem.name}
-            {row.soupItem2 && <span className="text-slate-400"> · {row.soupItem2.code && <span className="font-mono text-[10.5px]">{row.soupItem2.code}</span>} {row.soupItem2.name}</span>}
+            {row.soupItem2 && <span className="text-stone-400"> · {row.soupItem2.code && <span className="font-mono text-[10.5px]">{row.soupItem2.code}</span>} {row.soupItem2.name}</span>}
           </div>
         )}
         {(chips.length > 0 || row.note) && (
           <div className="flex flex-wrap gap-1 mt-1">
             {chips.map((c) => (
-              <span key={c} className="text-[10.5px] px-1.5 py-0.5 rounded-full bg-slate-100/80 text-slate-600 border border-slate-200/70">{c}</span>
+              <span key={c} className="text-[10.5px] px-1.5 py-0.5 rounded-full bg-slate-100/80 text-stone-600 border border-slate-200/70">{c}</span>
             ))}
             {row.note && (
-              <span className="text-[10.5px] px-1.5 py-0.5 rounded-full bg-slate-100/80 text-slate-600 border border-slate-200/70" title={row.note}>✎ {row.note}</span>
+              <span className="text-[10.5px] px-1.5 py-0.5 rounded-full bg-slate-100/80 text-stone-600 border border-slate-200/70" title={row.note}>✎ {row.note}</span>
             )}
           </div>
         )}
@@ -124,23 +124,23 @@ export default function OrderDetailPage({ data }: { data: OrderData }) {
 
       {/* Desktop topbar */}
       <div className="hidden md:flex px-5 py-2.5 border-b border-white/50 items-center gap-3 topbar shrink-0">
-        <Link className="text-[12px] text-slate-400 hover:text-slate-600 transition" href="/historie">← Historie</Link>
-        <span className="font-display font-bold text-[15px] text-slate-900">Objednávka {formatDate(order.date)}</span>
+        <Link className="text-[12px] text-stone-400 hover:text-stone-600 transition" href="/historie">← Historie</Link>
+        <span className="font-display font-bold text-[15px] text-stone-900">Objednávka {formatDate(order.date)}</span>
         <span
           className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold"
           style={sent ? { background: "rgba(21,128,61,0.12)", color: "#15803d" } : { background: "rgba(26,18,8,0.07)", color: "#7a6552" }}
         >
           {sent ? "Odesláno" : "Koncept"}
         </span>
-        {order.sentAt && <span className="text-[12px] text-slate-500">{formatSentAt(order.sentAt)}</span>}
-        {order.extraEmail && <span className="text-[12px] text-slate-500">Kopie: {order.extraEmail}</span>}
+        {order.sentAt && <span className="text-[12px] text-stone-500">{formatSentAt(order.sentAt)}</span>}
+        {order.extraEmail && <span className="text-[12px] text-stone-500">Kopie: {order.extraEmail}</span>}
         <div className="ml-auto flex items-center gap-3">
           {totalPrice > 0 && (
-            <span className="font-display font-bold text-[16px] text-slate-900">{totalPrice} Kč</span>
+            <span className="font-display font-bold text-[16px] text-stone-900">{totalPrice} Kč</span>
           )}
           {canReopen && (
             <button
-              className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full glass-soft text-slate-600 disabled:opacity-50 hover:bg-white/50 active:scale-[0.97] transition"
+              className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full glass-soft text-stone-600 disabled:opacity-50 hover:bg-white/50 active:scale-[0.97] transition"
               disabled={pending}
               onClick={() => startTransition(async () => { await actionReopenOrder(order.id); router.refresh(); })}
               type="button"
@@ -154,12 +154,12 @@ export default function OrderDetailPage({ data }: { data: OrderData }) {
       {/* Mobile topbar */}
       <div className="md:hidden border-b border-white/50 topbar shrink-0">
         <div className="flex items-center gap-3 px-4 py-2.5">
-          <Link className="text-[12px] text-slate-400" href="/historie">←</Link>
-          <span className="font-display font-bold text-[14px] text-slate-900 flex-1">
+          <Link className="text-[12px] text-stone-400" href="/historie">←</Link>
+          <span className="font-display font-bold text-[14px] text-stone-900 flex-1">
             Objednávka {formatDate(order.date)}
           </span>
           {totalPrice > 0 && (
-            <span className="font-display font-bold text-[14px] text-slate-900">{totalPrice} Kč</span>
+            <span className="font-display font-bold text-[14px] text-stone-900">{totalPrice} Kč</span>
           )}
         </div>
         <div className="flex items-center gap-2 px-4 pb-2.5">
@@ -169,10 +169,10 @@ export default function OrderDetailPage({ data }: { data: OrderData }) {
           >
             {sent ? "Odesláno" : "Koncept"}
           </span>
-          {order.sentAt && <span className="text-[11px] text-slate-500">{formatSentAt(order.sentAt)}</span>}
+          {order.sentAt && <span className="text-[11px] text-stone-500">{formatSentAt(order.sentAt)}</span>}
           {canReopen && (
             <button
-              className="ml-auto text-[11px] font-semibold px-2.5 py-1.5 rounded-full glass-soft text-slate-600 disabled:opacity-50 hover:bg-white/50 active:scale-[0.97] transition"
+              className="ml-auto text-[11px] font-semibold px-2.5 py-1.5 rounded-full glass-soft text-stone-600 disabled:opacity-50 hover:bg-white/50 active:scale-[0.97] transition"
               disabled={pending}
               onClick={() => startTransition(async () => { await actionReopenOrder(order.id); router.refresh(); })}
               type="button"
@@ -187,7 +187,7 @@ export default function OrderDetailPage({ data }: { data: OrderData }) {
         {departments.every((dept) =>
           dept.rows.every((r) => !r.personName && !r.soupItem && !r.mainItem && r.rollCount === 0)
         ) && (
-          <div className="glass rounded-2xl px-4 py-8 text-[13px] text-slate-400 text-center">
+          <div className="glass rounded-2xl px-4 py-8 text-[13px] text-stone-400 text-center">
             Objednávka neobsahuje žádné položky.
           </div>
         )}
@@ -210,10 +210,10 @@ export default function OrderDetailPage({ data }: { data: OrderData }) {
                 >
                   <MIcon name="groups" size={14} fill style={{ color: dc.icon }} />
                 </div>
-                <span className="font-display font-bold text-[13.5px] text-slate-900 flex-1">{dept.label}</span>
-                <span className="text-[11px] text-slate-500">
+                <span className="font-display font-bold text-[13.5px] text-stone-900 flex-1">{dept.label}</span>
+                <span className="text-[11px] text-stone-500">
                   {activeRows.length} {pluralOrders(activeRows.length)}
-                  {dept.subtotal > 0 && <> · <strong className="text-slate-700">{dept.subtotal} Kč</strong></>}
+                  {dept.subtotal > 0 && <> · <strong className="text-stone-700">{dept.subtotal} Kč</strong></>}
                 </span>
               </div>
               {activeRows.map((row) => (
