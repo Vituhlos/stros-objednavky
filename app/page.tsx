@@ -32,8 +32,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const data = getOrderDataForDate(selectedDate);
   const s = getSettings();
 
-  const [sy, sm, sd] = selectedDate.split("-").map(Number);
-  const selectedWeekStart = getMondayISO(new Date(sy, sm - 1, sd));
+  const selectedWeekStart = getMondayISO(new Date(`${selectedDate}T12:00:00`));
   const menuEmpty = getMenuWeekLabel(selectedWeekStart) === null;
 
   return (

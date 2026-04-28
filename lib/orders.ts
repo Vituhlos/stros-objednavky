@@ -167,8 +167,7 @@ export function getOrderDataForDate(date: string): OrderData {
   const { soupPrice, mealPrice, ep } = readDefaultPrices();
 
   const dayCode = getDayCodeForISO(date);
-  const [y, m, d] = date.split("-").map(Number);
-  const weekStart = getMondayISO(new Date(y, m - 1, d));
+  const weekStart = getMondayISO(new Date(`${date}T12:00:00`));
   const todayMenu = dayCode
     ? getMenuItemsForDay(dayCode, weekStart)
     : { soups: [], meals: [] };
