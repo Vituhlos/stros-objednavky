@@ -407,8 +407,8 @@ export default function OrderPage({
     );
   }, []);
 
-  const allSoups = initialData.todayMenu.soups;
-  const allMeals = initialData.todayMenu.meals;
+  const allSoups = initialData.todayMenu.soups.filter((i) => i.name !== "Zavřeno");
+  const allMeals = initialData.todayMenu.meals.filter((i) => i.name !== "Zavřeno");
   const noMenu = allSoups.length === 0 && allMeals.length === 0;
 
   const formattedClosedDate = selectedDate

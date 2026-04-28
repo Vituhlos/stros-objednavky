@@ -200,10 +200,7 @@ export function parseMenuText(rawText: string): ParseResult {
 
     if (!currentDay) continue;
 
-    if (line.includes("Zavřeno")) {
-      items.push({ day: currentDay, type: "Jídlo", code: "-", name: "Zavřeno" });
-      continue;
-    }
+    if (line.includes("Zavřeno")) continue;
 
     let m = line.match(/^([AB])\s+(.+)$/);
     if (m) {
