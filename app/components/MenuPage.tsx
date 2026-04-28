@@ -613,7 +613,7 @@ export default function MenuPage({
           })}
         </div>
         {hasPdfActive && (
-          <a className="ml-auto inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-xl glass-soft text-stone-600 md:hidden"
+          <a className="ml-auto inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-xl glass-btn text-stone-600 md:hidden"
             download href={`/api/menu/pdf/${activeWeekStart}`}>
             ↓ PDF
           </a>
@@ -737,7 +737,7 @@ export default function MenuPage({
               </h3>
               <button
                 aria-label="Zavřít"
-                className="w-8 h-8 rounded-full glass-soft inline-flex items-center justify-center text-stone-500 font-bold"
+                className="w-8 h-8 rounded-full glass-btn inline-flex items-center justify-center text-stone-500 font-bold"
                 onClick={() => setImportState({ phase: "idle" })}
                 type="button"
               >
@@ -777,7 +777,7 @@ export default function MenuPage({
                     <div className="ml-auto flex items-center gap-1.5">
                       <span className="text-[11px] text-stone-400">Uložit jako:</span>
                       <button
-                        className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg ${importState.targetWeekStart === currentWeekStart ? "text-white" : "glass-soft text-stone-600"}`}
+                        className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg ${importState.targetWeekStart === currentWeekStart ? "text-white" : "glass-btn text-stone-600"}`}
                         onClick={() => setImportState((prev) => prev.phase === "preview" ? { ...prev, targetWeekStart: currentWeekStart, targetLabel: `aktuální týden${currentWeekLabel ? ` (${currentWeekLabel})` : ""}` } : prev)}
                         style={importState.targetWeekStart === currentWeekStart ? { background: "linear-gradient(135deg,#F59E0B,#EA580C)" } : {}}
                         type="button"
@@ -785,7 +785,7 @@ export default function MenuPage({
                         Aktuální
                       </button>
                       <button
-                        className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg ${importState.targetWeekStart === nextWeekStart ? "text-white" : "glass-soft text-stone-600"}`}
+                        className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg ${importState.targetWeekStart === nextWeekStart ? "text-white" : "glass-btn text-stone-600"}`}
                         onClick={() => setImportState((prev) => prev.phase === "preview" ? { ...prev, targetWeekStart: nextWeekStart, targetLabel: `příští týden${nextWeekLabel ? ` (${nextWeekLabel})` : ""}` } : prev)}
                         style={importState.targetWeekStart === nextWeekStart ? { background: "linear-gradient(135deg,#F59E0B,#EA580C)" } : {}}
                         type="button"

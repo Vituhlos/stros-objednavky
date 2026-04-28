@@ -134,7 +134,7 @@ function DeptRow({
             disabled={isLast} onClick={() => onMoveDown(dept.id)} title="Dolů" type="button"
           >↓</button>
           <button
-            className="text-[11.5px] font-semibold px-2.5 py-1 rounded-lg glass-soft text-stone-600"
+            className="text-[11.5px] font-semibold px-2.5 py-1 rounded-lg glass-btn text-stone-600"
             onClick={() => setEditing(true)} type="button"
           >Upravit</button>
           <button
@@ -429,7 +429,7 @@ export default function SettingsPage({
                   </div>
                   <div className="flex items-center gap-3 pt-1">
                     <button
-                      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl glass-soft text-stone-600"
+                      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl glass-btn text-stone-600"
                       disabled={isPending}
                       onClick={handleSmtpTest}
                       type="button"
@@ -630,7 +630,7 @@ export default function SettingsPage({
                 Stáhněte zálohu všech objednávek, jídelníčků a nastavení oddělení ve formátu JSON.
               </p>
               <a
-                className="self-start inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl glass-soft text-stone-600"
+                className="self-start inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl glass-btn text-stone-600"
                 download
                 href="/api/backup"
               >

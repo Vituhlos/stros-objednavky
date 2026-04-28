@@ -114,7 +114,7 @@ export default function PizzaPage({ initialData }: { initialData: PizzaOrderData
         {scrapeError && <span className="text-[12px] text-red-500 truncate max-w-xs">{scrapeError}</span>}
         <div className="ml-auto">
           <button
-            className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl glass-soft text-stone-600"
+            className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl glass-btn text-stone-600"
             disabled={isPending}
             onClick={handleScrape}
             type="button"
