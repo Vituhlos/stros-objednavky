@@ -73,6 +73,7 @@ export default function OrderPage({
   availableDates,
   selectedDate,
   todayDate,
+  holidayName,
 }: {
   initialData: OrderData;
   cutoffTime?: string;
@@ -83,6 +84,7 @@ export default function OrderPage({
   availableDates?: string[];
   selectedDate?: string;
   todayDate?: string;
+  holidayName?: string | null;
 }) {
   const router = useRouter();
   const isFutureDay = !!(selectedDate && todayDate && selectedDate > todayDate);
@@ -393,6 +395,13 @@ export default function OrderPage({
 
   const allSoups = initialData.todayMenu.soups;
   const allMeals = initialData.todayMenu.meals;
+  const noMenu = allSoups.length === 0 && allMeals.length === 0;
+
+  const formattedClosedDate = selectedDate
+    ? new Date(`${selectedDate}T12:00:00`)
+        .toLocaleDateString("cs-CZ", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
+        .replace(/^\w/, (c) => c.toUpperCase())
+    : null;
 
   useEffect(() => {
     return () => {
@@ -456,7 +465,7 @@ export default function OrderPage({
             </span>
           )}
         </div>
-        {!isSent && !isFutureDay && (
+        {!isSent && !isFutureDay && !noMenu && (
           <div className="flex items-center gap-2 shrink-0">
             <input
               className="text-[12px] px-3 py-1.5 rounded-xl glass-soft outline-none placeholder:text-stone-400 w-[180px]"
@@ -477,7 +486,7 @@ export default function OrderPage({
             </button>
           </div>
         )}
-        {isFutureDay && !isSent && (
+        {isFutureDay && !isSent && !noMenu && (
           <span className="text-[11.5px] text-stone-500 inline-flex items-center gap-1.5 shrink-0">
             <MIcon name="schedule" size={13} />
             Odešle se automaticky v den samotný
@@ -516,7 +525,7 @@ export default function OrderPage({
             </span>
           )}
         </div>
-        {!isSent && !isFutureDay && (
+        {!isSent && !isFutureDay && !noMenu && (
           <div className="px-4 pb-2 flex items-center gap-2">
             <input
               className="flex-1 text-[12px] px-3 py-1.5 rounded-xl glass-soft outline-none placeholder:text-stone-400 min-w-0"
@@ -537,7 +546,7 @@ export default function OrderPage({
             </button>
           </div>
         )}
-        {isFutureDay && !isSent && (
+        {isFutureDay && !isSent && !noMenu && (
           <div className="px-4 pb-2">
             <span className="text-[11px] text-stone-500 inline-flex items-center gap-1">
               <MIcon name="schedule" size={12} />
@@ -553,7 +562,7 @@ export default function OrderPage({
 
           {showDayPicker && (
             <div
-              className="flex p-1 rounded-2xl gap-0.5 overflow-x-auto no-scrollbar"
+              className="flex w-fit p-1 rounded-2xl gap-0.5"
               style={{ background: "rgba(26,18,8,0.06)", border: "1px solid rgba(255,255,255,0.55)" }}
             >
               {availableDates!.map((date) => {
@@ -579,92 +588,117 @@ export default function OrderPage({
             </div>
           )}
 
-          {menuEmpty && !isSent && (
-            <div className="glass rounded-2xl px-4 py-3 flex items-center gap-3 text-[12.5px]"
-              style={{ borderColor: "rgba(245,158,11,0.3)", background: "rgba(245,158,11,0.07)" }}>
-              <MIcon name="warning" size={16} style={{ color: "#D97706" }} />
-              <span className="text-stone-700">
-                <strong>Jídelníček není naplněný.</strong>{" "}
-                Přejděte do{" "}
-                <a href="/jidelnicek" className="underline text-stone-700 hover:text-stone-900">Jídelníčku</a>
-                {" "}a importujte PDF nebo přidejte položky ručně.
-              </span>
+          {noMenu ? (
+            /* ── Closed / no-menu banner ── */
+            <div className="glass rounded-3xl overflow-hidden" style={{ borderColor: "rgba(245,158,11,0.18)" }}>
+              <div className="h-[3px]" style={{ background: "linear-gradient(90deg,#F59E0B,#EA580C)" }} />
+              <div className="flex flex-col items-center text-center px-6 py-14 gap-5">
+                <div
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center"
+                  style={{ background: "linear-gradient(135deg,#fbbf24,#d97706)", boxShadow: "0 8px 24px -6px rgba(245,158,11,0.5)" }}
+                >
+                  <MIcon name="no_meals" size={28} fill style={{ color: "white" }} />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <div className="font-display font-bold text-[21px] text-stone-900 leading-tight">
+                    {holidayName ?? "Jídelníček není k dispozici"}
+                  </div>
+                  {formattedClosedDate && (
+                    <div className="text-[13px] text-stone-500">{formattedClosedDate}</div>
+                  )}
+                </div>
+              </div>
             </div>
-          )}
-
-          {/* Department panels — 3-col on desktop */}
-          <div className="grid md:grid-cols-3 gap-4">
-            {departments.map((dept) => (
-              <DepartmentPanel
-                data={dept}
-                defaultMealPrice={defaultMealPrice}
-                defaultSoupPrice={defaultSoupPrice}
-                existingNames={existingNames}
-                extrasPrices={extrasPrices}
-                isSent={isSent}
-                key={dept.name}
-                meals={allMeals}
-                onAddRow={() => handleAddRow(dept.name)}
-                onDeleteRow={handleDeleteRow}
-                onUpdateRow={handleUpdateRow}
-                soups={allSoups}
-              />
-            ))}
-          </div>
-
-          {/* Bottom status bar */}
-          <div
-            className="glass rounded-2xl px-4 py-3 flex items-center gap-3"
-            style={isSent ? { borderColor: "rgba(34,197,94,0.3)", background: "rgba(34,197,94,0.07)" } : {}}
-          >
-            <div
-              className="w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0"
-              style={{ background: isSent ? "rgba(34,197,94,0.15)" : "rgba(100,116,139,0.1)" }}
-            >
-              <MIcon name={isSent ? "check_circle" : "lock"} size={18} fill style={{ color: isSent ? "#16a34a" : "#94a3b8" }} />
-            </div>
-            <div className="flex-1 text-[12.5px] text-stone-700 leading-snug">
-              {isSent ? (
-                <>
-                  <strong className="text-green-700">Objednávka odeslána</strong>
-                  {sentAt && <span> v {new Date(sentAt).toLocaleTimeString("cs-CZ", { hour: "2-digit", minute: "2-digit" })}</span>}
-                  <span className="text-stone-500"> · Další úpravy nejsou možné.</span>
-                </>
-              ) : isFutureDay ? (
-                <>
-                  <strong>Objednávka dopředu.</strong>
-                  <span className="text-stone-500"> Odešle se automaticky v den samotný v {cutoffTime}.</span>
-                </>
-              ) : (
-                <>
-                  <strong>Uzávěrka v {cutoffTime}.</strong>
-                  <span className="text-stone-500"> Objednávku po uzávěrce odešle správce.</span>
-                </>
+          ) : (
+            <>
+              {menuEmpty && !isSent && (
+                <div className="glass rounded-2xl px-4 py-3 flex items-center gap-3 text-[12.5px]"
+                  style={{ borderColor: "rgba(245,158,11,0.3)", background: "rgba(245,158,11,0.07)" }}>
+                  <MIcon name="warning" size={16} style={{ color: "#D97706" }} />
+                  <span className="text-stone-700">
+                    <strong>Jídelníček není naplněný.</strong>{" "}
+                    Přejděte do{" "}
+                    <a href="/jidelnicek" className="underline text-stone-700 hover:text-stone-900">Jídelníčku</a>
+                    {" "}a importujte PDF nebo přidejte položky ručně.
+                  </span>
+                </div>
               )}
-            </div>
-            {!isSent && totalPrice > 0 && (
-              <span className="font-display font-bold text-[14px] text-stone-800 shrink-0">{totalPrice} Kč</span>
-            )}
-            {!isSent && (
-              <button
-                className="shrink-0 text-[11.5px] font-medium px-3 py-1.5 rounded-full glass-btn text-stone-500"
-                onClick={() => setClearConfirm(true)}
-                type="button"
+
+              {/* Department panels — 3-col on desktop */}
+              <div className="grid md:grid-cols-3 gap-4">
+                {departments.map((dept) => (
+                  <DepartmentPanel
+                    data={dept}
+                    defaultMealPrice={defaultMealPrice}
+                    defaultSoupPrice={defaultSoupPrice}
+                    existingNames={existingNames}
+                    extrasPrices={extrasPrices}
+                    isSent={isSent}
+                    key={dept.name}
+                    meals={allMeals}
+                    onAddRow={() => handleAddRow(dept.name)}
+                    onDeleteRow={handleDeleteRow}
+                    onUpdateRow={handleUpdateRow}
+                    soups={allSoups}
+                  />
+                ))}
+              </div>
+
+              {/* Bottom status bar */}
+              <div
+                className="glass rounded-2xl px-4 py-3 flex items-center gap-3"
+                style={isSent ? { borderColor: "rgba(34,197,94,0.3)", background: "rgba(34,197,94,0.07)" } : {}}
               >
-                Smazat
-              </button>
-            )}
-            {isSent && (
-              <button
-                className="shrink-0 text-[12px] font-semibold px-3 py-1.5 rounded-full glass-btn text-stone-600"
-                disabled={isPending}
-                onClick={handleReopen}
-                type="button"
-              >
-                {isPending ? "…" : "Znovu otevřít"}
-              </button>
-            )}
-          </div>
+                <div
+                  className="w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0"
+                  style={{ background: isSent ? "rgba(34,197,94,0.15)" : "rgba(100,116,139,0.1)" }}
+                >
+                  <MIcon name={isSent ? "check_circle" : "lock"} size={18} fill style={{ color: isSent ? "#16a34a" : "#94a3b8" }} />
+                </div>
+                <div className="flex-1 text-[12.5px] text-stone-700 leading-snug">
+                  {isSent ? (
+                    <>
+                      <strong className="text-green-700">Objednávka odeslána</strong>
+                      {sentAt && <span> v {new Date(sentAt).toLocaleTimeString("cs-CZ", { hour: "2-digit", minute: "2-digit" })}</span>}
+                      <span className="text-stone-500"> · Další úpravy nejsou možné.</span>
+                    </>
+                  ) : isFutureDay ? (
+                    <>
+                      <strong>Objednávka dopředu.</strong>
+                      <span className="text-stone-500"> Odešle se automaticky v den samotný v {cutoffTime}.</span>
+                    </>
+                  ) : (
+                    <>
+                      <strong>Uzávěrka v {cutoffTime}.</strong>
+                      <span className="text-stone-500"> Objednávku po uzávěrce odešle správce.</span>
+                    </>
+                  )}
+                </div>
+                {!isSent && totalPrice > 0 && (
+                  <span className="font-display font-bold text-[14px] text-stone-800 shrink-0">{totalPrice} Kč</span>
+                )}
+                {!isSent && (
+                  <button
+                    className="shrink-0 text-[11.5px] font-medium px-3 py-1.5 rounded-full glass-btn text-stone-500"
+                    onClick={() => setClearConfirm(true)}
+                    type="button"
+                  >
+                    Smazat
+                  </button>
+                )}
+                {isSent && (
+                  <button
+                    className="shrink-0 text-[12px] font-semibold px-3 py-1.5 rounded-full glass-btn text-stone-600"
+                    disabled={isPending}
+                    onClick={handleReopen}
+                    type="button"
+                  >
+                    {isPending ? "…" : "Znovu otevřít"}
+                  </button>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </main>
 

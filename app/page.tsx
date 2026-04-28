@@ -1,6 +1,7 @@
 import { getOrderDataForDate } from "@/lib/orders";
 import { getSettings } from "@/lib/settings";
 import { getMenuWeekLabel, getMenuDates, getMondayISO } from "@/lib/menu";
+import { getHolidayName } from "@/lib/holidays";
 import OrderPage from "@/app/components/OrderPage";
 
 export const dynamic = "force-dynamic";
@@ -34,10 +35,12 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
   const selectedWeekStart = getMondayISO(new Date(`${selectedDate}T12:00:00`));
   const menuEmpty = getMenuWeekLabel(selectedWeekStart) === null;
+  const holidayName = getHolidayName(selectedDate);
 
   return (
     <OrderPage
       availableDates={allDates}
+      holidayName={holidayName}
       cutoffTime={s.cutoffTime}
       defaultMealPrice={parseInt(s.defaultMealPrice) || 110}
       defaultSoupPrice={parseInt(s.defaultSoupPrice) || 30}
