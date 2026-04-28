@@ -110,6 +110,20 @@ export default function OrderPage({
   const pendingDeleteRef = useRef<PendingDelete | null>(null);
   const pendingDeleteTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Sync state when selected date changes — component isn't remounted, only gets new props
+  const prevOrderIdRef = useRef(initialData.order.id);
+  if (prevOrderIdRef.current !== initialData.order.id) {
+    prevOrderIdRef.current = initialData.order.id;
+    setDepartments(initialData.departments);
+    departmentsRef.current = initialData.departments;
+    setOrderStatus(initialData.order.status);
+    setExtraEmail(initialData.order.extraEmail ?? "");
+    setSentAt(initialData.order.sentAt);
+    setJustSent(false);
+    setSendError(null);
+    setPendingDelete(null);
+  }
+
   const isSent = orderStatus === "sent";
 
   // ── Live cutoff check ─────────────────────────────────────
