@@ -154,7 +154,8 @@ function WeekGrid({
                 {/* Soups */}
                 {(soups.length > 0 || editMode) && (
                   <div>
-                    <div className="flex items-center gap-1 mb-1.5">
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "rgba(245,158,11,0.6)" }} />
                       <span className="font-display text-[10px] uppercase tracking-widest font-semibold text-stone-500">Polévky</span>
                       {editMode && (
                         <button
@@ -176,7 +177,8 @@ function WeekGrid({
                 {/* Meals */}
                 {(meals.length > 0 || editMode) && (
                   <div>
-                    <div className="flex items-center gap-1 mb-1.5">
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "rgba(234,88,12,0.55)" }} />
                       <span className="font-display text-[10px] uppercase tracking-widest font-semibold text-stone-500">Jídla</span>
                       {editMode && (
                         <button
@@ -251,10 +253,10 @@ function WeekItem({
     );
   }
   return (
-    <div className="flex items-start gap-1 py-0.5">
-      <span className="font-mono text-[11px] text-stone-400 w-5 shrink-0 text-right mt-px">{item.code}</span>
-      <span className="flex-1 min-w-0 text-[13px] text-stone-700 leading-snug">{item.name}</span>
-      <span className="shrink-0 text-[12px] font-medium text-stone-400 tabular-nums mt-px">{item.price} Kč</span>
+    <div className="flex items-start gap-1.5 py-1">
+      <span className="font-mono text-[10.5px] text-stone-400 w-5 shrink-0 text-right mt-[3px]">{item.code}</span>
+      <span className="flex-1 min-w-0 text-[12.5px] font-medium text-stone-800 leading-snug">{item.name}</span>
+      <span className="shrink-0 text-[11.5px] font-semibold text-stone-500 tabular-nums mt-[2px]">{item.price} Kč</span>
     </div>
   );
 }
