@@ -55,7 +55,7 @@ async function checkAutoSend(s: AppSettings, currentTime: string, jsDay: number)
   }
 
   console.log(`[scheduler] Automatické odesílání objednávky ${data.order.id}...`);
-  await sendOrder(data.order.id, data.order.extraEmail ?? "", "auto");
+  await sendOrder(data.order.id, "auto");
   console.log("[scheduler] Objednávka automaticky odeslána.");
 }
 

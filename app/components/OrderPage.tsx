@@ -14,7 +14,6 @@ import {
   actionUpdateRow,
   actionDeleteRow,
   actionSendOrder,
-  actionUpdateExtraEmail,
   actionClearOrder,
   actionReopenOrder,
 } from "@/app/actions";
@@ -96,7 +95,6 @@ export default function OrderPage({
 
   const [orderStatus, setOrderStatus] = useState(initialData.order.status);
   const orderId = initialData.order.id;
-  const [extraEmail, setExtraEmail] = useState(initialData.order.extraEmail ?? "");
   const [sentAt, setSentAt] = useState(initialData.order.sentAt);
   const [isPending, startTransition] = useTransition();
   const [sendError, setSendError] = useState<string | null>(null);
@@ -117,7 +115,6 @@ export default function OrderPage({
     setDepartments(initialData.departments);
     departmentsRef.current = initialData.departments;
     setOrderStatus(initialData.order.status);
-    setExtraEmail(initialData.order.extraEmail ?? "");
     setSentAt(initialData.order.sentAt);
     setJustSent(false);
     setSendError(null);
@@ -355,7 +352,7 @@ export default function OrderPage({
     setSendError(null);
     startTransition(async () => {
       try {
-        await actionSendOrder(orderId, extraEmail);
+        await actionSendOrder(orderId);
         setOrderStatus("sent");
         setSentAt(new Date().toISOString());
         setJustSent(true);
@@ -368,12 +365,6 @@ export default function OrderPage({
       }
     });
   };
-
-  const handleEmailBlur = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
-    startTransition(async () => {
-      await actionUpdateExtraEmail(orderId, e.target.value);
-    });
-  }, [orderId]);
 
   const activeOrderCount = useMemo(
     () => departments.flatMap((d) => d.rows).filter(hasOrderRowContent).length,
@@ -487,14 +478,6 @@ export default function OrderPage({
         </div>
         {!isSent && !isFutureDay && !noMenu && (
           <div className="flex items-center gap-2 shrink-0">
-            <input
-              className="text-[12px] px-3 py-1.5 rounded-xl glass-soft outline-none placeholder:text-stone-400 w-[180px]"
-              value={extraEmail}
-              onBlur={handleEmailBlur}
-              onChange={(e) => setExtraEmail(e.target.value)}
-              placeholder="Další e-mail (volitelné)"
-              type="email"
-            />
             <button
               className="px-4 py-1.5 rounded-full text-[12.5px] font-semibold text-white disabled:opacity-50 hover:opacity-[0.88] active:scale-[0.97] transition"
               disabled={isPending}
@@ -547,14 +530,6 @@ export default function OrderPage({
         </div>
         {!isSent && !isFutureDay && !noMenu && (
           <div className="px-4 pb-2 flex items-center gap-2">
-            <input
-              className="flex-1 text-[12px] px-3 py-1.5 rounded-xl glass-soft outline-none placeholder:text-stone-400 min-w-0"
-              value={extraEmail}
-              onBlur={handleEmailBlur}
-              onChange={(e) => setExtraEmail(e.target.value)}
-              placeholder="Další e-mail (volitelné)"
-              type="email"
-            />
             <button
               className="shrink-0 px-4 py-1.5 rounded-full text-[12.5px] font-semibold text-white disabled:opacity-50 hover:opacity-[0.88] active:scale-[0.97] transition"
               disabled={isPending}

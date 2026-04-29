@@ -13,7 +13,6 @@ import {
   updateOrderRow,
   deleteOrderRow,
   sendOrder as dbSendOrder,
-  updateExtraEmail,
   reopenOrder,
   clearOrderRows,
 } from "@/lib/orders";
@@ -76,20 +75,8 @@ export async function actionDeleteRow(rowId: number): Promise<void> {
   broadcast();
 }
 
-export async function actionSendOrder(
-  orderId: number,
-  extraEmail: string
-): Promise<void> {
-  await dbSendOrder(orderId, extraEmail);
-  revalidatePath("/");
-  broadcast();
-}
-
-export async function actionUpdateExtraEmail(
-  orderId: number,
-  email: string
-): Promise<void> {
-  updateExtraEmail(orderId, email);
+export async function actionSendOrder(orderId: number): Promise<void> {
+  await dbSendOrder(orderId);
   revalidatePath("/");
   broadcast();
 }

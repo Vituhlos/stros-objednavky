@@ -345,7 +345,7 @@ export function deleteOrderRow(rowId: number): void {
   if (row) logAudit({ action: "row_delete", orderId: row.order_id as number, department: row.department as string, personName: row.person_name as string });
 }
 
-export async function sendOrder(orderId: number, extraEmail?: string, source: "manual" | "auto" = "manual"): Promise<Order> {
+export async function sendOrder(orderId: number, source: "manual" | "auto" = "manual"): Promise<Order> {
   const db = getDb();
   const current = db
     .prepare("SELECT * FROM orders WHERE id = ?")
@@ -356,7 +356,8 @@ export async function sendOrder(orderId: number, extraEmail?: string, source: "m
   }
 
   const currentOrder = mapOrder(current);
-  const normalizedExtraEmail = extraEmail?.trim() || currentOrder.extraEmail || null;
+  const configuredExtraEmail = getSettings().orderExtraEmail.trim();
+  const normalizedExtraEmail = configuredExtraEmail || currentOrder.extraEmail || null;
 
   const orderData = getOrderData(orderId);
   const activeDepartments = orderData.departments.filter(isDepartmentSubmitted);
@@ -406,12 +407,6 @@ export async function sendOrder(orderId: number, extraEmail?: string, source: "m
     .get(orderId) as Record<string, unknown>;
   logAudit({ action: source === "auto" ? "auto_send" : "order_send", orderId });
   return mapOrder(order);
-}
-
-export function updateExtraEmail(orderId: number, email: string): void {
-  getDb()
-    .prepare("UPDATE orders SET extra_email = ? WHERE id = ?")
-    .run(email, orderId);
 }
 
 export interface OrderSummary {

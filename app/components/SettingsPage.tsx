@@ -83,6 +83,26 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
   );
 }
 
+function EmailListInput({
+  defaultValue,
+  name,
+  placeholder,
+}: {
+  defaultValue: string;
+  name: string;
+  placeholder: string;
+}) {
+  return (
+    <input
+      className="modal-input"
+      defaultValue={defaultValue}
+      name={name}
+      placeholder={placeholder}
+      type="text"
+    />
+  );
+}
+
 // ── Toggle checkbox ───────────────────────────────────────────────────────────
 
 function Toggle({ name, defaultChecked, label }: { name: string; defaultChecked: boolean; label: string }) {
@@ -235,6 +255,7 @@ export default function SettingsPage({
       smtpFrom: fd.get("smtpFrom") as string,
       smtpSecure: fd.get("smtpSecure") === "on" ? "true" : "false",
       orderEmailTo: fd.get("orderEmailTo") as string,
+      orderExtraEmail: fd.get("orderExtraEmail") as string,
       smtpReplyTo: fd.get("smtpReplyTo") as string,
       cutoffTime: fd.get("cutoffTime") as string,
       defaultSoupPrice: fd.get("defaultSoupPrice") as string,
@@ -356,7 +377,7 @@ export default function SettingsPage({
       <div className="hidden md:flex px-5 py-2.5 border-b border-white/50 items-center gap-3 topbar shrink-0">
         <MIcon name="settings" size={16} fill style={{ color: "#D97706" }} />
         <span className="font-display font-bold text-[15px] text-stone-900">Nastavení</span>
-        <span className="text-[12px] text-stone-500">SMTP, e-mail příjemce, čas uzávěrky, PIN</span>
+        <span className="text-[12px] text-stone-500">SMTP, příjemci, kopie, čas uzávěrky, PIN</span>
       </div>
 
       {/* Mobile topbar */}
@@ -446,11 +467,26 @@ export default function SettingsPage({
 
                 <Section icon="send" title="E-mail objednávky">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <Field hint="výchozí příjemce odesílané objednávky" label="Příjemce (To)">
-                      <input className="modal-input" defaultValue={settings.orderEmailTo} name="orderEmailTo" type="email" />
+                    <Field hint="můžete zadat více adres oddělených čárkou, středníkem nebo novým řádkem" label="Příjemci objednávky (To)">
+                      <EmailListInput
+                        defaultValue={settings.orderEmailTo}
+                        name="orderEmailTo"
+                        placeholder="vedouci@firma.cz, kuchyne@firma.cz"
+                      />
                     </Field>
-                    <Field hint="pokud prázdné, Reply-To se nenastavuje" label="Adresa pro odpovědi (Reply-To)">
-                      <input className="modal-input" defaultValue={settings.smtpReplyTo} name="smtpReplyTo" placeholder="jiri@example.com" type="email" />
+                    <Field hint="uloží se k objednávce jako kopie a použije se při ručním i automatickém odeslání" label="Doplňkové kopie objednávky">
+                      <EmailListInput
+                        defaultValue={settings.orderExtraEmail}
+                        name="orderExtraEmail"
+                        placeholder="obchod@firma.cz; sklad@firma.cz"
+                      />
+                    </Field>
+                    <Field hint="pokud prázdné, Reply-To se nenastavuje; více adres je podporováno" label="Adresa pro odpovědi (Reply-To)">
+                      <EmailListInput
+                        defaultValue={settings.smtpReplyTo}
+                        name="smtpReplyTo"
+                        placeholder="jiri@example.com, objednavky@firma.cz"
+                      />
                     </Field>
                   </div>
                 </Section>
