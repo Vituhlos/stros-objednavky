@@ -33,6 +33,11 @@ function formatSentAt(iso: string | null): string {
   });
 }
 
+function getPragueTodayISO(): string {
+  const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Prague" }));
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+}
+
 function getInitials(name: string): string {
   if (!name.trim()) return "?";
   return name.trim().split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
@@ -114,7 +119,7 @@ export default function OrderDetailPage({ data }: { data: OrderData }) {
 
   const canReopen =
     order.status === "sent" &&
-    order.date === new Date().toISOString().slice(0, 10);
+    order.date === getPragueTodayISO();
 
   const sent = order.status === "sent";
 

@@ -144,6 +144,10 @@ export default function OrderPage({
   const [hasEverConnected, setHasEverConnected] = useState(false);
   const isPendingRef = useRef(isPending);
   useEffect(() => { isPendingRef.current = isPending; }, [isPending]);
+  const isFutureDayRef = useRef(isFutureDay);
+  useEffect(() => { isFutureDayRef.current = isFutureDay; }, [isFutureDay]);
+  const selectedDateRef = useRef(selectedDate);
+  useEffect(() => { selectedDateRef.current = selectedDate; }, [selectedDate]);
 
   const tabNotifCount = useRef(0);
   const originalTitle = useRef<string>("");
@@ -178,8 +182,11 @@ export default function OrderPage({
         return;
       }
       if (isPendingRef.current) return;
-      if (isFutureDay) return;
-      fetch("/api/order-refresh")
+      if (isFutureDayRef.current) return;
+      const params = new URLSearchParams();
+      if (selectedDateRef.current) params.set("date", selectedDateRef.current);
+      const refreshUrl = params.size > 0 ? `/api/order-refresh?${params.toString()}` : "/api/order-refresh";
+      fetch(refreshUrl)
         .then((r) => r.ok ? r.json() : null)
         .then((data: { departments: DepartmentData[]; totalPrice: number; status: string; sentAt: string | null } | null) => {
           if (!data) return;
@@ -271,12 +278,11 @@ export default function OrderPage({
           setDepartments((prev) => patchRow(prev, rowId, updated));
         } catch {
           setSendError("Nepodařilo se uložit změny. Zkuste to znovu.");
-          // Rollback: refetch by reverting to server-confirmed state via re-render
-          setDepartments((prev) => recalcDepartments([...prev]));
+          router.refresh();
         }
       });
     },
-    [initialData.todayMenu]
+    [defaultMealPrice, defaultSoupPrice, extrasPrices, initialData.todayMenu, router]
   );
 
   const handleClear = useCallback(() => {
@@ -483,7 +489,7 @@ export default function OrderPage({
           <div className="flex items-center gap-2 shrink-0">
             <input
               className="text-[12px] px-3 py-1.5 rounded-xl glass-soft outline-none placeholder:text-stone-400 w-[180px]"
-              defaultValue={extraEmail}
+              value={extraEmail}
               onBlur={handleEmailBlur}
               onChange={(e) => setExtraEmail(e.target.value)}
               placeholder="Další e-mail (volitelné)"
@@ -543,7 +549,7 @@ export default function OrderPage({
           <div className="px-4 pb-2 flex items-center gap-2">
             <input
               className="flex-1 text-[12px] px-3 py-1.5 rounded-xl glass-soft outline-none placeholder:text-stone-400 min-w-0"
-              defaultValue={extraEmail}
+              value={extraEmail}
               onBlur={handleEmailBlur}
               onChange={(e) => setExtraEmail(e.target.value)}
               placeholder="Další e-mail (volitelné)"

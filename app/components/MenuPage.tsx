@@ -51,6 +51,16 @@ const DAY_LABELS: Record<string, string> = {
   Po: "Pondělí", Út: "Úterý", St: "Středa", Čt: "Čtvrtek", Pá: "Pátek",
 };
 
+function resolveActiveDay(
+  menu: Record<string, { soups: MenuItem[]; meals: MenuItem[] }>,
+  visibleTodayCode: string | null,
+  currentDay?: string
+): string {
+  if (currentDay && menu[currentDay]) return currentDay;
+  if (visibleTodayCode && menu[visibleTodayCode]) return visibleTodayCode;
+  return DAY_ORDER.find((day) => menu[day]) ?? DAY_ORDER[0];
+}
+
 interface Props {
   currentMenu: Record<string, { soups: MenuItem[]; meals: MenuItem[] }>;
   currentWeekLabel: string | null;
@@ -422,10 +432,12 @@ export default function MenuPage({
   const activeWeekLabel = activeWeek === "current" ? currentWeekLabel : nextWeekLabel;
   const hasPdfActive = activeWeek === "current" ? hasPdfCurrent : hasPdfNext;
   const activeMenu = activeWeek === "current" ? currentMenu : initialNextMenu;
+  const visibleTodayCode = activeWeek === "current" ? todayCode : null;
+  const [activeDay, setActiveDay] = useState<string>(() => resolveActiveDay(activeMenu, visibleTodayCode));
 
-  const activeDays = DAY_ORDER.filter((d) => activeMenu[d]);
-  const defaultDay = todayCode && activeMenu[todayCode] ? todayCode : (activeDays[0] ?? DAY_ORDER[0]);
-  const [activeDay, setActiveDay] = useState<string>(defaultDay);
+  useEffect(() => {
+    setActiveDay((prev) => resolveActiveDay(activeMenu, visibleTodayCode, prev));
+  }, [activeMenu, visibleTodayCode]);
 
   const handleWeekSwitch = (week: "current" | "next") => {
     setActiveWeek(week);
@@ -660,7 +672,7 @@ export default function MenuPage({
       <div className="md:hidden flex gap-1.5 overflow-x-auto no-scrollbar px-4 py-2 shrink-0">
         {DAY_ORDER.map((day) => {
           const active = activeDay === day;
-          const isToday = day === todayCode;
+          const isToday = day === visibleTodayCode;
           const hasData = !!activeMenu[day];
           return (
             <button
@@ -691,7 +703,7 @@ export default function MenuPage({
           onAdd={(day, type) => handleAdd(day, type)}
           onDelete={(id) => setConfirmDeleteItemId(id)}
           onUpdate={handleUpdate}
-          todayCode={todayCode}
+          todayCode={visibleTodayCode}
         />
       </div>
 
