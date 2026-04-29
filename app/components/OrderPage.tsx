@@ -587,12 +587,41 @@ export default function OrderPage({
             /* ── Closed / no-menu banner ── */
             <div className="glass rounded-3xl overflow-hidden" style={{ borderColor: "rgba(245,158,11,0.18)" }}>
               <div className="h-[3px]" style={{ background: "linear-gradient(90deg,#F59E0B,#EA580C)" }} />
-              <div className="flex flex-col items-center text-center px-6 py-14 gap-5">
+              <div
+                className="flex items-center gap-3 px-4 py-3 border-b border-white/40"
+                style={{ background: "rgba(245,158,11,0.08)" }}
+              >
+                <div
+                  className="w-10 h-10 rounded-xl inline-flex items-center justify-center shrink-0"
+                  style={{ background: "rgba(245,158,11,0.14)" }}
+                >
+                  <MIcon
+                    name={holidayName ? "celebration" : "event_busy"}
+                    size={20}
+                    fill
+                    style={{ color: "#D97706" }}
+                  />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-display font-bold text-[14px] text-stone-900 leading-none">
+                    {holidayName ? "Svátek / zavřeno" : "Jídelníček není k dispozici"}
+                  </div>
+                  <div className="text-[11.5px] text-stone-500 mt-0.5">
+                    {holidayName ? "V tento den se objednávky nevytvářejí." : "Pro vybraný den nejsou dostupné žádné položky menu."}
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col items-center text-center px-6 py-10 md:py-12 gap-4">
                 <div
                   className="w-14 h-14 rounded-2xl flex items-center justify-center"
                   style={{ background: "linear-gradient(135deg,#fbbf24,#d97706)", boxShadow: "0 8px 24px -6px rgba(245,158,11,0.5)" }}
                 >
-                  <MIcon name="no_meals" size={28} fill style={{ color: "white" }} />
+                  <MIcon
+                    name={holidayName ? "celebration" : "no_meals"}
+                    size={28}
+                    fill
+                    style={{ color: "white" }}
+                  />
                 </div>
                 <div className="flex flex-col gap-1">
                   <div className="font-display font-bold text-[21px] text-stone-900 leading-tight">
@@ -601,6 +630,13 @@ export default function OrderPage({
                   {formattedClosedDate && (
                     <div className="text-[13px] text-stone-500">{formattedClosedDate}</div>
                   )}
+                </div>
+                <div
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[12px] font-medium text-stone-600"
+                  style={{ background: "rgba(255,255,255,0.58)", border: "1px solid rgba(245,158,11,0.14)" }}
+                >
+                  <MIcon name="info" size={14} style={{ color: "#D97706" }} />
+                  <span>{holidayName ? "Objednávková stránka je pro tento den pouze informativní." : "Jakmile bude menu doplněné, objednávky se tu znovu objeví."}</span>
                 </div>
               </div>
             </div>

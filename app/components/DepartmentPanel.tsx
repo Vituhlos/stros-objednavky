@@ -193,7 +193,7 @@ function OrderEditModal({
               className="modal-input"
               id="modal-name"
               onChange={(e) => { setPersonName(e.target.value); setValidationError(null); }}
-              placeholder="Jméno osoby..."
+              placeholder="Jméno a příjmení..."
               type="text"
               value={personName}
             />
