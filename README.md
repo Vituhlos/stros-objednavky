@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="./docs/logo.svg" width="96" height="96" alt="Kantýna logo" />
+
 # Kantýna
 
 **Firemní systém pro správu objednávek obědů a pizzy**
