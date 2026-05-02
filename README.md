@@ -1,43 +1,67 @@
-# Objednávky
+<div align="center">
 
-Firemní webová aplikace pro správu objednávek obědů a pizzy. Běží jako jeden Docker kontejner, bez přihlášení — přístup je omezený sítí.
+# Kantýna
+
+**Firemní systém pro správu objednávek obědů a pizzy**
+
+[![Docker](https://img.shields.io/badge/Docker-ghcr.io-0ea5e9?style=flat-square&logo=docker&logoColor=white)](https://ghcr.io/vituhlos/objednavky-jidla)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white)](https://typescriptlang.org)
+[![SQLite](https://img.shields.io/badge/SQLite-better--sqlite3-003b57?style=flat-square&logo=sqlite)](https://github.com/WiseLibs/better-sqlite3)
+[![Branch](https://img.shields.io/badge/větev-v4--beta-f59e0b?style=flat-square)](#)
+
+</div>
+
+---
+
+## Co je Kantýna
+
+Webová aplikace pro týmy, které si každý den objednávají obědy z firemní kantýny. Jeden Docker kontejner, SQLite databáze, žádná externí závislost. V4 přináší **uživatelské účty** — každý si spravuje svůj řádek objednávky sám, nikdo jiný do něj nezasahuje.
 
 ---
 
 ## Funkce
 
 ### Objednávky obědů
-- Sdílený objednávkový list rozdělený na oddělení (plně konfigurovatelná správa oddělení)
-- Výběr polévky, hlavního jídla, příloh a doplňků s automatickým výpočtem ceny
-- Inline editace přímo v tabulce, druhá polévka, extra jídla s počtem porcí
-- Uzávěrka v nastavitelný čas — správce odešle objednávku ručně nebo automaticky
-- **Auto-odesílání** — nastavitelný čas, dny v týdnu, minimální počet objednávek; přeskočí zavřené dny (detekce z PDF jídelníčku)
-- Real-time synchronizace přes SSE — změny ostatních se zobrazí okamžitě bez obnovení stránky
+
+- Sdílený objednávkový list rozdělený na oddělení (plně konfigurovatelná správa)
+- Výběr polévky, hlavního jídla, příloh a doplňků — automatický výpočet ceny
+- Druhá polévka, extra jídla, počet porcí
+- **Real-time synchronizace přes SSE** — změny ostatních se zobrazí okamžitě
+- Uzávěrka v nastavitelný čas s živým odpočtem a barevným upozorněním
+- Ruční i **automatické odeslání** (nastavitelný čas, dny v týdnu, minimální počet)
 
 ### Jídelníček
-- Import z PDF — automaticky rozpozná polévky a jídla podle dnů v týdnu
+
+- Import přímo z PDF — automaticky rozpozná polévky a jídla podle dnů v týdnu
 - Ruční přidávání a úprava položek
-- Správa aktuálního i příštího týdne
+- Uzavření konkrétního dne (např. státní svátek)
 
 ### Pizza
+
 - Sdílený objednávkový list s ceníkem načteným automaticky ze stránek pizzerie
-- Automatický výpočet ceny za celou objednávku
+- Automatický výpočet ceny
 
 ### E-mail a PDF
+
 - Odeslání objednávky e-mailem s PDF přílohou pro každé oddělení zvlášť
-- Konfigurovatelní příjemci, volitelný extra e-mail při každém odeslání
-- Test SMTP připojení přímo z nastavení
+- Konfigurovatelní příjemci, extra CC e-mail při každém odeslání
+- Test SMTP přímo z nastavení
 
-### Historie a audit
-- Přehled všech odeslaných i rozepsaných objednávek s detailem
-- **Audit log** — záznamy o přidání/smazání řádků, odeslání, znovuotevření a auto-odeslání
+### Uživatelské účty _(novinka v4)_
 
-### Nastavení (chráněno PINem)
-- SMTP, příjemci, uzávěrka, ceny polévky/jídla/příloh
-- Auto-odesílání — zapnutí, čas, dny v týdnu, minimální počet objednávek
-- **Správa oddělení** — přidat, přejmenovat, změnit barvu, přeuspořádat, smazat
-- Záloha databáze (JSON export všech dat)
-- Zobrazení audit logu
+- Registrace s e-mailem, jménem a heslem
+- Každý uživatel edituje jen svůj řádek objednávky
+- Admin může editovat kohokoliv a spravovat účty (role, aktivace)
+- První registrovaný uživatel dostane automaticky roli admin
+- Sessions v SQLite, hesla hashovaná pomocí scrypt
+
+### Nastavení a správa
+
+- Chráněno PINem — SMTP, příjemci, ceny, uzávěrka, auto-odesílání
+- Správa oddělení (přidat, přejmenovat, barva, pořadí, smazat)
+- Záloha a obnova dat (JSON export/import)
+- Audit log všech změn
 
 ---
 
@@ -45,41 +69,45 @@ Firemní webová aplikace pro správu objednávek obědů a pizzy. Běží jako 
 
 | Vrstva | Technologie |
 |---|---|
-| Framework | Next.js 15 (App Router) |
+| Framework | Next.js 15 (App Router, Server Actions) |
 | UI | React 19, Tailwind CSS 4 |
-| Databáze | SQLite (better-sqlite3) |
+| Databáze | SQLite — better-sqlite3 |
+| Autentizace | Sessions v SQLite, scrypt (Node.js crypto) |
 | E-mail | nodemailer |
 | PDF export | pdfkit |
 | PDF import | pdf-parse |
 | Scheduler | node-cron |
+| Real-time | Server-Sent Events (SSE) |
 | Runtime | Node.js 24, Docker |
 
 ---
 
-## Spuštění přes Docker
+## Spuštění
+
+### Docker (doporučeno)
 
 ```bash
 docker run -d \
-  --name objednavky \
+  --name kantyna \
   -p 3000:3000 \
   -v /path/to/data:/app/data \
   -e SMTP_HOST=smtp.gmail.com \
   -e SMTP_PORT=587 \
   -e SMTP_USER=vas@email.cz \
   -e SMTP_PASS=heslo \
-  -e ORDER_EMAIL_TO=prijemce@email.cz \
+  -e ORDER_EMAIL_TO=prijemce@firma.cz \
   -e SETTINGS_PIN=1234 \
-  ghcr.io/vituhlos/objednavky-jidla:latest
+  ghcr.io/vituhlos/objednavky-jidla:v4-beta
 ```
 
-Aplikace poběží na `http://localhost:3000`.
+Aplikace poběží na `http://localhost:3000`. Při prvním spuštění se vytvoří databáze a zobrazí se stránka pro registraci — první účet dostane automaticky roli **admin**.
 
 ### Docker Compose
 
 ```yaml
 services:
-  objednavky:
-    image: ghcr.io/vituhlos/objednavky-jidla:latest
+  kantyna:
+    image: ghcr.io/vituhlos/objednavky-jidla:v4-beta
     restart: unless-stopped
     ports:
       - "3000:3000"
@@ -90,7 +118,7 @@ services:
       SMTP_PORT: 587
       SMTP_USER: vas@email.cz
       SMTP_PASS: heslo
-      ORDER_EMAIL_TO: prijemce@email.cz
+      ORDER_EMAIL_TO: prijemce@firma.cz
       SETTINGS_PIN: 1234
 ```
 
@@ -100,17 +128,17 @@ services:
 
 | Proměnná | Popis | Výchozí |
 |---|---|---|
-| `SMTP_HOST` | SMTP server | – |
+| `SMTP_HOST` | SMTP server | — |
 | `SMTP_PORT` | SMTP port | `587` |
-| `SMTP_USER` | SMTP uživatel | – |
-| `SMTP_PASS` | SMTP heslo | – |
+| `SMTP_USER` | SMTP uživatel | — |
+| `SMTP_PASS` | SMTP heslo | — |
 | `SMTP_FROM` | Odesílatel (From) | = SMTP_USER |
 | `SMTP_SECURE` | Použít TLS | `false` |
-| `ORDER_EMAIL_TO` | Výchozí příjemce objednávky | – |
+| `ORDER_EMAIL_TO` | Výchozí příjemce objednávky | — |
 | `SETTINGS_PIN` | PIN pro stránku Nastavení | `1234` |
-| `DB_PATH` | Cesta k SQLite souboru | `/app/data/db.sqlite` |
+| `DB_PATH` | Cesta k SQLite souboru | `/app/data/stros.db` |
 
-> Všechna nastavení lze změnit také přímo v aplikaci přes `/nastaveni` (chráněno PINem). Hodnoty uložené v aplikaci mají přednost před env proměnnými.
+> Nastavení lze měnit také přímo v aplikaci přes `/nastaveni` (chráněno PINem). Hodnoty uložené v aplikaci mají přednost před env proměnnými.
 
 ---
 
@@ -123,10 +151,22 @@ npm run dev
 
 Aplikace poběží na `http://localhost:3000`. SQLite databáze se vytvoří automaticky v `./data/`.
 
+```bash
+# Sestavení Docker image
+docker build -t kantyna .
+```
+
 ---
 
-## Sestavení image
+## Větve
 
-```bash
-docker build -t objednavky .
-```
+| Větev | Tag | Popis |
+|---|---|---|
+| `main` | `latest` | Stabilní produkční verze |
+| `v4` | `v4-beta` | Uživatelské účty a autentizace |
+
+---
+
+<div align="center">
+<sub>Interní nástroj · SQLite · jeden kontejner · žádná cloud závislost</sub>
+</div>
