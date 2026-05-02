@@ -501,45 +501,44 @@ export default function OrderPage({
       </div>
 
       {/* ── Mobile info strip ── */}
-      <div className="md:hidden border-b border-white/50 topbar shrink-0">
-        <div className="px-4 py-2 flex items-center gap-2 text-[11.5px] text-stone-600 flex-wrap">
-          <MIcon name="calendar_today" size={12} style={{ color: "#D97706" }} />
-          <span className="flex-1">{dayStr}</span>
-          <span
-            className={`w-1.5 h-1.5 rounded-full ${sseConnected ? "bg-green-400" : "bg-slate-300"}`}
-            title={sseConnected ? "Živé aktualizace aktivní" : "Připojování..."}
-          />
-          {!isSent && !isPastCutoff && countdown && (
-            <span className="inline-flex items-center gap-1 text-stone-500">
-              <MIcon name="schedule" size={12} /> {cutoffTime}
-            </span>
-          )}
-          {isSent && (
-            <span className="inline-flex items-center gap-1 text-green-700 font-semibold">
-              <MIcon name="check_circle" size={12} fill /> Odesláno
-            </span>
-          )}
-        </div>
+      <div className="md:hidden border-b border-white/50 topbar shrink-0 px-4 py-2.5 flex items-center gap-2.5">
+        <MIcon name="calendar_today" size={13} style={{ color: "#D97706" }} />
+        <span className="flex-1 text-[12.5px] font-medium text-stone-700 truncate">{dayStr}</span>
+        <span
+          className={`w-1.5 h-1.5 rounded-full shrink-0 ${sseConnected ? "bg-green-400" : "bg-slate-300"}`}
+          title={sseConnected ? "Živé aktualizace aktivní" : "Připojování..."}
+        />
+        {!isSent && !isPastCutoff && countdown && (
+          <span className="inline-flex items-center gap-1 text-[11.5px] text-stone-500 shrink-0">
+            <MIcon name="schedule" size={12} /> {cutoffTime}
+          </span>
+        )}
+        {!isSent && isPastCutoff && (
+          <span className="inline-flex items-center gap-1 text-[11.5px] text-orange-600 shrink-0">
+            <MIcon name="schedule" size={12} /> Po uzávěrce
+          </span>
+        )}
+        {isSent && (
+          <span className="inline-flex items-center gap-1 text-[11.5px] text-green-700 font-semibold shrink-0">
+            <MIcon name="check_circle" size={12} fill /> Odesláno
+          </span>
+        )}
         {!isSent && !isFutureDay && !noMenu && (
-          <div className="px-4 pb-2 flex items-center gap-2">
-            <button
-              className="shrink-0 px-4 py-1.5 rounded-full text-[12.5px] font-semibold text-white disabled:opacity-50 hover:opacity-[0.88] active:scale-[0.97] transition"
-              disabled={isPending}
-              onClick={() => setShowSendConfirm(true)}
-              style={{ background: "linear-gradient(135deg,#F59E0B,#EA580C)", boxShadow: "0 4px 12px -4px rgba(245,158,11,0.4)" }}
-              type="button"
-            >
-              {isPending ? "…" : "Odeslat"}
-            </button>
-          </div>
+          <button
+            className="shrink-0 px-3.5 py-1.5 rounded-full text-[12.5px] font-semibold text-white disabled:opacity-50 active:scale-[0.97] transition"
+            disabled={isPending}
+            onClick={() => setShowSendConfirm(true)}
+            style={{ background: "linear-gradient(135deg,#F59E0B,#EA580C)", boxShadow: "0 4px 12px -4px rgba(245,158,11,0.4)" }}
+            type="button"
+          >
+            {isPending ? "…" : "Odeslat"}
+          </button>
         )}
         {isFutureDay && !isSent && !noMenu && (
-          <div className="px-4 pb-2">
-            <span className="text-[11px] text-stone-500 inline-flex items-center gap-1">
-              <MIcon name="schedule" size={12} />
-              Odešle se automaticky v den samotný
-            </span>
-          </div>
+          <span className="inline-flex items-center gap-1 text-[11px] text-stone-500 shrink-0">
+            <MIcon name="schedule" size={12} />
+            Auto
+          </span>
         )}
       </div>
 
