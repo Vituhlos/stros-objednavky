@@ -382,18 +382,20 @@ export default function OrderPage({
     [departments]
   );
 
-  const getCountdown = useCallback((): string | null => {
+  const getCountdownInfo = useCallback((): { label: string; mins: number } | null => {
     const now = getPragueNow();
     const diff = parseCutoffMinutes(cutoffTime) - (now.getHours() * 60 + now.getMinutes());
     if (diff <= 0) return null;
-    if (diff < 60) return `za ${diff} min`;
+    if (diff < 60) return { label: `za ${diff} min`, mins: diff };
     const hours = Math.floor(diff / 60);
     const mins = diff % 60;
-    return mins > 0 ? `za ${hours} h ${mins} min` : `za ${hours} h`;
+    return { label: mins > 0 ? `za ${hours} h ${mins} min` : `za ${hours} h`, mins: diff };
   }, [cutoffTime]);
-  const [countdown, setCountdown] = useState(getCountdown);
+  const [countdownInfo, setCountdownInfo] = useState(getCountdownInfo);
+  const countdown = countdownInfo?.label ?? null;
+  const countdownMins = countdownInfo?.mins ?? null;
   useEffect(() => {
-    const id = setInterval(() => setCountdown(getCountdown()), 30_000);
+    const id = setInterval(() => setCountdownInfo(getCountdownInfo()), 30_000);
     return () => clearInterval(id);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cutoffTime]);
@@ -465,13 +467,13 @@ export default function OrderPage({
             />
           </span>
           {!isSent && !isPastCutoff && countdown && (
-            <span className="inline-flex items-center gap-1 text-stone-500">
+            <span className={`inline-flex items-center gap-1 font-medium ${countdownMins !== null && countdownMins <= 10 ? "text-red-500" : countdownMins !== null && countdownMins <= 30 ? "text-orange-500" : "text-stone-500"}`}>
               <MIcon name="schedule" size={13} /> Uzávěrka {countdown} ({cutoffTime})
             </span>
           )}
           {!isSent && isPastCutoff && (
-            <span className="inline-flex items-center gap-1 text-orange-600">
-              <MIcon name="schedule" size={13} /> Po uzávěrce
+            <span className="inline-flex items-center gap-1 text-orange-600 font-medium">
+              <MIcon name="schedule" size={13} /> Po uzávěrce ({cutoffTime})
             </span>
           )}
           {isSent && sentAt && (
@@ -511,8 +513,8 @@ export default function OrderPage({
           title={sseConnected ? "Živé aktualizace aktivní" : "Připojování..."}
         />
         {!isSent && !isPastCutoff && countdown && (
-          <span className="inline-flex items-center gap-1 text-[11.5px] text-stone-500 shrink-0">
-            <MIcon name="schedule" size={12} /> {cutoffTime}
+          <span className={`inline-flex items-center gap-1 text-[11.5px] font-medium shrink-0 ${countdownMins !== null && countdownMins <= 10 ? "text-red-500" : countdownMins !== null && countdownMins <= 30 ? "text-orange-500" : "text-stone-500"}`}>
+            <MIcon name="schedule" size={12} /> {countdown}
           </span>
         )}
         {!isSent && isPastCutoff && (
