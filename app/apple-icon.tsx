@@ -8,7 +8,7 @@ export default function AppleIcon() {
     <div style={{
       width: 180, height: 180, display: "flex",
       alignItems: "center", justifyContent: "center",
-      background: "linear-gradient(135deg, #32ADE6, #30D158)",
+      background: "linear-gradient(135deg, #F59E0B, #EA580C)",
       borderRadius: 40,
     }}>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="100" height="100" fill="white">

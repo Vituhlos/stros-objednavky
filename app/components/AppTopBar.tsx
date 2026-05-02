@@ -51,7 +51,7 @@ export default function AppTopBar() {
                 boxShadow: "0 6px 16px -6px rgba(245,158,11,0.5)",
               }}
             >
-              <MIcon name="lunch_dining" size={20} fill className="text-white" />
+              <MIcon name="restaurant" size={20} fill className="text-white" />
             </span>
             <span style={{
               fontSize: 19,
