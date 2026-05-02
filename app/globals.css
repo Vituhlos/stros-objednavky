@@ -244,13 +244,10 @@ body {
 /* ── Modal overlay ── */
 .modal-overlay {
   position: fixed; inset: 0; z-index: 9999;
-  display: flex; align-items: flex-end; justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   background: rgba(26,18,8,0.38);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-}
-@media (min-width: 640px) {
-  .modal-overlay { align-items: center; }
 }
 
 /* Modal sheet (bottom sheet on mobile, centered on desktop) */
@@ -261,6 +258,8 @@ body {
   display: flex; flex-direction: column;
   overflow: hidden;
   animation: sheetUp .28s cubic-bezier(.2,.8,.2,1) both;
+  /* sheet jde na spodek na mobilu */
+  align-self: flex-end;
   /* push sheet above iOS home indicator safe area */
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -269,6 +268,7 @@ body {
     border-radius: 24px;
     width: 460px; max-height: 88dvh;
     padding-bottom: 0;
+    align-self: auto;
     animation: scaleIn .22s ease both;
   }
 }
