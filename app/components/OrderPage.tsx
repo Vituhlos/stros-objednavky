@@ -549,8 +549,8 @@ export default function OrderPage({
           {showDayPicker && (
             <div className="overflow-x-auto no-scrollbar -mx-4 px-4">
               <div
-                className="inline-flex p-1 rounded-2xl gap-0.5"
-                style={{ background: "rgba(26,18,8,0.06)", border: "1px solid rgba(255,255,255,0.55)" }}
+                className="flex p-1 rounded-2xl gap-0.5"
+                style={{ width: "max-content", background: "rgba(26,18,8,0.06)", border: "1px solid rgba(255,255,255,0.55)" }}
               >
                 {availableDates!.map((date) => {
                   const isActive = date === selectedDate;
