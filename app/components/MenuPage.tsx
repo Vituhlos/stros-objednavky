@@ -159,11 +159,8 @@ function WeekGrid({
               boxShadow: "0 8px 32px -8px rgba(245,158,11,0.22), inset 0 0 0 0px transparent",
             } : {}}
           >
-            {isToday && (
-              <div className="h-[3px]" style={{ background: "linear-gradient(90deg,#F59E0B,#EA580C)" }} />
-            )}
             {/* Day header */}
-            <div className={`px-3 ${isToday ? "pt-2.5" : "pt-3"} pb-2.5 border-b border-white/40`}>
+            <div className="px-3 pt-3 pb-2.5 border-b border-white/40">
               <div className="flex items-start justify-between gap-1">
                 <span className="font-display font-extrabold text-[28px] leading-none text-stone-950">{dayDates[day]}</span>
                 {isToday && (

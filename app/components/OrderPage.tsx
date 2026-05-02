@@ -581,7 +581,6 @@ export default function OrderPage({
           {noMenu ? (
             /* ── Closed / no-menu banner ── */
             <div className="glass rounded-3xl overflow-hidden" style={{ borderColor: holidayName ? "rgba(245,158,11,0.22)" : "rgba(26,18,8,0.08)" }}>
-              <div className="h-[3px]" style={{ background: holidayName ? "linear-gradient(90deg,#F59E0B,#EA580C)" : "linear-gradient(90deg,#94a3b8,#cbd5e1)" }} />
               <div className="flex flex-col items-center text-center px-6 py-8 md:py-10 gap-3">
                 <div
                   className="w-14 h-14 rounded-2xl flex items-center justify-center"
