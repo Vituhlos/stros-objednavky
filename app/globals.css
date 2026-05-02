@@ -380,26 +380,32 @@ body {
 .modal-stepper__price { font-size: 0.74rem; color: var(--muted); }
 .modal-stepper__controls { display: flex; align-items: center; gap: 0.4rem; }
 .stepper-btn {
-  width: 28px; height: 28px; border-radius: 9999px;
+  width: 44px; height: 44px; border-radius: 9999px;
   background: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.65);
   font-size: 1rem; font-weight: 700; cursor: pointer; color: var(--ink-2);
   display: inline-flex; align-items: center; justify-content: center;
   transition: background .15s, transform .12s, opacity .15s;
 }
+@media (min-width: 640px) {
+  .stepper-btn { width: 28px; height: 28px; }
+}
 .stepper-btn:not(:disabled):hover { background: rgba(255,255,255,0.88); }
-.stepper-btn:not(:disabled):active { transform: scale(0.93); }
+.stepper-btn:not(:disabled):active { transform: scale(0.93); background: rgba(255,255,255,0.88); }
 .stepper-btn:disabled { opacity: 0.3; cursor: default; }
 .stepper-count { min-width: 20px; text-align: center; font-family: var(--font-jakarta); font-weight: 700; font-size: 0.875rem; color: var(--ink); }
 .modal-count-stepper { display: flex; align-items: center; gap: 0.3rem; }
 .modal-count-btn {
-  width: 26px; height: 26px; border-radius: 9999px;
+  width: 44px; height: 44px; border-radius: 9999px;
   background: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.65);
   font-size: 0.875rem; font-weight: 700; cursor: pointer; color: var(--ink-2);
   display: inline-flex; align-items: center; justify-content: center;
   transition: background .15s, transform .12s;
 }
+@media (min-width: 640px) {
+  .modal-count-btn { width: 26px; height: 26px; }
+}
 .modal-count-btn:not(:disabled):hover { background: rgba(255,255,255,0.88); }
-.modal-count-btn:not(:disabled):active { transform: scale(0.93); }
+.modal-count-btn:not(:disabled):active { transform: scale(0.93); background: rgba(255,255,255,0.88); }
 .modal-count-btn:disabled { opacity: 0.3; cursor: default; }
 .modal-count-val { font-family: var(--font-jakarta); font-weight: 700; font-size: 0.8125rem; color: var(--ink); min-width: 24px; text-align: center; }
 

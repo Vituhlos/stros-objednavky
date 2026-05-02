@@ -356,7 +356,7 @@ function OrderRow({ row, accent, isSent, onEdit, onDelete }: {
 
   return (
     <div
-      className={`group flex items-center gap-3 px-4 py-3 border-b border-white/30 last:border-0 transition ${!isSent ? "hover:bg-white/50 cursor-pointer active:scale-[0.995]" : ""}`}
+      className={`group flex items-center gap-3 px-4 py-3 border-b border-white/30 last:border-0 transition ${!isSent ? "hover:bg-white/50 active:bg-white/50 cursor-pointer active:scale-[0.995]" : ""}`}
       onClick={!isSent ? onEdit : undefined}
     >
       {/* Avatar */}
@@ -421,13 +421,13 @@ function OrderRow({ row, accent, isSent, onEdit, onDelete }: {
         {row.rowPrice > 0 ? `${row.rowPrice} Kč` : <span className="text-stone-400 font-normal">—</span>}
       </div>
 
-      {/* Delete button (hover on desktop, always visible on touch) */}
+      {/* Delete button — always visible on mobile, hover-only on desktop */}
       {!isSent && (
         <button
           type="button"
           aria-label="Smazat"
           onClick={(e) => { e.stopPropagation(); onDelete(); }}
-          className="shrink-0 w-7 h-7 rounded-full inline-flex items-center justify-center text-stone-300 hover:text-red-400 hover:bg-red-50/80 transition opacity-0 group-hover:opacity-100"
+          className="shrink-0 w-9 h-9 md:w-7 md:h-7 rounded-full inline-flex items-center justify-center text-stone-300 hover:text-red-400 hover:bg-red-50/80 active:text-red-400 active:bg-red-50/80 transition md:opacity-0 md:group-hover:opacity-100"
         >
           <MIcon name="close" size={15} />
         </button>
