@@ -32,6 +32,9 @@ interface Props {
   defaultSoupPrice?: number;
   defaultMealPrice?: number;
   extrasPrices?: ExtrasPrices;
+  currentUserId?: number;
+  isAdmin?: boolean;
+  currentUserName?: string;
   onAddRow: () => Promise<number>;
   onUpdateRow: (rowId: number, updates: RowUpdates) => void;
   onDeleteRow: (rowId: number) => void;
@@ -81,15 +84,17 @@ function ModalStepper({
 // ── Edit modal ────────────────────────────────────────────
 
 function OrderEditModal({
-  row, soups, meals, isNew, defaultSoupPrice, defaultMealPrice, ep, existingNames, onSave, onClose, onDelete,
+  row, soups, meals, isNew, defaultSoupPrice, defaultMealPrice, ep, existingNames, initialPersonName, onSave, onClose, onDelete,
 }: {
   row: OrderRowEnriched; soups: import("@/lib/types").MenuItem[]; meals: import("@/lib/types").MenuItem[];
   isNew: boolean; defaultSoupPrice?: number; defaultMealPrice?: number; ep: ExtrasPrices;
   existingNames: string[];
+  initialPersonName?: string;
   onSave: (u: RowUpdates) => void; onClose: () => void; onDelete: () => void;
 }) {
   const [personName, setPersonName] = useState(() => {
     if (row.personName) return row.personName;
+    if (isNew && initialPersonName) return initialPersonName;
     try { return localStorage.getItem("lastPersonName") ?? ""; } catch { return ""; }
   });
   const [soupIds, setSoupIds] = useState<(number | null)[]>(
@@ -348,16 +353,17 @@ function getChips(row: OrderRowEnriched): string[] {
   return chips;
 }
 
-function OrderRow({ row, accent, isSent, onEdit, onDelete }: {
-  row: OrderRowEnriched; accent: string; isSent: boolean; onEdit: () => void; onDelete: () => void;
+function OrderRow({ row, accent, isSent, isEditable, onEdit, onDelete }: {
+  row: OrderRowEnriched; accent: string; isSent: boolean; isEditable: boolean; onEdit: () => void; onDelete: () => void;
 }) {
   const dc = DEPT_COLORS[accent] ?? DC_DEFAULT;
   const chips = getChips(row);
+  const canInteract = !isSent && isEditable;
 
   return (
     <div
-      className={`group flex items-center gap-3 px-4 py-3 border-b border-white/30 last:border-0 transition ${!isSent ? "hover:bg-white/50 active:bg-white/50 cursor-pointer active:scale-[0.995]" : ""}`}
-      onClick={!isSent ? onEdit : undefined}
+      className={`group flex items-center gap-3 px-4 py-3 border-b border-white/30 last:border-0 transition ${canInteract ? "hover:bg-white/50 active:bg-white/50 cursor-pointer active:scale-[0.995]" : ""} ${!isEditable && !isSent ? "opacity-60" : ""}`}
+      onClick={canInteract ? onEdit : undefined}
     >
       {/* Avatar */}
       <span
@@ -422,7 +428,7 @@ function OrderRow({ row, accent, isSent, onEdit, onDelete }: {
       </div>
 
       {/* Delete button — always visible on mobile, hover-only on desktop */}
-      {!isSent && (
+      {canInteract && (
         <button
           type="button"
           aria-label="Smazat"
@@ -431,6 +437,10 @@ function OrderRow({ row, accent, isSent, onEdit, onDelete }: {
         >
           <MIcon name="close" size={15} />
         </button>
+      )}
+      {/* Lock icon for rows owned by other users */}
+      {!isSent && !isEditable && (
+        <MIcon name="lock" size={13} style={{ color: "#d4c5b5", flexShrink: 0 }} />
       )}
     </div>
   );
@@ -446,7 +456,7 @@ function pluralOrders(n: number): string {
 
 // ── Main component ────────────────────────────────────────
 
-export function DepartmentPanel({ data, soups, meals, isSent, existingNames = [], defaultSoupPrice, defaultMealPrice, extrasPrices = EXTRAS_PRICES_DEFAULT, onAddRow, onUpdateRow, onDeleteRow }: Props) {
+export function DepartmentPanel({ data, soups, meals, isSent, existingNames = [], defaultSoupPrice, defaultMealPrice, extrasPrices = EXTRAS_PRICES_DEFAULT, currentUserId, isAdmin = false, currentUserName, onAddRow, onUpdateRow, onDeleteRow }: Props) {
   const [modalState, setModalState] = useState<{ rowId: number; isNew: boolean } | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
@@ -511,16 +521,20 @@ export function DepartmentPanel({ data, soups, meals, isSent, existingNames = []
           {activeRows.length === 0 ? (
             <div className="px-4 py-5 text-center text-[12.5px] text-stone-400">Zatím nikdo neobjednal.</div>
           ) : (
-            activeRows.map((row) => (
-              <OrderRow
-                key={row.id}
-                row={row}
-                accent={data.accent}
-                isSent={isSent}
-                onEdit={() => setModalState({ rowId: row.id, isNew: false })}
-                onDelete={() => setDeleteConfirmRowId(row.id)}
-              />
-            ))
+            activeRows.map((row) => {
+              const editable = isAdmin || row.userId === null || row.userId === currentUserId;
+              return (
+                <OrderRow
+                  key={row.id}
+                  row={row}
+                  accent={data.accent}
+                  isSent={isSent}
+                  isEditable={editable}
+                  onEdit={() => editable && setModalState({ rowId: row.id, isNew: false })}
+                  onDelete={() => editable && setDeleteConfirmRowId(row.id)}
+                />
+              );
+            })
           )}
         </div>
 
@@ -540,6 +554,7 @@ export function DepartmentPanel({ data, soups, meals, isSent, existingNames = []
           defaultSoupPrice={defaultSoupPrice}
           ep={extrasPrices}
           existingNames={existingNames}
+          initialPersonName={modalState!.isNew ? currentUserName : undefined}
           isNew={modalState!.isNew}
           meals={meals}
           onClose={() => setModalState(null)}

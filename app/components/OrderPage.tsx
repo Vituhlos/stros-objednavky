@@ -75,6 +75,9 @@ export default function OrderPage({
   todayDate,
   holidayName,
   holidayDescription,
+  currentUserId,
+  isAdmin = false,
+  currentUserName,
 }: {
   initialData: OrderData;
   cutoffTime?: string;
@@ -87,6 +90,9 @@ export default function OrderPage({
   todayDate?: string;
   holidayName?: string | null;
   holidayDescription?: string | null;
+  currentUserId?: number;
+  isAdmin?: boolean;
+  currentUserName?: string;
 }) {
   const router = useRouter();
   const isFutureDay = !!(selectedDate && todayDate && selectedDate > todayDate);
@@ -648,11 +654,14 @@ export default function OrderPage({
               <div className="grid md:grid-cols-3 gap-4">
                 {departments.map((dept) => (
                   <DepartmentPanel
+                    currentUserId={currentUserId}
+                    currentUserName={currentUserName}
                     data={dept}
                     defaultMealPrice={defaultMealPrice}
                     defaultSoupPrice={defaultSoupPrice}
                     existingNames={existingNames}
                     extrasPrices={extrasPrices}
+                    isAdmin={isAdmin}
                     isSent={isSent}
                     key={dept.name}
                     meals={allMeals}

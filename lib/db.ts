@@ -137,4 +137,29 @@ function migrate(db: Database.Database): void {
       details     TEXT
     );
   `);
+
+  // User accounts
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS users (
+      id            INTEGER PRIMARY KEY AUTOINCREMENT,
+      email         TEXT    NOT NULL UNIQUE,
+      first_name    TEXT    NOT NULL,
+      last_name     TEXT    NOT NULL,
+      password_hash TEXT    NOT NULL,
+      role          TEXT    NOT NULL DEFAULT 'user',
+      created_at    TEXT    NOT NULL DEFAULT (datetime('now')),
+      active        INTEGER NOT NULL DEFAULT 1
+    );
+
+    CREATE TABLE IF NOT EXISTS sessions (
+      id         INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id    INTEGER NOT NULL REFERENCES users(id),
+      token      TEXT    NOT NULL UNIQUE,
+      expires_at TEXT    NOT NULL,
+      created_at TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
+  `);
+
+  try { db.exec("ALTER TABLE order_rows ADD COLUMN user_id INTEGER REFERENCES users(id)"); } catch {}
+  try { db.exec("ALTER TABLE pizza_order_rows ADD COLUMN user_id INTEGER REFERENCES users(id)"); } catch {}
 }

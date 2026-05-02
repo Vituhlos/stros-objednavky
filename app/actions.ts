@@ -27,6 +27,7 @@ import {
 import type { PizzaOrderRow } from "@/lib/pizza";
 import { saveSettings, checkPin } from "@/lib/settings";
 import type { AppSettings } from "@/lib/settings";
+import { getCurrentUser } from "@/lib/auth";
 import { broadcast } from "@/lib/sse-broadcast";
 import {
   getDepartments,
@@ -41,7 +42,13 @@ export async function actionAddRow(
   orderId: number,
   department: Department
 ): Promise<OrderRowEnriched> {
-  const row = addOrderRow(orderId, department);
+  const user = await getCurrentUser();
+  const row = addOrderRow(
+    orderId,
+    department,
+    user?.id,
+    user ? `${user.firstName} ${user.lastName}` : undefined
+  );
   revalidatePath("/");
   broadcast();
   return row;
@@ -65,13 +72,15 @@ export async function actionUpdateRow(
     note: string;
   }>
 ): Promise<OrderRowEnriched> {
-  const row = updateOrderRow(rowId, updates);
+  const user = await getCurrentUser();
+  const row = updateOrderRow(rowId, updates, user?.id, user?.role === "admin");
   broadcast();
   return row;
 }
 
 export async function actionDeleteRow(rowId: number): Promise<void> {
-  deleteOrderRow(rowId);
+  const user = await getCurrentUser();
+  deleteOrderRow(rowId, user?.id, user?.role === "admin");
   revalidatePath("/");
   broadcast();
 }
@@ -233,6 +242,39 @@ export async function actionCheckPin(pin: string): Promise<boolean> {
 
 export async function actionSaveSettings(updates: Partial<AppSettings>): Promise<void> {
   saveSettings(updates);
+  revalidatePath("/nastaveni");
+}
+
+export async function actionGetUsers(): Promise<Array<{ id: number; email: string; firstName: string; lastName: string; role: string; active: number; createdAt: string }>> {
+  const user = await getCurrentUser();
+  if (user?.role !== "admin") throw new Error("Nemáte oprávnění.");
+  const { getDb } = await import("@/lib/db");
+  const db = getDb();
+  const rows = db.prepare("SELECT id, email, first_name, last_name, role, active, created_at FROM users ORDER BY created_at").all() as Record<string, unknown>[];
+  return rows.map((r) => ({
+    id: r.id as number,
+    email: r.email as string,
+    firstName: r.first_name as string,
+    lastName: r.last_name as string,
+    role: r.role as string,
+    active: r.active as number,
+    createdAt: r.created_at as string,
+  }));
+}
+
+export async function actionSetUserRole(userId: number, role: "user" | "admin"): Promise<void> {
+  const user = await getCurrentUser();
+  if (user?.role !== "admin") throw new Error("Nemáte oprávnění.");
+  const { getDb } = await import("@/lib/db");
+  getDb().prepare("UPDATE users SET role = ? WHERE id = ?").run(role, userId);
+  revalidatePath("/nastaveni");
+}
+
+export async function actionSetUserActive(userId: number, active: boolean): Promise<void> {
+  const user = await getCurrentUser();
+  if (user?.role !== "admin") throw new Error("Nemáte oprávnění.");
+  const { getDb } = await import("@/lib/db");
+  getDb().prepare("UPDATE users SET active = ? WHERE id = ?").run(active ? 1 : 0, userId);
   revalidatePath("/nastaveni");
 }
 

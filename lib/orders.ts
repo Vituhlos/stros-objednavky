@@ -51,6 +51,7 @@ function mapOrderRow(row: Record<string, unknown>): OrderRow {
     department: row.department as Department,
     sortOrder: row.sort_order as number,
     personName: (row.person_name as string) ?? "",
+    userId: (row.user_id as number | null) ?? null,
     soupItemId: (row.soup_item_id as number | null) ?? null,
     soupItemId2: (row.soup_item_id_2 as number | null) ?? null,
     mainItemId: (row.main_item_id as number | null) ?? null,
@@ -247,7 +248,9 @@ export function getOrderData(orderId: number): OrderData {
 
 export function addOrderRow(
   orderId: number,
-  department: Department
+  department: Department,
+  userId?: number,
+  personName?: string
 ): OrderRowEnriched {
   const db = getDb();
   const { m } = db
@@ -258,9 +261,9 @@ export function addOrderRow(
 
   const result = db
     .prepare(
-      "INSERT INTO order_rows (order_id, department, sort_order) VALUES (?, ?, ?)"
+      "INSERT INTO order_rows (order_id, department, sort_order, user_id, person_name) VALUES (?, ?, ?, ?, ?)"
     )
-    .run(orderId, department, m + 1);
+    .run(orderId, department, m + 1, userId ?? null, personName ?? "");
 
   const row = db
     .prepare("SELECT * FROM order_rows WHERE id = ?")
@@ -287,9 +290,16 @@ export function updateOrderRow(
     tatarkaCount: number;
     bbqCount: number;
     note: string;
-  }>
+  }>,
+  currentUserId?: number,
+  isAdmin?: boolean
 ): OrderRowEnriched {
   const db = getDb();
+
+  const existing = db.prepare("SELECT user_id FROM order_rows WHERE id = ?").get(rowId) as { user_id: number | null } | undefined;
+  if (existing && existing.user_id !== null && !isAdmin && existing.user_id !== currentUserId) {
+    throw new Error("Nemáte oprávnění upravit tento řádek.");
+  }
 
   const fieldMap: Record<string, string> = {
     personName: "person_name",
@@ -339,9 +349,12 @@ export function updateOrderRow(
   })();
 }
 
-export function deleteOrderRow(rowId: number): void {
+export function deleteOrderRow(rowId: number, currentUserId?: number, isAdmin?: boolean): void {
   const db = getDb();
-  const row = db.prepare("SELECT order_id, department, person_name FROM order_rows WHERE id = ?").get(rowId) as Record<string, unknown> | undefined;
+  const row = db.prepare("SELECT order_id, department, person_name, user_id FROM order_rows WHERE id = ?").get(rowId) as Record<string, unknown> | undefined;
+  if (row && row.user_id !== null && !isAdmin && (row.user_id as number) !== currentUserId) {
+    throw new Error("Nemáte oprávnění smazat tento řádek.");
+  }
   db.prepare("DELETE FROM order_rows WHERE id = ?").run(rowId);
   if (row) logAudit({ action: "row_delete", orderId: row.order_id as number, department: row.department as string, personName: row.person_name as string });
 }

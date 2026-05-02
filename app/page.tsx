@@ -3,6 +3,7 @@ import { getSettings } from "@/lib/settings";
 import { getMenuWeekLabel, getMenuDates, getMondayISO } from "@/lib/menu";
 import { getHolidayName, getHolidayDescription } from "@/lib/holidays";
 import { getPragueNow, toLocalISODate } from "@/lib/time";
+import { getCurrentUser } from "@/lib/auth";
 import OrderPage from "@/app/components/OrderPage";
 
 export const dynamic = "force-dynamic";
@@ -25,6 +26,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
   const data = getOrderDataForDate(selectedDate);
   const s = getSettings();
+  const currentUser = await getCurrentUser();
 
   const selectedWeekStart = getMondayISO(new Date(`${selectedDate}T12:00:00`));
   const menuEmpty = getMenuWeekLabel(selectedWeekStart) === null;
@@ -51,6 +53,9 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       menuEmpty={menuEmpty}
       selectedDate={selectedDate}
       todayDate={todayISO}
+      currentUserId={currentUser?.id}
+      isAdmin={currentUser?.role === "admin"}
+      currentUserName={currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : undefined}
     />
   );
 }
