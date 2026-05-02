@@ -436,6 +436,34 @@ export default function SettingsPage({
           </div>
         ) : (
           <>
+            {/* Reopen order — nahoře, aby k tomu nebylo třeba scrollovat */}
+            {todayOrder && (todayOrder.status === "sent" || reopenDone) && (
+              <Section icon="lock_open" title="Dnešní objednávka">
+                {todayOrder.status === "sent" && !reopenDone ? (
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <p className="text-[12.5px] text-stone-500 flex-1">Objednávka je odeslána. Znovu otevřít ji půjde znovu upravovat a odeslat.</p>
+                    <button
+                      className="shrink-0 inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl glass-btn text-stone-600"
+                      disabled={isPending}
+                      onClick={() => {
+                        startTransition(async () => {
+                          await actionReopenOrder(todayOrder.id);
+                          setReopenDone(true);
+                        });
+                      }}
+                      type="button"
+                    >
+                      <MIcon name="lock_open" size={14} /> Znovu otevřít
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-[12.5px] text-green-700 inline-flex items-center gap-1.5">
+                    <MIcon name="check_circle" size={14} fill /> Objednávka byla znovu otevřena.
+                  </p>
+                )}
+              </Section>
+            )}
+
             <form id="settings-form" onSubmit={handleSave} ref={formRef}>
               <div className="flex flex-col gap-4">
 
@@ -685,36 +713,6 @@ export default function SettingsPage({
                 ↓ Stáhnout zálohu
               </a>
             </Section>
-
-            {/* Reopen order */}
-            {todayOrder && (
-              <Section icon="lock_open" title="Dnešní objednávka">
-                {todayOrder.status === "sent" && !reopenDone ? (
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <p className="text-[12.5px] text-stone-500 flex-1">Objednávka je odeslána. Znovu otevřít ji půjde znovu upravovat a odeslat.</p>
-                    <button
-                      className="shrink-0 inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl glass-btn text-stone-600"
-                      disabled={isPending}
-                      onClick={() => {
-                        startTransition(async () => {
-                          await actionReopenOrder(todayOrder.id);
-                          setReopenDone(true);
-                        });
-                      }}
-                      type="button"
-                    >
-                      <MIcon name="lock_open" size={14} /> Znovu otevřít
-                    </button>
-                  </div>
-                ) : reopenDone ? (
-                  <p className="text-[12.5px] text-green-700 inline-flex items-center gap-1.5">
-                    <MIcon name="check_circle" size={14} fill /> Objednávka byla znovu otevřena.
-                  </p>
-                ) : (
-                  <p className="text-[12.5px] text-stone-400">Objednávka ještě nebyla odeslána.</p>
-                )}
-              </Section>
-            )}
 
             {/* Audit log */}
             <Section icon="history" title="Historie změn">
