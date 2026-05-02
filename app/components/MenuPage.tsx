@@ -631,8 +631,7 @@ export default function MenuPage({
           )}
           {activeWeek === "next" && hasNextWeek && (
             <button
-              className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl text-red-600 hover:opacity-90 active:scale-[0.97] transition disabled:opacity-50"
-              style={{ background: "rgba(220,38,38,0.08)", border: "1px solid rgba(220,38,38,0.2)" }}
+              className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl glass-btn-danger active:scale-[0.97] transition disabled:opacity-50"
               disabled={isPending}
               onClick={() => setConfirmDeleteNext(true)}
               type="button"
