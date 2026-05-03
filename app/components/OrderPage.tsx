@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useCallback, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { getHolidayEmoji } from "@/lib/holidays";
 import type { OrderData, OrderRowEnriched, Department, DepartmentData, MealEntry } from "@/lib/types";
 import { computeRowPrice, EXTRAS_PRICES_DEFAULT, type ExtrasPrices } from "@/lib/pricing";
@@ -645,6 +646,24 @@ export default function OrderPage({
                     <a href="/jidelnicek" className="underline text-stone-700 hover:text-stone-900">Jídelníčku</a>
                     {" "}a importujte PDF nebo přidejte položky ručně.
                   </span>
+                </div>
+              )}
+
+              {/* Login banner for unauthenticated users */}
+              {currentUserId === undefined && !isAdmin && (
+                <div className="glass rounded-2xl px-4 py-3 flex items-center gap-3" style={{ borderColor: "rgba(245,158,11,0.3)", background: "rgba(245,158,11,0.06)" }}>
+                  <MIcon name="person" size={20} fill style={{ color: "#D97706" }} />
+                  <span className="text-[13px] text-stone-700 flex-1 leading-snug">
+                    Pro přidání vlastní objednávky se přihlaste.
+                  </span>
+                  <div className="flex gap-2 shrink-0">
+                    <Link href="/login" className="px-3 py-1.5 rounded-full text-[12px] font-semibold text-stone-600 glass-btn transition hover:text-stone-800 no-underline">
+                      Přihlásit se
+                    </Link>
+                    <Link href="/register" className="px-3 py-1.5 rounded-full text-[12px] font-semibold text-white transition hover:opacity-[0.88] no-underline" style={{ background: "linear-gradient(135deg,#F59E0B,#EA580C)", boxShadow: "0 3px 10px -3px rgba(245,158,11,0.4)" }}>
+                      Registrovat
+                    </Link>
+                  </div>
                 </div>
               )}
 
