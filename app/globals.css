@@ -192,6 +192,15 @@ body {
 .scroll-area::-webkit-scrollbar-track { background: transparent; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
+/* Day picker: fade edges only on mobile */
+.day-picker-fade {
+  -webkit-mask-image: linear-gradient(to right, transparent, black 2rem, black calc(100% - 2rem), transparent);
+  mask-image: linear-gradient(to right, transparent, black 2rem, black calc(100% - 2rem), transparent);
+}
+@media (min-width: 768px) {
+  .day-picker-fade { -webkit-mask-image: none; mask-image: none; }
+}
+
 /* ── Shell (Next.js content area, accounts for fixed sidebar) ── */
 .k-shell {
   position: relative; z-index: 10;
