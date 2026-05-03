@@ -34,17 +34,11 @@ function SidebarClock() {
   );
 }
 
-function UserBadge() {
-  const router = useRouter();
-  const [user, setUser] = useState<{ firstName: string; lastName: string; role: string } | null>(null);
-  const [loggingOut, setLoggingOut] = useState(false);
+type UserInfo = { firstName: string; lastName: string; role: string } | null;
 
-  useEffect(() => {
-    fetch("/api/auth/me")
-      .then((r) => r.ok ? r.json() : null)
-      .then((d) => d && setUser(d))
-      .catch(() => {});
-  }, []);
+function UserBadge({ user }: { user: UserInfo }) {
+  const router = useRouter();
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -78,8 +72,10 @@ function UserBadge() {
   );
 }
 
-export default function AppTopBar() {
+export default function AppTopBar({ initialUser }: { initialUser?: UserInfo }) {
   const pathname = usePathname();
+
+  if (pathname === "/login" || pathname === "/register") return null;
 
   return (
     <>
@@ -133,7 +129,7 @@ export default function AppTopBar() {
         </div>
 
         <div className="mt-auto flex flex-col gap-2">
-          <UserBadge />
+          <UserBadge user={initialUser ?? null} />
           <SidebarClock />
         </div>
       </aside>

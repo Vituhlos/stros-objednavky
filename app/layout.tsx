@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import SwRegister from "./components/SwRegister";
+import AppTopBar from "./components/AppTopBar";
+import { getCurrentUser } from "@/lib/auth";
 
 const inter = Inter({
   subsets: ["latin", "latin-ext"],
@@ -36,11 +38,12 @@ export const viewport: Viewport = {
   themeColor: "#32ADE6",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const user = await getCurrentUser().catch(() => null);
   return (
     <html lang="cs" className={`${inter.variable} ${plusJakarta.variable}`}>
       <head />
@@ -50,6 +53,7 @@ export default function RootLayout({
           <div className="orb orb-amber" />
           <div className="orb orb-mint" />
         </div>
+        <AppTopBar initialUser={user} />
         {children}
         <SwRegister />
       </body>
