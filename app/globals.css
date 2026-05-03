@@ -15,6 +15,14 @@
 /* ── Base ── */
 *, *::before, *::after { box-sizing: border-box; }
 html, body { height: 100%; overflow: hidden; margin: 0; }
+button, a { touch-action: manipulation; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 body {
   background: var(--bg);
   color: var(--ink);
@@ -238,7 +246,7 @@ body {
 .k-offline {
   position: fixed; top: 0; left: 0; right: 0; z-index: 200;
   display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-  padding: 0.5rem 1rem;
+  padding: calc(env(safe-area-inset-top, 0px) + 0.5rem) 1rem 0.5rem;
   background: #fef3c7; border-bottom: 1px solid #fde68a;
   font-size: 0.8rem; font-weight: 500; color: #92400e;
 }
@@ -407,7 +415,7 @@ body {
 .modal-add-second:hover { color: var(--ink); }
 .modal-add-second:active { opacity: 0.7; }
 .modal-extras { border-radius: 14px; overflow: hidden; border: 1px solid rgba(255,255,255,0.65); }
-.modal-stepper { display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.5); }
+.modal-stepper { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 0.85rem; min-height: 44px; border-bottom: 1px solid rgba(255,255,255,0.5); }
 .modal-stepper:last-child { border-bottom: none; }
 .modal-stepper__label { flex: 1; font-size: 0.8125rem; font-weight: 500; color: var(--ink); }
 .modal-stepper__price { font-size: 0.74rem; color: var(--muted); }

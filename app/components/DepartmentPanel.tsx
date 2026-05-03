@@ -184,6 +184,7 @@ function OrderEditModal({
             <label className="modal-label" htmlFor="modal-name">Jméno</label>
             <input
               autoFocus
+              autoComplete="name"
               className="modal-input"
               id="modal-name"
               onChange={(e) => { setPersonName(e.target.value); setValidationError(null); }}
@@ -422,7 +423,7 @@ function OrderRow({ row, accent, isSent, onEdit, onDelete }: {
           type="button"
           aria-label="Smazat"
           onClick={(e) => { e.stopPropagation(); onDelete(); }}
-          className="shrink-0 w-9 h-9 md:w-7 md:h-7 rounded-full inline-flex items-center justify-center text-stone-300 hover:text-red-400 hover:bg-red-50/80 active:text-red-400 active:bg-red-50/80 transition md:opacity-0 md:group-hover:opacity-100"
+          className="shrink-0 w-11 h-11 md:w-7 md:h-7 rounded-full inline-flex items-center justify-center text-stone-300 hover:text-red-400 hover:bg-red-50/80 active:text-red-400 active:bg-red-50/80 transition md:opacity-0 md:group-hover:opacity-100"
         >
           <MIcon name="close" size={15} />
         </button>

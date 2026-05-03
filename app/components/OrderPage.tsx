@@ -476,7 +476,7 @@ export default function OrderPage({
         {!isSent && !isFutureDay && !noMenu && (
           <div className="flex items-center gap-2 shrink-0">
             <button
-              className="px-4 py-1.5 rounded-full text-[12.5px] font-semibold text-white disabled:opacity-50 hover:opacity-[0.88] active:scale-[0.97] transition"
+              className="px-4 py-2.5 rounded-full text-[12.5px] font-semibold text-white disabled:opacity-50 hover:opacity-[0.88] active:scale-[0.97] transition"
               disabled={isPending}
               onClick={() => setShowSendConfirm(true)}
               style={{ background: "linear-gradient(135deg,#F59E0B,#EA580C)", boxShadow: "0 4px 12px -4px rgba(245,158,11,0.4)" }}
@@ -505,7 +505,10 @@ export default function OrderPage({
           </span>
         )}
         <span
+          aria-label={sseConnected ? "Živé aktualizace aktivní" : "Připojování k živým aktualizacím…"}
+          aria-live="polite"
           className={`w-1.5 h-1.5 rounded-full shrink-0 ${sseConnected ? "bg-green-400" : "bg-slate-300"}`}
+          role="img"
           title={sseConnected ? "Živé aktualizace aktivní" : "Připojování..."}
         />
         {!isSent && !isPastCutoff && countdown && (
@@ -525,7 +528,7 @@ export default function OrderPage({
         )}
         {!isSent && !isFutureDay && !noMenu && (
           <button
-            className="shrink-0 px-3.5 py-1.5 rounded-full text-[12.5px] font-semibold text-white disabled:opacity-50 active:scale-[0.97] transition"
+            className="shrink-0 px-3.5 py-2.5 rounded-full text-[12.5px] font-semibold text-white disabled:opacity-50 active:scale-[0.97] transition"
             disabled={isPending}
             onClick={() => setShowSendConfirm(true)}
             style={{ background: "linear-gradient(135deg,#F59E0B,#EA580C)", boxShadow: "0 4px 12px -4px rgba(245,158,11,0.4)" }}
@@ -544,7 +547,7 @@ export default function OrderPage({
 
       {/* ── Scrollable main content ── */}
       <main className="flex-1 overflow-y-auto scroll-area p-4">
-        <div className="flex flex-col gap-4 pb-20">
+        <div className="flex flex-col gap-4 pb-28 md:pb-6">
 
           {showDayPicker && (
             <div className="overflow-x-auto no-scrollbar -mx-4 px-4">
@@ -557,7 +560,7 @@ export default function OrderPage({
                   return (
                     <button
                       key={date}
-                      className={`flex-shrink-0 px-4 py-1.5 rounded-xl text-[12.5px] font-semibold transition-all duration-200 active:scale-[0.96] ${
+                      className={`flex-shrink-0 px-4 py-2.5 rounded-xl text-[12.5px] font-semibold transition-all duration-200 active:scale-[0.96] ${
                         isActive ? "" : "text-stone-500 hover:text-stone-700 hover:bg-white/60"
                       }`}
                       onClick={() => router.push(`/?date=${date}`)}
