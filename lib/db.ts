@@ -162,4 +162,14 @@ function migrate(db: Database.Database): void {
 
   try { db.exec("ALTER TABLE order_rows ADD COLUMN user_id INTEGER REFERENCES users(id)"); } catch {}
   try { db.exec("ALTER TABLE pizza_order_rows ADD COLUMN user_id INTEGER REFERENCES users(id)"); } catch {}
+
+  // Indexes for frequently queried columns (idempotent)
+  db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_order_rows_order_id ON order_rows(order_id);
+    CREATE INDEX IF NOT EXISTS idx_orders_date ON orders(date);
+    CREATE INDEX IF NOT EXISTS idx_menu_items_day_week ON menu_items(week_start, day);
+    CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
+    CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
+    CREATE INDEX IF NOT EXISTS idx_audit_log_ts ON audit_log(ts DESC);
+  `);
 }
