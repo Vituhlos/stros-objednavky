@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useCallback, useEffect, useRef, useMemo } from "react";
+import React, { useState, useTransition, useCallback, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getHolidayEmoji } from "@/lib/holidays";
@@ -38,6 +38,39 @@ function getDayLabel(date: string, todayDate: string): string {
 
 function getPragueNow() {
   return new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Prague" }));
+}
+
+function DayPickerScroll({ children }: { children: React.ReactNode }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [fadeLeft, setFadeLeft] = useState(false);
+  const [fadeRight, setFadeRight] = useState(false);
+
+  const update = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setFadeLeft(el.scrollLeft > 4);
+    setFadeRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
+  }, []);
+
+  useEffect(() => { update(); }, [update]);
+
+  return (
+    <div className="relative rounded-2xl" style={{ background: "rgba(26,18,8,0.06)", border: "1px solid rgba(255,255,255,0.55)" }}>
+      <div ref={scrollRef} onScroll={update} className="overflow-x-auto no-scrollbar">
+        <div className="flex p-1 gap-0.5" style={{ width: "max-content", minWidth: "100%" }}>
+          {children}
+        </div>
+      </div>
+      {fadeLeft && (
+        <div className="md:hidden absolute left-0 top-0 bottom-0 w-8 rounded-l-2xl pointer-events-none"
+          style={{ background: "linear-gradient(to right, rgba(237,231,221,0.9), transparent)" }} />
+      )}
+      {fadeRight && (
+        <div className="md:hidden absolute right-0 top-0 bottom-0 w-8 rounded-r-2xl pointer-events-none"
+          style={{ background: "linear-gradient(to left, rgba(237,231,221,0.9), transparent)" }} />
+      )}
+    </div>
+  );
 }
 
 function parseCutoffMinutes(cutoffTime: string) {
@@ -593,11 +626,7 @@ export default function OrderPage({
         <div className="flex flex-col gap-4 pb-20">
 
           {showDayPicker && (
-            <div
-              className="overflow-x-auto no-scrollbar rounded-2xl day-picker-fade"
-              style={{ background: "rgba(26,18,8,0.06)", border: "1px solid rgba(255,255,255,0.55)" }}
-            >
-              <div className="flex p-1 gap-0.5" style={{ width: "max-content", minWidth: "100%" }}>
+            <DayPickerScroll>
               {availableDates!.map((date) => {
                 const isActive = date === selectedDate;
                 return (
@@ -618,8 +647,7 @@ export default function OrderPage({
                   </button>
                 );
               })}
-              </div>
-            </div>
+            </DayPickerScroll>
           )}
 
           {noMenu ? (
