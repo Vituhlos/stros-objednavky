@@ -649,9 +649,9 @@ export default function OrderPage({
                 </div>
               )}
 
-              {/* Login banner for unauthenticated users */}
+              {/* Login banner for unauthenticated users — mobile only (desktop uses sidebar) */}
               {currentUserId === undefined && !isAdmin && (
-                <div className="glass rounded-2xl px-4 py-3 flex items-center gap-3" style={{ borderColor: "rgba(245,158,11,0.3)", background: "rgba(245,158,11,0.06)" }}>
+                <div className="md:hidden glass rounded-2xl px-4 py-3 flex items-center gap-3" style={{ borderColor: "rgba(245,158,11,0.3)", background: "rgba(245,158,11,0.06)" }}>
                   <MIcon name="person" size={20} fill style={{ color: "#D97706" }} />
                   <span className="text-[13px] text-stone-700 flex-1 leading-snug">
                     Pro přidání vlastní objednávky se přihlaste.
