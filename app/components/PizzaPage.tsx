@@ -20,7 +20,7 @@ function recalcRows(rows: PizzaOrderRow[], items: PizzaItem[]): PizzaOrderRow[] 
   });
 }
 
-export default function PizzaPage({ initialData }: { initialData: PizzaOrderData }) {
+export default function PizzaPage({ initialData, isAdmin }: { initialData: PizzaOrderData; isAdmin: boolean }) {
   const [rows, setRows] = useState(initialData.rows);
   const [pizzaItems, setPizzaItems] = useState(initialData.pizzaItems);
   const [orderId] = useState(initialData.order.id);
@@ -110,17 +110,19 @@ export default function PizzaPage({ initialData }: { initialData: PizzaOrderData
         )}
         {scrapeStatus && <span className="text-[12px] text-emerald-600">{scrapeStatus}</span>}
         {scrapeError && <span className="text-[12px] text-red-500 truncate max-w-xs">{scrapeError}</span>}
-        <div className="ml-auto">
-          <button
-            className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl glass-btn text-stone-600"
-            disabled={isPending}
-            onClick={handleScrape}
-            type="button"
-          >
-            <MIcon name="refresh" size={14} />
-            {isPending ? "Načítám..." : "Aktualizovat ceník"}
-          </button>
-        </div>
+        {isAdmin && (
+          <div className="ml-auto">
+            <button
+              className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl glass-btn text-stone-600"
+              disabled={isPending}
+              onClick={handleScrape}
+              type="button"
+            >
+              <MIcon name="refresh" size={14} />
+              {isPending ? "Načítám..." : "Aktualizovat ceník"}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Mobile topbar */}
@@ -131,19 +133,21 @@ export default function PizzaPage({ initialData }: { initialData: PizzaOrderData
             <span className="text-[12px] text-stone-700 font-semibold">{totalCount} ks · {totals.finalTotal} Kč</span>
           )}
         </div>
-        <div className="flex items-center gap-2 px-4 pb-2.5">
-          {scrapeStatus && <span className="text-[11px] text-emerald-600 flex-1 truncate">{scrapeStatus}</span>}
-          {scrapeError && <span className="text-[11px] text-red-500 flex-1 truncate">{scrapeError}</span>}
-          <button
-            className="ml-auto inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-xl glass-btn text-stone-600 shrink-0"
-            disabled={isPending}
-            onClick={handleScrape}
-            type="button"
-          >
-            <MIcon name="refresh" size={13} />
-            {isPending ? "Načítám..." : "Aktualizovat ceník"}
-          </button>
-        </div>
+        {isAdmin && (
+          <div className="flex items-center gap-2 px-4 pb-2.5">
+            {scrapeStatus && <span className="text-[11px] text-emerald-600 flex-1 truncate">{scrapeStatus}</span>}
+            {scrapeError && <span className="text-[11px] text-red-500 flex-1 truncate">{scrapeError}</span>}
+            <button
+              className="ml-auto inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-xl glass-btn text-stone-600 shrink-0"
+              disabled={isPending}
+              onClick={handleScrape}
+              type="button"
+            >
+              <MIcon name="refresh" size={13} />
+              {isPending ? "Načítám..." : "Aktualizovat ceník"}
+            </button>
+          </div>
+        )}
       </div>
 
       {pizzaItems.length === 0 && (
@@ -163,15 +167,17 @@ export default function PizzaPage({ initialData }: { initialData: PizzaOrderData
             {totalCount > 0 && (
               <span className="text-[11px] text-stone-500">{totalCount} ks · {totals.finalTotal} Kč</span>
             )}
-            <button
-              className="inline-flex items-center gap-1 text-[12px] font-semibold px-2.5 py-1 rounded-full text-white disabled:opacity-50 hover:opacity-[0.88] active:scale-[0.97] transition"
-              style={{ background: "linear-gradient(135deg,#F59E0B,#EA580C)" }}
-              disabled={isPending}
-              onClick={handleAddRow}
-              type="button"
-            >
-              <MIcon name="add" size={13} /> Přidat
-            </button>
+            {isAdmin && (
+              <button
+                className="inline-flex items-center gap-1 text-[12px] font-semibold px-2.5 py-1 rounded-full text-white disabled:opacity-50 hover:opacity-[0.88] active:scale-[0.97] transition"
+                style={{ background: "linear-gradient(135deg,#F59E0B,#EA580C)" }}
+                disabled={isPending}
+                onClick={handleAddRow}
+                type="button"
+              >
+                <MIcon name="add" size={13} /> Přidat
+              </button>
+            )}
           </div>
 
           {rows.length === 0 ? (

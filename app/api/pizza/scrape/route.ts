@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getCurrentUser } from "@/lib/auth";
 
 interface ScrapedPizza {
   code: number;
@@ -52,6 +53,10 @@ function parseHtml(html: string): ScrapedPizza[] {
 }
 
 export async function GET() {
+  const user = await getCurrentUser();
+  if (user?.role !== "admin") {
+    return NextResponse.json({ error: "Nemáte oprávnění." }, { status: 403 });
+  }
   try {
     const res = await fetch("https://www.pizza-dublovice.cz/menu/pizza/", {
       headers: { "User-Agent": "Mozilla/5.0" },

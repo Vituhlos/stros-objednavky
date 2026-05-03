@@ -75,6 +75,7 @@ interface Props {
   todayCode: string | null;
   hasPdfCurrent: boolean;
   hasPdfNext: boolean;
+  isAdmin: boolean;
 }
 
 type ImportState =
@@ -462,6 +463,7 @@ export default function MenuPage({
   currentHolidayNames,
   hasPdfCurrent,
   hasPdfNext,
+  isAdmin,
 }: Props) {
   const [currentMenu, setCurrentMenu] = useState(initialCurrentMenu);
   // Sync state when server pushes new props (after router.refresh() following an import)
@@ -641,34 +643,36 @@ export default function MenuPage({
             ↓ PDF
           </a>
         )}
-        <div className="ml-auto flex items-center gap-2">
-          {activeWeek === "current" && (
+        {isAdmin && (
+          <div className="ml-auto flex items-center gap-2">
+            {activeWeek === "current" && (
+              <button
+                className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl glass-btn ${editMode ? "text-stone-900" : "text-stone-600"}`}
+                onClick={() => { setEditMode((v) => !v); setImportState({ phase: "idle" }); }}
+                type="button"
+              >
+                {editMode ? "Zavřít úpravu" : "Upravit ručně"}
+              </button>
+            )}
+            {activeWeek === "next" && hasNextWeek && (
+              <button
+                className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl glass-btn-danger active:scale-[0.97] transition disabled:opacity-50"
+                disabled={isPending}
+                onClick={() => setConfirmDeleteNext(true)}
+                type="button"
+              >
+                Smazat příští týden
+              </button>
+            )}
             <button
-              className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl glass-btn ${editMode ? "text-stone-900" : "text-stone-600"}`}
-              onClick={() => { setEditMode((v) => !v); setImportState({ phase: "idle" }); }}
+              className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl glass-btn text-stone-600"
+              onClick={() => { setEditMode(false); setImportState({ phase: "uploading" }); }}
               type="button"
             >
-              {editMode ? "Zavřít úpravu" : "Upravit ručně"}
+              <MIcon name="upload_file" size={14} /> Import PDF
             </button>
-          )}
-          {activeWeek === "next" && hasNextWeek && (
-            <button
-              className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl glass-btn-danger active:scale-[0.97] transition disabled:opacity-50"
-              disabled={isPending}
-              onClick={() => setConfirmDeleteNext(true)}
-              type="button"
-            >
-              Smazat příští týden
-            </button>
-          )}
-          <button
-            className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl glass-btn text-stone-600"
-            onClick={() => { setEditMode(false); setImportState({ phase: "uploading" }); }}
-            type="button"
-          >
-            <MIcon name="upload_file" size={14} /> Import PDF
-          </button>
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Mobile topbar */}
@@ -676,13 +680,15 @@ export default function MenuPage({
         <div className="flex items-center gap-3 px-4 py-2.5">
           <span className="font-display font-bold text-[14px] text-stone-900 flex-1">Jídelníček LIMA</span>
           {activeWeekLabel && <span className="text-[11px] text-stone-500">{activeWeekLabel}</span>}
-          <button
-            className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-xl glass-btn text-stone-600"
-            onClick={() => { setEditMode(false); setImportState({ phase: "uploading" }); }}
-            type="button"
-          >
-            <MIcon name="upload_file" size={13} /> PDF
-          </button>
+          {isAdmin && (
+            <button
+              className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-xl glass-btn text-stone-600"
+              onClick={() => { setEditMode(false); setImportState({ phase: "uploading" }); }}
+              type="button"
+            >
+              <MIcon name="upload_file" size={13} /> PDF
+            </button>
+          )}
         </div>
       </div>
 
@@ -711,7 +717,7 @@ export default function MenuPage({
             ↓ PDF
           </a>
         )}
-        {activeWeek === "current" && (
+        {isAdmin && activeWeek === "current" && (
           <button
             className={`md:hidden inline-flex items-center text-[11px] font-semibold px-2.5 py-1.5 rounded-xl glass-btn ${editMode ? "text-stone-900" : "text-stone-600"}`}
             onClick={() => { setEditMode((v) => !v); setImportState({ phase: "idle" }); }}

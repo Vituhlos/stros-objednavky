@@ -9,12 +9,12 @@ import { redirect } from "next/navigation";
 import SettingsPage from "@/app/components/SettingsPage";
 
 export default async function Page() {
+  const currentUser = await getCurrentUser();
+  if (!currentUser) redirect("/login");
   const settings = getSettings();
   const departments = getDepartments();
   const auditLog = getRecentAuditLog(200);
   const todayData = getTodayOrderData();
-  const currentUser = await getCurrentUser();
-  if (!currentUser) redirect("/login");
   return (
     <SettingsPage
       auditLog={auditLog}

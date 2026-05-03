@@ -198,7 +198,7 @@ export default function OrderPage({
           if (!data) return;
           setDepartments(data.departments);
           setOrderStatus(data.status as "draft" | "sent");
-          if (data.sentAt) setSentAt(data.sentAt);
+          setSentAt(data.sentAt);
         })
         .catch(() => {});
     });
@@ -293,11 +293,15 @@ export default function OrderPage({
 
   const handleClear = useCallback(() => {
     startTransition(async () => {
-      await actionClearOrder(orderId);
-      setDepartments((prev) =>
-        recalcDepartments(prev.map((d) => ({ ...d, rows: [] })))
-      );
-      setClearConfirm(false);
+      try {
+        await actionClearOrder(orderId);
+        setDepartments((prev) =>
+          recalcDepartments(prev.map((d) => ({ ...d, rows: [] })))
+        );
+        setClearConfirm(false);
+      } catch (e) {
+        setSendError(e instanceof Error ? e.message : "Nepodařilo se smazat objednávku.");
+      }
     });
   }, [orderId]);
 
@@ -407,13 +411,13 @@ export default function OrderPage({
   }, [cutoffTime]);
 
   const dayStr = useMemo(() => {
-    const today = new Date();
+    const d = selectedDate ? new Date(`${selectedDate}T12:00:00`) : new Date();
     return (
-      today.toLocaleDateString("cs-CZ", { weekday: "long" }).replace(/^\w/, (c) => c.toUpperCase()) +
+      d.toLocaleDateString("cs-CZ", { weekday: "long" }).replace(/^\w/, (c) => c.toUpperCase()) +
       " " +
-      today.toLocaleDateString("cs-CZ", { day: "numeric", month: "numeric", year: "numeric" })
+      d.toLocaleDateString("cs-CZ", { day: "numeric", month: "numeric", year: "numeric" })
     );
-  }, []);
+  }, [selectedDate]);
 
   const allSoups = initialData.todayMenu.soups.filter((i) => i.name !== "Zavřeno");
   const allMeals = initialData.todayMenu.meals.filter((i) => i.name !== "Zavřeno");
@@ -492,7 +496,7 @@ export default function OrderPage({
             {activeOrderCount} {activeOrderCount === 1 ? "objednávka" : activeOrderCount < 5 ? "objednávky" : "objednávek"} · {totalPrice} Kč
           </span>
         )}
-        {!isSent && !isFutureDay && !noMenu && (
+        {isAdmin && !isSent && !isFutureDay && !noMenu && (
           <div className="flex items-center gap-2 shrink-0">
             <button
               className="px-4 py-1.5 rounded-full text-[12.5px] font-semibold text-white disabled:opacity-50 hover:opacity-[0.88] active:scale-[0.97] transition"
@@ -542,7 +546,7 @@ export default function OrderPage({
             <MIcon name="check_circle" size={12} fill /> Odesláno
           </span>
         )}
-        {!isSent && !isFutureDay && !noMenu && (
+        {isAdmin && !isSent && !isFutureDay && !noMenu && (
           <button
             className="shrink-0 px-3.5 py-1.5 rounded-full text-[12.5px] font-semibold text-white disabled:opacity-50 active:scale-[0.97] transition"
             disabled={isPending}
@@ -723,9 +727,10 @@ export default function OrderPage({
                 {!isSent && totalPrice > 0 && (
                   <span className="font-display font-bold text-[14px] text-stone-800 shrink-0">{totalPrice} Kč</span>
                 )}
-                {!isSent && (
+                {isAdmin && !isSent && (
                   <button
                     className="shrink-0 text-[11.5px] font-medium px-3 py-1.5 rounded-full glass-btn text-stone-500"
+                    disabled={isPending}
                     onClick={() => setClearConfirm(true)}
                     type="button"
                   >

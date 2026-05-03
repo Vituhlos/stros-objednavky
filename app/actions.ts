@@ -160,6 +160,7 @@ export async function actionAddPizzaRow(orderId: number): Promise<PizzaOrderRow>
   await requireAuth();
   const row = addPizzaRow(orderId);
   revalidatePath("/pizza");
+  broadcast();
   return row;
 }
 
@@ -178,6 +179,7 @@ export async function actionDeletePizzaRow(rowId: number): Promise<void> {
   await requireAuth();
   deletePizzaRow(rowId);
   revalidatePath("/pizza");
+  broadcast();
 }
 
 export async function actionUpdatePizzaPrices(
@@ -191,6 +193,7 @@ export async function actionUpdatePizzaPrices(
 export async function actionReopenOrder(orderId: number): Promise<void> {
   await requireAdmin();
   reopenOrder(orderId);
+  revalidatePath("/");
   revalidatePath("/historie");
   revalidatePath(`/historie/${orderId}`);
   broadcast();
