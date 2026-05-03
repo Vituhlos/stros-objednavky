@@ -3,6 +3,7 @@ import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import SwRegister from "./components/SwRegister";
 import AppTopBar from "./components/AppTopBar";
+import OfflineBanner from "./components/OfflineBanner";
 import { getCurrentUser } from "@/lib/auth";
 
 const inter = Inter({
@@ -54,6 +55,7 @@ export default async function RootLayout({
           <div className="orb orb-mint" />
         </div>
         <AppTopBar initialUser={user} />
+        <OfflineBanner />
         {children}
         <SwRegister />
       </body>

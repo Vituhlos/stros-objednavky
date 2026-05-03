@@ -552,7 +552,29 @@ export function DepartmentPanel({ data, soups, meals, isSent, existingNames = []
         {/* Rows */}
         <div className={isSent ? "dept-rows-sent" : ""}>
           {activeRows.length === 0 ? (
-            <div className="px-4 py-5 text-center text-[12.5px] text-stone-400">Zatím nikdo neobjednal.</div>
+            <div className="px-4 py-6 flex flex-col items-center gap-2.5">
+              <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ background: `${dc.icon}18` }}>
+                <DeptIcon name={data.name} color={dc.icon} />
+              </div>
+              <div className="text-center">
+                <p className="text-[12.5px] font-semibold text-stone-600">Zatím nikdo z {data.label}</p>
+                <p className="text-[11.5px] text-stone-400 mt-0.5">
+                  {isSent ? "Nikdo z tohoto oddělení neobjednal." : "Buď první, kdo objedná."}
+                </p>
+              </div>
+              {!isSent && currentUserId !== undefined && (
+                <button
+                  type="button"
+                  disabled={isAdding}
+                  onClick={handleAddAndOpen}
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[12px] font-semibold text-white disabled:opacity-50 hover:opacity-[0.88] active:scale-[0.97] transition"
+                  style={{ background: dc.grad, boxShadow: `0 4px 12px -4px ${dc.icon}55` }}
+                >
+                  <MIcon name="add" size={13} />
+                  {isAdding ? "Přidávám…" : "Objednat za sebe"}
+                </button>
+              )}
+            </div>
           ) : (
             activeRows.map((row) => {
               const editable = (currentUserId !== undefined || isAdmin) && (isAdmin || row.userId === null || row.userId === currentUserId);

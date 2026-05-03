@@ -250,6 +250,20 @@ body {
   .k-offline { left: 232px; }
 }
 
+/* ── Skeleton shimmer ── */
+@keyframes shimmer {
+  0%   { background-position: -800px 0; }
+  100% { background-position: 800px 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0.06) 0%,
+    rgba(255,255,255,0.42) 40%,
+    rgba(255,255,255,0.06) 80%);
+  background-size: 1600px 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
 /* ── Modal overlay ── */
 .modal-overlay {
   position: fixed; inset: 0; z-index: 9999;

@@ -115,9 +115,9 @@ export default function AppTopBar({ initialUser }: { initialUser?: UserInfo }) {
 
   const isAdmin = initialUser?.role === "admin";
 
-  // Mobile nav: non-admins see profile instead of settings
+  // Mobile nav: max 5 items — admins swap /historie for /nastaveni
   const mobileNav = isAdmin
-    ? [...MAIN_NAV, PROFILE_NAV]
+    ? [...MAIN_NAV.filter((n) => n.href !== "/historie"), PROFILE_NAV]
     : [...MAIN_NAV.filter((n) => n.href !== "/nastaveni"), PROFILE_NAV];
 
   // Desktop sidebar nav: just the main 5 — profile is accessible via the UserBadge name link
