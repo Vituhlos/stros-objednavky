@@ -5,13 +5,15 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import MIcon from "./MIcon";
 
-const NAV = [
+const MAIN_NAV = [
   { href: "/",           label: "Dnešní objednávka", shortLabel: "Oběd",       icon: "restaurant_menu", exact: true  },
   { href: "/jidelnicek", label: "Jídelníček LIMA",   shortLabel: "Jídelníček", icon: "menu_book",       exact: false },
   { href: "/pizza",      label: "Pizza",              shortLabel: "Pizza",      icon: "local_pizza",     exact: false },
   { href: "/historie",   label: "Historie",           shortLabel: "Historie",   icon: "history",         exact: false },
   { href: "/nastaveni",  label: "Nastavení",          shortLabel: "Nastavení",  icon: "settings",        exact: false },
 ];
+
+const PROFILE_NAV = { href: "/profil", label: "Můj profil", shortLabel: "Profil", icon: "account_circle", exact: false };
 
 function SidebarClock() {
   const [now, setNow] = useState(() => new Date());
@@ -30,6 +32,18 @@ function SidebarClock() {
       <div className="text-[10px] uppercase tracking-wider text-stone-400 font-semibold mb-0.5">Dnes</div>
       <div className="font-display font-bold text-[15px] text-stone-900">{timeStr}</div>
       <div className="text-[11.5px] text-stone-500 leading-snug">{dateStr}</div>
+    </div>
+  );
+}
+
+function InitialsAvatar({ firstName, lastName }: { firstName: string; lastName: string }) {
+  const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+  return (
+    <div
+      className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 font-display font-bold text-white text-[13px]"
+      style={{ background: "linear-gradient(135deg,#F59E0B,#EA580C)", boxShadow: "0 4px 10px -4px rgba(245,158,11,0.45)" }}
+    >
+      {initials}
     </div>
   );
 }
@@ -70,15 +84,22 @@ function UserBadge({ user }: { user: UserInfo }) {
 
   return (
     <div className="glass-soft rounded-2xl p-3">
-      <div className="text-[10px] uppercase tracking-wider text-stone-400 font-semibold mb-1">Přihlášen</div>
-      <div className="font-display font-bold text-[13px] text-stone-900 leading-none">{user.firstName} {user.lastName}</div>
-      {user.role === "admin" && (
-        <div className="text-[10px] text-amber-600 font-semibold mt-0.5">Admin</div>
-      )}
+      <Link href="/profil" className="flex items-center gap-2.5 mb-2 group no-underline">
+        <InitialsAvatar firstName={user.firstName} lastName={user.lastName} />
+        <div className="flex-1 min-w-0">
+          <div className="font-display font-bold text-[13px] text-stone-900 leading-none group-hover:text-amber-700 transition truncate">
+            {user.firstName} {user.lastName}
+          </div>
+          {user.role === "admin"
+            ? <div className="text-[10px] text-amber-600 font-semibold mt-0.5">Admin</div>
+            : <div className="text-[10px] text-stone-400 mt-0.5">Profil &amp; nastavení</div>
+          }
+        </div>
+      </Link>
       <button
         onClick={handleLogout}
         disabled={loggingOut}
-        className="mt-2 w-full flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-semibold text-stone-500 glass-btn transition hover:text-stone-700"
+        className="w-full flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-semibold text-stone-500 glass-btn transition hover:text-stone-700"
       >
         <MIcon name="logout" size={13} />
         {loggingOut ? "Odhlašuji…" : "Odhlásit se"}
@@ -90,7 +111,17 @@ function UserBadge({ user }: { user: UserInfo }) {
 export default function AppTopBar({ initialUser }: { initialUser?: UserInfo }) {
   const pathname = usePathname();
 
-  if (pathname === "/login" || pathname === "/register") return null;
+  if (pathname === "/login" || pathname === "/register" || pathname === "/zapomenute-heslo" || pathname.startsWith("/reset-hesla")) return null;
+
+  const isAdmin = initialUser?.role === "admin";
+
+  // Mobile nav: non-admins see profile instead of settings
+  const mobileNav = isAdmin
+    ? [...MAIN_NAV, PROFILE_NAV]
+    : [...MAIN_NAV.filter((n) => n.href !== "/nastaveni"), PROFILE_NAV];
+
+  // Desktop sidebar nav: always all 5 + profile
+  const desktopNav = [...MAIN_NAV, PROFILE_NAV];
 
   return (
     <>
@@ -120,7 +151,7 @@ export default function AppTopBar({ initialUser }: { initialUser?: UserInfo }) {
         </div>
 
         <div className="mt-2 flex flex-col gap-0.5">
-          {NAV.map(({ href, label, icon, exact }) => {
+          {desktopNav.map(({ href, label, icon, exact }) => {
             const isActive = exact ? pathname === href : pathname.startsWith(href);
             return (
               <Link
@@ -159,7 +190,7 @@ export default function AppTopBar({ initialUser }: { initialUser?: UserInfo }) {
       {/* ── Mobile bottom nav (fixed pill, hidden on desktop) ── */}
       <nav aria-label="Navigace" className="md:hidden fixed bottom-2 left-2 right-2 z-40">
         <div className="glass rounded-2xl px-1 py-1.5 flex items-center justify-around">
-          {NAV.map(({ href, shortLabel, icon, exact }) => {
+          {mobileNav.map(({ href, shortLabel, icon, exact }) => {
             const isActive = exact ? pathname === href : pathname.startsWith(href);
             return (
               <Link

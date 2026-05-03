@@ -162,6 +162,19 @@ function migrate(db: Database.Database): void {
 
   try { db.exec("ALTER TABLE order_rows ADD COLUMN user_id INTEGER REFERENCES users(id)"); } catch {}
   try { db.exec("ALTER TABLE pizza_order_rows ADD COLUMN user_id INTEGER REFERENCES users(id)"); } catch {}
+  try { db.exec("ALTER TABLE users ADD COLUMN default_department TEXT"); } catch {}
+
+  // Password reset tokens
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS password_reset_tokens (
+      id         INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      token      TEXT    NOT NULL UNIQUE,
+      expires_at TEXT    NOT NULL,
+      used       INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
+  `);
 
   // Indexes for frequently queried columns (idempotent)
   db.exec(`
@@ -171,5 +184,6 @@ function migrate(db: Database.Database): void {
     CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
     CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
     CREATE INDEX IF NOT EXISTS idx_audit_log_ts ON audit_log(ts DESC);
+    CREATE INDEX IF NOT EXISTS idx_reset_tokens_token ON password_reset_tokens(token);
   `);
 }

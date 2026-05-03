@@ -78,6 +78,7 @@ export default function OrderPage({
   currentUserId,
   isAdmin = false,
   currentUserName,
+  defaultDepartment,
 }: {
   initialData: OrderData;
   cutoffTime?: string;
@@ -93,6 +94,7 @@ export default function OrderPage({
   currentUserId?: number;
   isAdmin?: boolean;
   currentUserName?: string;
+  defaultDepartment?: string | null;
 }) {
   const router = useRouter();
   const isFutureDay = !!(selectedDate && todayDate && selectedDate > todayDate);
@@ -683,6 +685,7 @@ export default function OrderPage({
                     existingNames={existingNames}
                     extrasPrices={extrasPrices}
                     isAdmin={isAdmin}
+                    isDefault={!!defaultDepartment && dept.name === defaultDepartment}
                     isSent={isSent}
                     key={dept.name}
                     meals={allMeals}

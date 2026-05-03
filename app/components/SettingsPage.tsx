@@ -15,6 +15,7 @@ import {
   actionGetUsers,
   actionSetUserRole,
   actionSetUserActive,
+  actionAdminSendPasswordReset,
 } from "@/app/actions";
 import { ConfirmModal } from "./ConfirmModal";
 import MIcon from "./MIcon";
@@ -207,6 +208,36 @@ function DeptRow({
         >Zrušit</button>
       </div>
     </div>
+  );
+}
+
+// ── Admin: send password reset email ─────────────────────────────────────────
+
+function ResetButton({ userId }: { userId: number }) {
+  const [status, setStatus] = useState<"idle" | "pending" | "done" | "error">("idle");
+  const handle = async () => {
+    setStatus("pending");
+    try {
+      await actionAdminSendPasswordReset(userId);
+      setStatus("done");
+      setTimeout(() => setStatus("idle"), 4000);
+    } catch {
+      setStatus("error");
+      setTimeout(() => setStatus("idle"), 4000);
+    }
+  };
+  return (
+    <button
+      className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-semibold text-stone-400 hover:text-amber-700 transition disabled:opacity-50"
+      style={{ background: "rgba(0,0,0,0.04)" }}
+      disabled={status === "pending"}
+      onClick={handle}
+      title="Poslat e-mail s odkazem na reset hesla"
+      type="button"
+    >
+      <MIcon name={status === "done" ? "check" : status === "error" ? "error" : "key"} size={12} />
+      {status === "pending" ? "Odesílám…" : status === "done" ? "Odesláno" : status === "error" ? "Chyba" : "Reset"}
+    </button>
   );
 }
 
@@ -872,6 +903,7 @@ export default function SettingsPage({
                           <th className="text-left px-3 py-2 font-display font-semibold text-stone-500 text-[10.5px] uppercase tracking-wide hidden sm:table-cell">E-mail</th>
                           <th className="text-left px-3 py-2 font-display font-semibold text-stone-500 text-[10.5px] uppercase tracking-wide">Role</th>
                           <th className="text-left px-3 py-2 font-display font-semibold text-stone-500 text-[10.5px] uppercase tracking-wide">Stav</th>
+                          <th className="px-3 py-2" />
                         </tr>
                       </thead>
                       <tbody>
@@ -905,6 +937,9 @@ export default function SettingsPage({
                                 <MIcon name={u.active ? "check_circle" : "block"} size={11} fill />
                                 {u.active ? "Aktivní" : "Deaktivován"}
                               </button>
+                            </td>
+                            <td className="px-3 py-2.5">
+                              <ResetButton userId={u.id} />
                             </td>
                           </tr>
                         ))}
