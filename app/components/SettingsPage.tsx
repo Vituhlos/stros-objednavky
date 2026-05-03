@@ -13,6 +13,7 @@ import {
   actionReorderDepartments,
   actionReopenOrder,
   actionResendOrder,
+  actionClearOrder,
 } from "@/app/actions";
 import { ConfirmModal } from "./ConfirmModal";
 import MIcon from "./MIcon";
@@ -247,6 +248,8 @@ export default function SettingsPage({
   const [showAddDept, setShowAddDept] = useState(false);
   const [reopenDone, setReopenDone] = useState(false);
   const [resendStatus, setResendStatus] = useState<"idle" | "pending" | "done" | "error">("idle");
+  const [clearConfirm, setClearConfirm] = useState(false);
+  const [clearDone, setClearDone] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
   // Restore state
@@ -516,7 +519,7 @@ export default function SettingsPage({
         ) : (
           <>
             {/* Reopen order — nahoře, aby k tomu nebylo třeba scrollovat */}
-            {todayOrder && (todayOrder.status === "sent" || reopenDone) && (
+            {todayOrder && (
               <Section icon="lock_open" title="Dnešní objednávka">
                 {todayOrder.status === "sent" && !reopenDone ? (
                   <div className="flex flex-col gap-3">
@@ -564,12 +567,46 @@ export default function SettingsPage({
                       <p className="text-[12px] text-red-500">Chyba při odesílání. Zkontrolujte SMTP nastavení.</p>
                     )}
                   </div>
-                ) : (
+                ) : reopenDone ? (
                   <p className="text-[12.5px] text-green-700 inline-flex items-center gap-1.5">
                     <MIcon name="check_circle" size={14} fill /> Objednávka byla znovu otevřena.
                   </p>
+                ) : null}
+                {todayOrder.status === "draft" && !clearDone && (
+                  <div className="flex flex-col gap-2 pt-1 border-t border-white/40">
+                    <p className="text-[12.5px] text-stone-500">Objednávka je otevřená.</p>
+                    <button
+                      className="shrink-0 inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-2xl glass-btn-danger"
+                      disabled={isPending}
+                      onClick={() => setClearConfirm(true)}
+                      type="button"
+                    >
+                      <MIcon name="delete" size={14} /> Smazat celou objednávku
+                    </button>
+                  </div>
+                )}
+                {clearDone && (
+                  <p className="text-[12.5px] text-stone-500 inline-flex items-center gap-1.5">
+                    <MIcon name="check_circle" size={14} fill style={{ color: "#94a3b8" }} /> Objednávka byla smazána.
+                  </p>
                 )}
               </Section>
+            )}
+            {clearConfirm && (
+              <ConfirmModal
+                confirmLabel="Smazat"
+                isPending={isPending}
+                message="Celá dnešní objednávka bude vymazána. Tuto akci nelze vrátit."
+                onClose={() => setClearConfirm(false)}
+                onConfirm={() => {
+                  startTransition(async () => {
+                    await actionClearOrder(todayOrder!.id);
+                    setClearConfirm(false);
+                    setClearDone(true);
+                  });
+                }}
+                title="Smazat objednávku"
+              />
             )}
 
             <form id="settings-form" onSubmit={handleSave} ref={formRef}>

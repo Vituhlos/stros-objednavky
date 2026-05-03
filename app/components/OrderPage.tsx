@@ -14,7 +14,6 @@ import {
   actionUpdateRow,
   actionDeleteRow,
   actionSendOrder,
-  actionClearOrder,
   actionReopenOrder,
 } from "@/app/actions";
 
@@ -100,7 +99,6 @@ export default function OrderPage({
   const [sentAt, setSentAt] = useState(initialData.order.sentAt);
   const [isPending, startTransition] = useTransition();
   const [sendError, setSendError] = useState<string | null>(null);
-  const [clearConfirm, setClearConfirm] = useState(false);
   const [justSent, setJustSent] = useState(false);
   const justSentTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [showSendConfirm, setShowSendConfirm] = useState(false);
@@ -283,16 +281,6 @@ export default function OrderPage({
     },
     [defaultMealPrice, defaultSoupPrice, extrasPrices, initialData.todayMenu, router]
   );
-
-  const handleClear = useCallback(() => {
-    startTransition(async () => {
-      await actionClearOrder(orderId);
-      setDepartments((prev) =>
-        recalcDepartments(prev.map((d) => ({ ...d, rows: [] })))
-      );
-      setClearConfirm(false);
-    });
-  }, [orderId]);
 
   const handleReopen = useCallback(() => {
     startTransition(async () => {
@@ -695,15 +683,6 @@ export default function OrderPage({
                 {!isSent && totalPrice > 0 && (
                   <span className="font-display font-bold text-[14px] text-stone-800 shrink-0">{totalPrice} Kč</span>
                 )}
-                {!isSent && (
-                  <button
-                    className="shrink-0 text-[11.5px] font-medium px-3 py-1.5 rounded-full glass-btn text-stone-500"
-                    onClick={() => setClearConfirm(true)}
-                    type="button"
-                  >
-                    Smazat
-                  </button>
-                )}
               </div>
             </>
           )}
@@ -731,16 +710,6 @@ export default function OrderPage({
             </div>
           </div>
         </ConfirmModal>
-      )}
-      {clearConfirm && (
-        <ConfirmModal
-          confirmLabel="Smazat"
-          isPending={isPending}
-          message="Celá dnešní objednávka bude vymazána. Tuto akci nelze vrátit."
-          onClose={() => setClearConfirm(false)}
-          onConfirm={handleClear}
-          title="Smazat objednávku"
-        />
       )}
     </div>
   );
