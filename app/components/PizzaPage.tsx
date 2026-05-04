@@ -331,12 +331,13 @@ function PizzaRow({
         </div>
         <div className="flex flex-col items-end gap-1.5 shrink-0">
           <div className="flex items-center gap-1">
-            <button className="stepper-btn" disabled={isPending || row.count <= 1} onClick={() => onUpdate(row.id, { count: row.count - 1 })} type="button">−</button>
+            <button aria-label="Snížit počet" className="stepper-btn" disabled={isPending || row.count <= 1} onClick={() => onUpdate(row.id, { count: row.count - 1 })} type="button">−</button>
             <span className="stepper-count">{row.count}</span>
-            <button className="stepper-btn" disabled={isPending || row.count >= 10} onClick={() => onUpdate(row.id, { count: row.count + 1 })} type="button">+</button>
+            <button aria-label="Zvýšit počet" className="stepper-btn" disabled={isPending || row.count >= 10} onClick={() => onUpdate(row.id, { count: row.count + 1 })} type="button">+</button>
           </div>
           <span className="text-[11px] text-stone-500">{adjustedPrice > 0 ? `${adjustedPrice} Kč` : row.rowPrice > 0 ? `${row.rowPrice} Kč` : "–"}</span>
           <button
+            aria-label="Smazat řádek"
             className="w-11 h-11 rounded-full inline-flex items-center justify-center text-stone-300 hover:text-red-400 hover:bg-red-50/80 transition"
             disabled={isPending}
             onClick={() => onDelete(row.id)}
@@ -370,14 +371,15 @@ function PizzaRow({
           ))}
         </select>
         <div className="flex items-center gap-1 justify-center">
-          <button className="stepper-btn" disabled={isPending || row.count <= 1} onClick={() => onUpdate(row.id, { count: row.count - 1 })} type="button">−</button>
+          <button aria-label="Snížit počet" className="stepper-btn" disabled={isPending || row.count <= 1} onClick={() => onUpdate(row.id, { count: row.count - 1 })} type="button">−</button>
           <span className="stepper-count">{row.count}</span>
-          <button className="stepper-btn" disabled={isPending || row.count >= 10} onClick={() => onUpdate(row.id, { count: row.count + 1 })} type="button">+</button>
+          <button aria-label="Zvýšit počet" className="stepper-btn" disabled={isPending || row.count >= 10} onClick={() => onUpdate(row.id, { count: row.count + 1 })} type="button">+</button>
         </div>
         <span className="text-[12.5px] text-stone-500 text-right">{row.rowPrice > 0 ? `${row.rowPrice} Kč` : "–"}</span>
         <span className="text-[12.5px] font-semibold text-stone-800 text-right">{adjustedPrice > 0 ? `${adjustedPrice} Kč` : "–"}</span>
         <button
-          className="w-8 h-8 rounded-full inline-flex items-center justify-center text-stone-300 hover:text-red-400 active:text-red-400 hover:bg-red-50/80 transition"
+          aria-label="Smazat řádek"
+          className="w-10 h-10 rounded-full inline-flex items-center justify-center text-stone-300 hover:text-red-400 active:text-red-400 hover:bg-red-50/80 transition"
           disabled={isPending}
           onClick={() => onDelete(row.id)}
           type="button"

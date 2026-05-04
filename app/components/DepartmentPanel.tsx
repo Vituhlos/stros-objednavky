@@ -213,6 +213,9 @@ function OrderEditModal({
     <div className="modal-overlay" onClick={handleCancel}>
       <div
         className="modal-sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="edit-modal-title"
         onClick={(e) => e.stopPropagation()}
         onTouchEnd={handleTouchEnd}
         onTouchMove={handleTouchMove}
@@ -221,10 +224,10 @@ function OrderEditModal({
       >
         <div className="modal-sheet__drag-handle" aria-hidden />
         <div className="modal-sheet__header">
-          <h3 className="modal-sheet__title">{isNew ? "Přidat objednávku" : "Upravit objednávku"}</h3>
+          <h3 className="modal-sheet__title" id="edit-modal-title">{isNew ? "Přidat objednávku" : "Upravit objednávku"}</h3>
           <button
             aria-label="Zavřít"
-            className="w-8 h-8 rounded-full glass-btn inline-flex items-center justify-center text-stone-500 text-lg font-bold leading-none"
+            className="w-11 h-11 rounded-full glass-btn inline-flex items-center justify-center text-stone-500 text-lg font-bold leading-none"
             onClick={handleCancel}
             type="button"
           >×</button>
@@ -259,7 +262,11 @@ function OrderEditModal({
               </div>
             </div>
             {isDuplicateName && (
-              <p className="text-[11.5px] text-amber-700 mt-1">⚠ Toto jméno už v objednávce je.</p>
+              <div className="mt-1 px-3 py-2 rounded-xl text-[12px] text-amber-700 font-medium flex items-center gap-1.5"
+                style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)" }}>
+                <MIcon name="warning" size={13} style={{ color: "#d97706", flexShrink: 0 }} />
+                Toto jméno už v objednávce je.
+              </div>
             )}
           </div>
 
@@ -424,6 +431,9 @@ function OrderRow({ row, accent, isSent, onEdit, onDelete }: {
     <div
       className={`group flex items-center gap-3 px-4 py-3 border-b border-white/30 last:border-0 transition ${!isSent ? "hover:bg-white/50 active:bg-white/50 cursor-pointer active:scale-[0.995]" : ""}`}
       onClick={!isSent ? onEdit : undefined}
+      role={!isSent ? "button" : undefined}
+      tabIndex={!isSent ? 0 : undefined}
+      onKeyDown={!isSent ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onEdit(); } } : undefined}
     >
       {/* Avatar */}
       <span

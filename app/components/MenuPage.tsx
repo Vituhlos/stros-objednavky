@@ -209,7 +209,7 @@ function WeekGrid({
                     </span>
                     {editMode && (
                       <button
-                        className="text-[10.5px] font-semibold px-2.5 py-1 rounded-xl glass-btn text-stone-600"
+                        className="text-[12px] font-semibold px-2.5 py-1 rounded-xl glass-btn text-stone-600"
                         disabled={disabled}
                         onClick={() => onOpenDay(day)}
                         type="button"
@@ -232,11 +232,11 @@ function WeekGrid({
                       <span className="font-display text-[10px] uppercase tracking-widest font-semibold text-stone-500">Polévky</span>
                       {editMode && (
                         <button
-                          className="ml-auto w-6 h-6 rounded-full inline-flex items-center justify-center text-white hover:opacity-80 transition"
+                          aria-label="Přidat polévku"
+                          className="ml-auto w-8 h-8 rounded-full inline-flex items-center justify-center text-white hover:opacity-80 transition"
                           disabled={disabled}
                           onClick={() => onAdd(day, "Polévka" as const)}
-                          style={{ background: "linear-gradient(135deg,#F59E0B,#EA580C)", fontSize: 12 }}
-                          title="Přidat polévku"
+                          style={{ background: "linear-gradient(135deg,#F59E0B,#EA580C)", fontSize: 14 }}
                           type="button"
                         >+</button>
                       )}
@@ -255,11 +255,11 @@ function WeekGrid({
                       <span className="font-display text-[10px] uppercase tracking-widest font-semibold text-stone-500">Jídla</span>
                       {editMode && (
                         <button
-                          className="ml-auto w-6 h-6 rounded-full inline-flex items-center justify-center text-white hover:opacity-80 transition"
+                          aria-label="Přidat jídlo"
+                          className="ml-auto w-8 h-8 rounded-full inline-flex items-center justify-center text-white hover:opacity-80 transition"
                           disabled={disabled}
                           onClick={() => onAdd(day, "Jídlo" as const)}
-                          style={{ background: "linear-gradient(135deg,#F59E0B,#EA580C)", fontSize: 12 }}
-                          title="Přidat jídlo"
+                          style={{ background: "linear-gradient(135deg,#F59E0B,#EA580C)", fontSize: 14 }}
                           type="button"
                         >+</button>
                       )}
@@ -327,7 +327,8 @@ function WeekItem({
           type="number"
         />
         <button
-          className="w-7 h-7 rounded-full inline-flex items-center justify-center text-stone-300 hover:text-red-400 hover:bg-red-50/80 active:text-red-400 transition shrink-0"
+          aria-label="Smazat položku"
+          className="w-8 h-8 rounded-full inline-flex items-center justify-center text-stone-300 hover:text-red-400 hover:bg-red-50/80 active:text-red-400 transition shrink-0"
           disabled={disabled}
           onClick={() => onDelete(item.id)}
           type="button"
@@ -421,7 +422,8 @@ function MenuSection({
                   type="number"
                 />
                 <button
-                  className="ml-auto w-9 h-9 rounded-full inline-flex items-center justify-center text-stone-300 hover:text-red-400 hover:bg-red-50/80 transition shrink-0"
+                  aria-label="Smazat položku"
+                  className="ml-auto w-11 h-11 rounded-full inline-flex items-center justify-center text-stone-300 hover:text-red-400 hover:bg-red-50/80 transition shrink-0"
                   disabled={disabled}
                   onClick={() => onDelete(item.id)}
                   type="button"
@@ -894,15 +896,18 @@ export default function MenuPage({
         >
           <div
             className={`modal-sheet${importState.phase === "preview" ? " !w-full sm:!w-[760px]" : ""}`}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="import-modal-title"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-sheet__header">
-              <h3 className="modal-sheet__title">
+              <h3 className="modal-sheet__title" id="import-modal-title">
                 {importState.phase === "preview" ? "Náhled importu" : "Importovat PDF jídelníčku"}
               </h3>
               <button
                 aria-label="Zavřít"
-                className="w-8 h-8 rounded-full glass-btn inline-flex items-center justify-center text-stone-500 font-bold"
+                className="w-11 h-11 rounded-full glass-btn inline-flex items-center justify-center text-stone-500 font-bold"
                 onClick={() => setImportState({ phase: "idle" })}
                 type="button"
               >

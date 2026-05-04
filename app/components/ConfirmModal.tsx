@@ -36,7 +36,7 @@ export function ConfirmModal({
 
   return createPortal(
     <div className="modal-overlay" onClick={onClose}>
-      <div className="confirm-dialog" onClick={(e) => e.stopPropagation()}>
+      <div className="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title" onClick={(e) => e.stopPropagation()}>
         <div className={`confirm-dialog__icon${confirmVariant === "primary" ? " confirm-dialog__icon--primary" : ""}`}>
           {confirmVariant === "primary" ? (
             <MIcon name="send" size={24} fill />
@@ -44,7 +44,7 @@ export function ConfirmModal({
             <MIcon name="warning" size={24} fill />
           )}
         </div>
-        <h3 className="confirm-dialog__title">{title}</h3>
+        <h3 className="confirm-dialog__title" id="confirm-dialog-title">{title}</h3>
         {message && <p className="confirm-dialog__message">{message}</p>}
         {children}
         <div className="confirm-dialog__actions">

@@ -155,19 +155,22 @@ function DeptRow({
         <span className="text-[11px] text-stone-400 hidden sm:inline shrink-0">({dept.name})</span>
         <div className="flex items-center gap-1 shrink-0">
           <button
-            className="inline-flex w-8 h-8 rounded-full items-center justify-center text-stone-400 hover:bg-white/60 transition disabled:opacity-30"
-            disabled={isFirst} onClick={() => onMoveUp(dept.id)} title="Nahoru" type="button"
+            aria-label={`Přesunout ${dept.label} nahoru`}
+            className="inline-flex w-10 h-10 rounded-full items-center justify-center text-stone-400 hover:bg-white/60 transition disabled:opacity-30"
+            disabled={isFirst} onClick={() => onMoveUp(dept.id)} type="button"
           >↑</button>
           <button
-            className="inline-flex w-8 h-8 rounded-full items-center justify-center text-stone-400 hover:bg-white/60 transition disabled:opacity-30"
-            disabled={isLast} onClick={() => onMoveDown(dept.id)} title="Dolů" type="button"
+            aria-label={`Přesunout ${dept.label} dolů`}
+            className="inline-flex w-10 h-10 rounded-full items-center justify-center text-stone-400 hover:bg-white/60 transition disabled:opacity-30"
+            disabled={isLast} onClick={() => onMoveDown(dept.id)} type="button"
           >↓</button>
           <button
             className="text-[11.5px] font-semibold px-2.5 py-1.5 rounded-lg glass-btn text-stone-600"
             onClick={() => setEditing(true)} type="button"
           >Upravit</button>
           <button
-            className="text-[11.5px] font-semibold px-2.5 py-1.5 rounded-lg text-red-600"
+            aria-label={`Smazat oddělení ${dept.label}`}
+            className="text-[11.5px] font-semibold px-2.5 py-1.5 rounded-lg text-red-600 transition"
             style={{ background: "rgba(220,38,38,0.08)", border: "1px solid rgba(220,38,38,0.15)" }}
             onClick={() => setConfirmDelete(true)} type="button"
           >Smazat</button>

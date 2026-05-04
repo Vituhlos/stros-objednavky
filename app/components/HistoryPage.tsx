@@ -110,8 +110,9 @@ export default function HistoryPage({
             <span className="text-[11px] text-stone-500">{orders.length} záznamů · {sentCount} odesláno</span>
           </div>
           {filteredOrders.length === 0 ? (
-            <div className="px-4 py-6 text-[13px] text-stone-400 text-center">
-              {q ? "Žádné výsledky pro hledaný výraz" : "Zatím žádné objednávky v databázi."}
+            <div className="px-4 py-6 flex flex-col items-center gap-2 text-center">
+              <MIcon name="history" size={28} style={{ color: "#94a3b8" }} />
+              <p className="text-[13px] text-stone-400">{q ? "Žádné výsledky pro hledaný výraz" : "Zatím žádné objednávky v databázi."}</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -135,7 +136,7 @@ export default function HistoryPage({
                       <td className="px-3 py-2.5 text-stone-500 hidden sm:table-cell">{order.rowCount}</td>
                       <td className="px-3 py-2.5 text-stone-500 hidden md:table-cell">{order.extraEmail ?? "–"}</td>
                       <td className="px-3 py-2.5">
-                        <Link className="text-stone-600 hover:text-stone-900 font-semibold text-[12px] transition py-2 inline-block" href={`/historie/${order.id}`}>
+                        <Link className="text-stone-600 hover:text-stone-900 font-semibold text-[12px] transition py-3 inline-block" href={`/historie/${order.id}`}>
                           Detail →
                         </Link>
                       </td>
@@ -155,8 +156,9 @@ export default function HistoryPage({
             <span className="text-[11px] text-stone-500">{pizzaOrders.length} záznamů · {pizzaSentCount} odesláno</span>
           </div>
           {filteredPizza.length === 0 ? (
-            <div className="px-4 py-6 text-[13px] text-stone-400 text-center">
-              {q ? "Žádné výsledky pro hledaný výraz" : "Zatím žádné pizzové objednávky v databázi."}
+            <div className="px-4 py-6 flex flex-col items-center gap-2 text-center">
+              <MIcon name="local_pizza" size={28} style={{ color: "#94a3b8" }} />
+              <p className="text-[13px] text-stone-400">{q ? "Žádné výsledky pro hledaný výraz" : "Zatím žádné pizzové objednávky v databázi."}</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -178,7 +180,7 @@ export default function HistoryPage({
                       <td className="px-3 py-2.5 text-stone-500 hidden sm:table-cell">{formatSentAt(order.sentAt)}</td>
                       <td className="px-3 py-2.5 text-stone-500 hidden sm:table-cell">{order.rowCount}</td>
                       <td className="px-3 py-2.5">
-                        <Link className="text-stone-600 hover:text-stone-900 font-semibold text-[12px] transition py-2 inline-block" href={`/historie/pizza/${order.id}`}>
+                        <Link className="text-stone-600 hover:text-stone-900 font-semibold text-[12px] transition py-3 inline-block" href={`/historie/pizza/${order.id}`}>
                           Detail →
                         </Link>
                       </td>
