@@ -89,10 +89,15 @@ function OrderEditModal({
   existingNames: string[];
   onSave: (u: RowUpdates) => void; onClose: () => void; onDelete: () => void;
 }) {
-  const [personName, setPersonName] = useState(() => {
-    if (row.personName) return row.personName;
-    try { return localStorage.getItem("lastPersonName") ?? ""; } catch { return ""; }
+  const [firstName, setFirstName] = useState(() => {
+    if (row.personName) return row.personName.trim().split(/\s+/)[0] ?? "";
+    try { return localStorage.getItem("lastFirstName") ?? ""; } catch { return ""; }
   });
+  const [lastName, setLastName] = useState(() => {
+    if (row.personName) return row.personName.trim().split(/\s+/).slice(1).join(" ");
+    try { return localStorage.getItem("lastLastName") ?? ""; } catch { return ""; }
+  });
+  const personName = [firstName.trim(), lastName.trim()].filter(Boolean).join(" ");
   const [soupIds, setSoupIds] = useState<(number | null)[]>(
     row.soupItemId2 != null ? [row.soupItemId, row.soupItemId2] : [row.soupItemId]
   );
@@ -167,12 +172,12 @@ function OrderEditModal({
     existingNames.some((n) => normalizeName(n) === normalizeName(personName));
 
   const handleSave = () => {
-    if (!personName.trim()) {
-      setValidationError("Zadejte jméno osoby.");
+    if (!firstName.trim()) {
+      setValidationError("Zadejte křestní jméno.");
       return;
     }
-    if (personName.trim().split(/\s+/).length < 2) {
-      setValidationError("Zadejte jméno i příjmení.");
+    if (!lastName.trim()) {
+      setValidationError("Zadejte příjmení.");
       return;
     }
     if (!hasFood) {
@@ -184,7 +189,7 @@ function OrderEditModal({
       return;
     }
     setValidationError(null);
-    try { localStorage.setItem("lastPersonName", personName.trim()); } catch { /* */ }
+    try { localStorage.setItem("lastFirstName", firstName.trim()); localStorage.setItem("lastLastName", lastName.trim()); } catch { /* */ }
     const firstMeal = mealEntries[0] ?? { itemId: null, count: 1 };
     const extraMeals: MealEntry[] = mealEntries
       .slice(1)
@@ -226,17 +231,33 @@ function OrderEditModal({
         </div>
         <div className="modal-sheet__body">
           <div className="modal-field">
-            <label className="modal-label" htmlFor="modal-name">Jméno</label>
-            <input
-              autoFocus
-              autoComplete="name"
-              className="modal-input"
-              id="modal-name"
-              onChange={(e) => { setPersonName(e.target.value); setValidationError(null); }}
-              placeholder="Jméno a příjmení..."
-              type="text"
-              value={personName}
-            />
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              <div style={{ flex: 1 }}>
+                <label className="modal-label" htmlFor="modal-firstname">Jméno</label>
+                <input
+                  autoFocus
+                  autoComplete="given-name"
+                  className="modal-input"
+                  id="modal-firstname"
+                  onChange={(e) => { setFirstName(e.target.value); setValidationError(null); }}
+                  placeholder="Jan"
+                  type="text"
+                  value={firstName}
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label className="modal-label" htmlFor="modal-lastname">Příjmení</label>
+                <input
+                  autoComplete="family-name"
+                  className="modal-input"
+                  id="modal-lastname"
+                  onChange={(e) => { setLastName(e.target.value); setValidationError(null); }}
+                  placeholder="Novák"
+                  type="text"
+                  value={lastName}
+                />
+              </div>
+            </div>
             {isDuplicateName && (
               <p className="text-[11.5px] text-amber-700 mt-1">⚠ Toto jméno už v objednávce je.</p>
             )}
